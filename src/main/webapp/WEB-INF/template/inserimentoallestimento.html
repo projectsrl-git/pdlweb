@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+<#if INCLUDED_HEAD?exists> <#include INCLUDED_HEAD></#if>
+<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+
+
+	<script type="text/javascript">
+	
+		var flagMateriale=<#if FL_MATERIALE?exists>${FL_MATERIALE}<#else>false</#if>;
+
+	
+		$(function(){
+
+			$("#CODICE_ALLESTIMENTO").trigger("loadDataSet",["DSAllestimento","CODICE","DESCRIZIONE","<#if CODICE_ALLESTIMENTO?exists>${CODICE_ALLESTIMENTO}</#if>"]);
+			$("#ORDINE").val("<#if ORDINE?exists>${ORDINE}</#if>");
+			$("#ID_ALLESTIMENTO").val("<#if ID_ALLESTIMENTO?exists>${ID_ALLESTIMENTO}<#else>null</#if>");
+			$("#CARATTERISTICA").val("<#if CARATTERISTICA?exists>${CARATTERISTICA}</#if>");
+			$("#CHECK_MATERIALE").prop('checked',flagMateriale===true);
+			
+			$("#formInserimento").validate();
+
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				$("#salva-group").hide();
+				
+				$("#FL_MATERIALE").val($("#CHECK_MATERIALE").is(':checked'));
+				
+				var idRecord=$("#ID_ALLESTIMENTO").val();
+				if (idRecord!="") {
+					$("#OPERATION_TYPE").val("UPDATE");
+				} else {
+					$("#OPERATION_TYPE").val("INSERT");
+				} 				
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					
+					$("#salva-group").show();
+					var result = eval('('+response+')');
+					
+		    		var operationType=$("#OPERATION_TYPE").val();
+		    		if (operationType != "" && operationType=="INSERT") {
+		    			var idRecord=result.idRecord;
+		    			if (idRecord != null && idRecord != "") {
+							$("#ID_ALLESTIMENTO").val(idRecord);
+						}
+		    		}
+		    		
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+				
+				
+			});			
+
+		});
+		
+    </script>
+
+</head>
+
+<body>
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists> <#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+
+			<#if INCLUDED_HEADER?exists> <#include INCLUDED_HEADER></#if>
+
+			<div class="row wrapper border-bottom page-heading">
+				<div class="row">
+					<div class="col-lg-12">
+
+						<#if INCLUDED_BOX_TITLE?exists> <#include INCLUDED_BOX_TITLE></#if>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-lg-12">
+
+						<form action="astro" method="post" id="formInserimento"
+							name="formInserimento" class="form-horizontal">
+							<input type="hidden" name="FUNCTIONID"
+								value="InserimentoAllestimento" /> <input type="hidden"
+								id="OPERATION_TYPE" name="OPERATION_TYPE"> <input
+								type="hidden" id="ID_ALLESTIMENTO" name="ID_ALLESTIMENTO">
+							<input type="hidden" id="FL_MATERIALE" name="FL_MATERIALE">
+
+							<div class="form-group">
+								<label class="col-sm-2">${label_tipologia_allestimento}</label>
+								<div class="col-sm-2">
+									<select id="CODICE_ALLESTIMENTO" name="CODICE_ALLESTIMENTO" class="form-control" required>
+									</select>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label class="col-sm-2">${label_caratteristica}</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="CARATTERISTICA" name="CARATTERISTICA" required>
+								</div>
+							</div>
+							
+							<div class="form-group">
+								<label class="col-sm-2">${label_flag_materiale}</label>
+								<div class="col-sm-10">
+									<input name="CHECK_MATERIALE" id="CHECK_MATERIALE" type="checkbox">
+								</div>
+							</div>
+							
+							<div class="form-group">
+								<label class="col-sm-2">${label_ordine}</label>
+								<div class="col-sm-2">
+									<input type="text" class="form-control" id="ORDINE" name="ORDINE" required>
+								</div>
+							</div>							
+
+							<div class="form-group" id="salva-group">
+								<div class="col-sm-12">
+									<button class="btn btn-white btn-sm" type="reset">${label_cancel}</button>
+									<button class="btn btn-primary btn-sm" id="salva" type="submit"	name="salva">${label_save}</button>
+								</div>
+							</div>
+
+
+						</form>
+					</div>
+				</div>
+
+				<#if INCLUDED_FOOTER?exists> <#include INCLUDED_FOOTER></#if>
+
+			</div>
+
+		</div>
+</body>
+
+</html>

@@ -1,0 +1,71 @@
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+    <title><#if PAGE_TITLE?exists>${PAGE_TITLE}</#if></title>
+
+    <link rel="shortcut icon" href="img/favicon.ico" />
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+    <link href="css/plugins/datapicker/datepicker3.css" rel="stylesheet">
+    <link href="css/plugins/daterangepicker/daterangepicker-bs3.css" rel="stylesheet">
+    <link href="css/plugins/select2/select2.min.css" rel="stylesheet">
+    <link href="css/plugins/select2/select2-bootstrap.css" rel="stylesheet">
+    <link href="css/plugins/dataTables/datatables.min.css" rel="stylesheet">
+    <link href="css/plugins/dataTables/fixedHeader.dataTables.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/plugins/jsTree/style.css" />	    
+
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/bow.css" rel="stylesheet">
+    <link href="css/${ALIAS_AZIENDA_UTENTE}.css?20180414" rel="stylesheet">
+
+	<!-- Mainly scripts -->
+    <script src="js/jquery-2.1.1.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+    <script src="js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="js/plugins/jeditable/jquery.jeditable.js"></script>
+    <script src="js/plugins/dataTables/datatables.min.js"></script>
+    <script src="js/plugins/dataTables/datatables.sorting.date-euro.js"></script>
+    <script src="js/plugins/dataTables/dataTables.fixedHeader.min.js"></script>
+
+    <!-- Custom and plugin javascript -->
+    <script src="js/inspinia.js"></script>
+    <script src="js/plugins/pace/pace.min.js"></script>
+    <script src="js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+	<!-- Input Mask-->
+    <script src="js/plugins/jasny/jasny-bootstrap.min.js"></script>
+
+	<!-- Data picker -->
+	<script src="js/plugins/datapicker/bootstrap-datepicker.js"></script>
+	<script src="js/plugins/datapicker/locales/bootstrap-datepicker.it.js"></script>
+
+	<!-- Select2 -->
+    <script src="js/plugins/select2/select2.full.min.js"></script>
+
+    <!-- JQuery Validator -->
+	<script src="js/plugins/validate/jquery.validate.min.js"></script>
+
+	<script src="js/pjwebapp.jquery.js?20180320"></script>
+	
+	<!-- JS Tree -->
+    <script src="js/plugins/jsTree/jstree.min.js"></script>
+    
+    
+   <!-- Flot -->
+    <script src="js/plugins/flot/jquery.flot.js"></script>
+    <script src="js/plugins/flot/jquery.flot.tooltip.min.js"></script>
+    <script src="js/plugins/flot/jquery.flot.spline.js"></script>
+    <script src="js/plugins/flot/jquery.flot.resize.js"></script>
+    <script src="js/plugins/flot/jquery.flot.pie.js"></script>
+    <script src="js/plugins/flot/jquery.flot.symbol.js"></script>
+    <script src="js/plugins/flot/jquery.flot.time.js"></script>    
+
+	<!-- firma digitale -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+	
+
+	

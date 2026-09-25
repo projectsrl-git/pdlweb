@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="refresh" content="60">
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	
+	 <script type="text/javascript">
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSInterferenzePDLElenco&columns=ID_PDL,DESCR_AREA,DT_ATTIVAZIONE,NR_PDL,NOME_IMPRESA,DESCRIZIONE_LAVORO&ID_IMPIANTO=<#if ID_IMPIANTO?exists && ID_IMPIANTO!=''>${ID_IMPIANTO}<#else>0</#if>";
+		var dtWhereCondition="<#if WHERECONDITION?exists>${WHERECONDITION}<#else> AND 1=1 </#if>";
+		
+ 		  $(document).ready(function() {
+				$('.boxed-text').hide();
+			    
+				var required = $(':input[required]:visible');
+				required.bind('change keyup', function() {
+			    	$('.boxed-text').show();
+			    });
+ 			
+ 			});
+		
+		
+		$(function(){
+			
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiPDL","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO","<#if ID_IMPIANTO?exists>${ID_IMPIANTO}</#if>"," WHERE 1=1 "]);
+			
+			$("#ID_AZIENDA").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_IMPIANTO").empty();
+				$("#ID_IMPIANTO").select2("destroy");
+				$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO",""," WHERE ID_AZIENDA="+id+" "]);
+			});
+			
+			$("#ID_IMPIANTO").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#CODICE_IMPIANTO").empty();
+				$("#CODICE_IMPIANTO").trigger("loadDataSetSimpleTextHidden",["DSImpianti","CODICE_IMPIANTO","CODICE_IMPIANTO"," WHERE ID_IMPIANTO="+id+" "]);
+			});
+
+			 
+			 $('#dt tbody').on( 'click', '.editRow', function () {
+		        	var table = $('#dt').DataTable();
+		            var data = table.row( $(this).parents('tr') ).data();
+		            $('#ID_PDL').val(data[0]);
+		            $('#ID_AZIENDA_MODULO').val(data[1]);
+					$('#ID_IMPIANTO_MODULO').val(data[2]);
+					
+					$('#FUNCTIONID_EDIT').val("InserimentoLIMOD70");
+					
+					if (data[1]!='') {
+						$("#OPERATION_TYPE").val("UPDATE");
+					} else {
+						$("#OPERATION_TYPE").val("INSERT");
+					}		
+					
+					$("#formEdit").submit();
+		        } );
+			 
+		        
+	    	$( "#report" ).click(function() {
+	    		$("#ID_IMPIANTO_STAMPA").val($("#ID_IMPIANTO").val());
+	    		$("#CODICE_IMPIANTO_STAMPA").val($("#CODICE_IMPIANTO").val());
+				$('.modal-title').html('Stampa PdL');
+				$('.modal-text').html('Confermi la stampa della planimetria selezionata?');
+				$("#modalQuestionDialogPrint").modal({backdrop: true});
+				$('#modalQuestionDialogPrint').collapse("show");	    		
+	    	});
+	    	
+	    	
+	    	
+	    	
+	    	$('#dt').DataTable({
+				ajax: dtAjax+dtWhereCondition,
+				paging: false,
+			    fixedHeader: true,
+			    info: false,
+                language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+			    "bSort" : false,
+		        "columnDefs": [
+		            { "visible": true, "targets": 0 }
+		        ],
+		        "drawCallback": function ( settings ) {
+                	$(".dataTables_filter").hide();    
+		            var api = this.api();
+		            var rows = api.rows( {page:'current'} ).nodes();
+		            var last=null;
+		            var colonne = 8;
+		            //var totale = new Array();
+		            //totale['Totale']= new Array();
+		            var groupid = -1;
+		            //var subtotale = new Array();
+
+		                
+		            api.column(1, {page:'current'} ).data().each( function ( group, i ) {     
+		                if ( last !== group ) {
+		                    groupid++;
+		                    $(rows).eq( i ).before(
+		                        '<tr class="group"><td>'+group+'</td></tr>'
+		                    );
+		                    last = group;
+		                }
+		                
+		                                
+		                val = api.row(api.row($(rows).eq( i )).index()).data();      //current order index
+		                $.each(val,function(index2,val2){
+		                       // if (typeof subtotale[groupid] =='undefined'){
+		                       //     subtotale[groupid] = new Array();
+		                       // }
+		                       // if (typeof subtotale[groupid][index2] =='undefined'){
+		                       //     subtotale[groupid][index2] = 0;
+		                       // }
+		                       // if (typeof totale['Totale'][index2] =='undefined'){ totale['Totale'][index2] = 0; }
+		                       // 
+		                       // valore = Number(val2.replace('€',"").replace('.',"").replace(',',"."));
+		                      //  subtotale[groupid][index2] += valore;
+		                       // totale['Totale'][index2] += valore;
+		                });
+		                
+		                
+		                
+		            } );                
+		            
+					$('tbody').find('.group').each(function (i,v) {
+			                var rowCount = $(this).nextUntil('.group').length;
+			        		$(this).find('td:first').append($('<span />', { 'class': 'rowCount-grid' }).append($('<b />', { 'text': ' ('+rowCount+')' })));
+			                         var subtd = '';
+			                        for (var a=2;a<colonne;a++)
+			                        { 
+			                           // subtd += '<td>'+subtotale[i][a]+' / '+totale['Totale'][a]+ ' ('+ Math.round(subtotale[i][a]*100/totale['Totale'][a],2) +'%) '+'</td>';
+			                        }
+			                        $(this).append(subtd);
+			                });
+					
+			    	$('tbody').find('.group').each(function(){
+				        var rowsCollapse = $(this).nextUntil('.group');
+				        $(rowsCollapse).toggleClass('hidden');
+			    	});					
+									
+			        }
+
+	    	});
+		});
+	</script>	
+	
+</head>
+
+<body>
+
+	<form action="astro" method="get" id="formEdit" name="formEdit">
+		<input type="hidden" id="FUNCTIONID_EDIT" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" name="OPERATION_TYPE">
+		<input type="hidden" id="ID_IMPIANTO_MODULO" name="ID_IMPIANTO_MODULO">
+		<input type="hidden" id="ID_AZIENDA_MODULO" name="ID_AZIENDA_MODULO">
+		<input type="hidden" id="ID_PDL" name="PDL">
+		
+	</form>		
+
+	<form action="astro" method="post" id="formStampa" name="formStampa">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="StampaModuloPlanimetria">	
+		<input type="hidden" id="ID_IMPIANTO_STAMPA" name="ID_IMPIANTO">
+		<input type="hidden" id="CODICE_IMPIANTO_STAMPA" name="CODICE_IMPIANTO">		
+	</form>
+
+
+	<div class="modal inmodal fade" id="modalQuestionDialogPrint" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialogPrint').collapse('toggle');$('#formStampa').submit();" data-dismiss="modal" type="button">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+
+	
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+			
+			
+			
+			
+			<div class="row">
+                <div class="col-sm-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                                   
+							<div class="row">
+								<div class="col-sm-12">							
+							
+									<form action="astro" method="get" id="formSearch" name="formSearch" class="form-horizontal">
+										<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="ModuloInterferenze">
+										<input type="hidden" id="CODICE_IMPIANTO" name="CODICE_IMPIANTO">	
+										
+			                            <div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">${label_sito}</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control">
+			                                    </select>
+											</div>
+											
+		                                	<label class="col-sm-2 control-label-left">Impianto:</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="ID_IMPIANTO" name="ID_IMPIANTO"  class="form-control" required>
+			                                    </select>
+											</div>
+		                                </div>
+		                                
+		                               
+		                                
+		                                <div class="form-group">
+											<div class="col-sm-5">
+												<button class="btn btn-primary btn-sm" id="ricerca" type="submit" name="ricerca">Monitor Interferenze</button>
+												<button class="btn btn-primary btn-sm" type="button" id="report" name="report">PDF Mod. Interferenze</button>
+											</div>
+											<div class="col-sm-7">
+												<fieldset>
+													${label_legenda}:
+													<i class="fa fa-pencil" aria-hidden="true"></i>Gestione LI-MOD 70
+												</fieldset>											
+											</div>
+											
+										</div>
+
+		                                <div class="form-group">
+											<div class="col-sm-12">
+												<img id="IMG_IMPIANTO" class="img-responsive" src="<#if IMMAGINE?exists>${IMMAGINE}</#if>">
+											</div>
+										</div>
+									
+									</form>
+			                        
+			                        <div class="table-responsive">									
+										<table id="dt" class="table table-striped table-bordered table-hover" >
+											<thead>
+												<tr>
+													<th></th>
+													<th>Area</th>
+													<th>Data attivazione</th>
+													<th>Nr.PdL</th>
+													<th>Impresa</th>
+													<th>Descrizione lavoro</th>
+												</tr>
+											</thead>
+										
+										</table>
+									</div>
+                    			</div>
+					
+                			</div>
+						</div>
+            		</div>
+				</div>
+			</div>
+			
+			
+			
+			
+			
+			
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+
+</body>
+
+</html>

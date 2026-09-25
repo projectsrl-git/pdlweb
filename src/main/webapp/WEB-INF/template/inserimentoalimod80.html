@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<script src="js/pjwebapp_insert_form.jquery.js?201803012"></script>
+    <script src="js/plugins/dropzone/dropzone.js"></script>
+
+    <link href="css/plugins/dropzone/basic.css" rel="stylesheet">
+    <link href="css/plugins/dropzone/dropzone.css" rel="stylesheet">
+    	
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+    
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSALIMOD80Dettaglio&columns=ID_DETTAGLIO,ID_DETTAGLIO,PERSONA_INFORTUNATA,CODICE_CODICE_CATEGORIA_PERSONALE,CODICE_CODICE_TIPO_INFORTUNIO,CODICE_CODICE_ATTREZZATURA_INTERESSATA,CODICE_COMP_ATTR_INTERESSATA,CODICE_GG_PROGNOSI,CODICE_LESIONE_MAGGIORE,CODICE_PARTE_CORPO,CODICE_ALTRE_LESIONI,CODICE_ALTRE_LESIONI_PARTE_CORPO,DESCR_CATEGORIA_PERSONALE,DESCR_TIPO_INFORTUNIO,DESCR_ATTREZZATURA_INTERESSATA,DESCR_COMP_ATTR_INTERESSATA,DESCR_GG_PROGNOSI,DESCR_LESIONE_MAGGIORE,DESCR_PARTE_CORPO,DESCR_ALTRE_LESIONI,DESCR_ALTRE_LESIONI_PARTE_CORPO&WHERECONDITION=";
+    	var dtWhereCondition="<#if ID_MODULO?exists && ID_MODULO!=''>WHERE ID_MODULO = ${ID_MODULO}<#else> WHERE 1=0 </#if>";
+    	var stato="<#if STATO?exists>${STATO}</#if>";
+    	var readOnly="<#if READONLY?exists>${READONLY}<#else>N</#if>";
+    	var profilo="<#if PROFILO?exists>${PROFILO}</#if>";
+
+    	function inviaApprovazione(){
+			$("#WORKFLOW_ACTION").val("APPROVE");
+	        $("#formInserimento").submit();
+    	}
+    	
+ 	
+    	
+    	$(function(){
+    		
+			$("#WORKFLOW_ACTION").val("");
+			$("#STATO").attr("disabled", true);
+			$("#inviaApprovatore").hide();
+			
+			$("#ID_UTENTE").val(<#if ID_UTENTE?exists>${ID_UTENTE}</#if>);
+			
+			$("#CODICE_BL").trigger("loadDataSet",["DSBusinessLine","CODICE","DESCRIZIONE","<#if CODICE_BL?exists>${CODICE_BL}</#if>"," WHERE 1=1 "]);
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiQHSE","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_UTENTE_CON").trigger("loadDataSet",["DSUtenti","ID_UTENTE","NOME_COGNOME","<#if ID_UTENTE_CON?exists>${ID_UTENTE_CON}</#if>"," WHERE 1=1 "]);
+			$("#LISTA_TIPO_COMUNICAZIONE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if TIPO_COMUNICAZIONE?exists>${TIPO_COMUNICAZIONE}</#if>"," WHERE DOMINIO='TPC' "]);
+			$("#LISTA_AZIONI_EVENTO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if AZIONI_EVENTO?exists>${AZIONI_EVENTO}</#if>"," WHERE DOMINIO='A80' "]);
+			
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			$("#ID_MODULO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			$("#CODICE_MODULO").val("<#if CODICE_MODULO?exists>${CODICE_MODULO}</#if>");
+			$("#DT_MODULO").val("<#if DT_MODULO?exists>${DT_MODULO}</#if>").change();
+			$("#TITOLO").val("<#if TITOLO?exists>${TITOLO}</#if>").change();
+			$("#STATO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if STATO?exists>${STATO}</#if>"," WHERE DOMINIO='STA' "]);
+			$("#NR_MODULO").val("<#if NR_MODULO?exists>${NR_MODULO}</#if>");
+			$("#NR_MODULO").attr("disabled", true);
+			
+			$("#ID_MODULO_DETTAGLIO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			$("#DESCRIZIONE_EVENTO").val("<#if DESCRIZIONE_EVENTO?exists>${DESCRIZIONE_EVENTO}</#if>");
+			$("#DESCRIZIONE_AZIONI").val("<#if DESCRIZIONE_AZIONI?exists>${DESCRIZIONE_AZIONI}</#if>");
+			
+			$("#CODICE_TIPO_IMPIANTO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_TIPO_IMPIANTO?exists>${CODICE_TIPO_IMPIANTO}</#if>"," WHERE DOMINIO='TIM' "]);
+			$("#CODICE_NATURA_EVENTO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_NATURA_EVENTO?exists>${CODICE_NATURA_EVENTO}</#if>"," WHERE DOMINIO='NEV' "]);
+			$("#CODICE_PRODOTTO_PERTINENTE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_PRODOTTO_PERTINENTE?exists>${CODICE_PRODOTTO_PERTINENTE}</#if>"," WHERE DOMINIO='PPE' "]);
+			$("#CODICE_GIORNI").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_GIORNI?exists>${CODICE_GIORNI}</#if>"," WHERE DOMINIO='GGE' "]);
+			$("#CODICE_ORE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_ORE?exists>${CODICE_ORE}</#if>"," WHERE DOMINIO='OOE' "]);
+			$("#CODICE_MIN").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_MIN?exists>${CODICE_MIN}</#if>"," WHERE DOMINIO='MME' "]);
+			$("#CODICE_ORE_LOCALE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_ORE_LOCALE?exists>${CODICE_ORE_LOCALE}</#if>"," WHERE DOMINIO='OOE' "]);
+			$("#CODICE_MIN_LOCALE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_MIN_LOCALE?exists>${CODICE_MIN_LOCALE}</#if>"," WHERE DOMINIO='MME' "]);
+			
+			$("#CODICE_CODICE_CATEGORIA_PERSONALE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_CODICE_CATEGORIA_PERSONALE?exists>${CODICE_CODICE_CATEGORIA_PERSONALE}</#if>"," WHERE DOMINIO='CPE' "]);
+			$("#CODICE_CODICE_TIPO_INFORTUNIO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_CODICE_TIPO_INFORTUNIO?exists>${CODICE_CODICE_TIPO_INFORTUNIO}</#if>"," WHERE DOMINIO='TIF' "]);
+			$("#CODICE_CODICE_ATTREZZATURA_INTERESSATA").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_CODICE_ATTREZZATURA_INTERESSATA?exists>${CODICE_CODICE_ATTREZZATURA_INTERESSATA}</#if>"," WHERE DOMINIO='ATI' "]);
+			$("#CODICE_COMP_ATTR_INTERESSATA").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_COMP_ATTR_INTERESSATA?exists>${CODICE_COMP_ATTR_INTERESSATA}</#if>"," WHERE DOMINIO='CAI' "]);
+			$("#CODICE_GG_PROGNOSI").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_GG_PROGNOSI?exists>${CODICE_GG_PROGNOSI}</#if>"," WHERE DOMINIO='GGP' "]);
+			$("#CODICE_LESIONE_MAGGIORE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_LESIONE_MAGGIORE?exists>${CODICE_LESIONE_MAGGIORE}</#if>"," WHERE DOMINIO='LES' "]);
+			$("#CODICE_PARTE_CORPO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_PARTE_CORPO?exists>${CODICE_PARTE_CORPO}</#if>"," WHERE DOMINIO='PCO' "]);
+			$("#CODICE_ALTRE_LESIONI").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_ALTRE_LESIONI?exists>${CODICE_ALTRE_LESIONI}</#if>"," WHERE DOMINIO='LES' "]);
+			$("#CODICE_ALTRE_LESIONI_PARTE_CORPO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_ALTRE_LESIONI_PARTE_CORPO?exists>${CODICE_ALTRE_LESIONI_PARTE_CORPO}</#if>"," WHERE DOMINIO='PCO' "]);
+
+			$("#CODICE_AFF_ATTREZZATURA_INTERESSATA").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_AFF_ATTREZZATURA_INTERESSATA?exists>${CODICE_AFF_ATTREZZATURA_INTERESSATA}</#if>"," WHERE DOMINIO='ATI' "]);	
+			$("#CODICE_AFF_COMP_ATTR_INTERESSATA").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_AFF_COMP_ATTR_INTERESSATA?exists>${CODICE_AFF_COMP_ATTR_INTERESSATA}</#if>"," WHERE DOMINIO='CAI' "]);	
+			$("#CODICE_COSTI_EURO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_COSTI_EURO?exists>${CODICE_COSTI_EURO}</#if>"," WHERE DOMINIO='EUR' "]);	
+			$("#CODICE_LIVELLO_INCIDENTE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_LIVELLO_INCIDENTE?exists>${CODICE_LIVELLO_INCIDENTE}</#if>"," WHERE DOMINIO='INL' "]);	
+			$("#CODICE_CLIENTE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_CLIENTE?exists>${CODICE_CLIENTE}</#if>"," WHERE DOMINIO='CLI' "]);	
+			
+			$("#RECLAMO_CLIENTE").trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if RECLAMO_CLIENTE?exists>${RECLAMO_CLIENTE}</#if>"]);
+			$("#FORZA_MAGGIORE").trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FORZA_MAGGIORE?exists>${FORZA_MAGGIORE}</#if>"]);
+			$("#ALTRI_CLIENTI").val("<#if ALTRI_CLIENTI?exists>${ALTRI_CLIENTI}</#if>");
+			$("#PERSONA_INFORTUNATA").val("<#if PERSONA_INFORTUNATA?exists>${PERSONA_INFORTUNATA}</#if>");
+			
+			
+			$("#PARTE_INTERESSATA").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if PARTE_INTERESSATA?exists>${PARTE_INTERESSATA}</#if>"," WHERE DOMINIO='PCO' "]);
+			$("#PRODOTTO_RILASCIATO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if PRODOTTO_RILASCIATO?exists>${PRODOTTO_RILASCIATO}</#if>"," WHERE DOMINIO='PPE' "]);
+			$("#LIVELLO_INCIDENTE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if LIVELLO_INCIDENTE?exists>${LIVELLO_INCIDENTE}</#if>"," WHERE DOMINIO='INL' "]);	
+			$("#QUANTITA_RILASCIATA").val("<#if QUANTITA_RILASCIATA?exists>${QUANTITA_RILASCIATA}</#if>");
+			$("#QUANTITA_MAX_PERMESSA").val("<#if QUANTITA_MAX_PERMESSA?exists>${QUANTITA_MAX_PERMESSA}</#if>");
+			
+			
+			$("#UNITA_RILASCIATA").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if UNITA_RILASCIATA?exists>${UNITA_RILASCIATA}</#if>"," WHERE DOMINIO='UNI' "]);
+			$("#UNITA_MAX_PERMESSA").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if UNITA_MAX_PERMESSA?exists>${UNITA_MAX_PERMESSA}</#if>"," WHERE DOMINIO='UNI' "]);
+			
+			
+			$("#ALBERO_CAUSE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if ALBERO_CAUSE?exists>${ALBERO_CAUSE}</#if>"," WHERE DOMINIO='RCA' "]);
+			$("#CATEGORIA_PRINCIPALE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CATEGORIA_PRINCIPALE?exists>${CATEGORIA_PRINCIPALE}</#if>"," WHERE DOMINIO='CPR' "]);
+			$("#SOTTOCATEGORIA_PRINCIPALE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if SOTTOCATEGORIA_PRINCIPALE?exists>${SOTTOCATEGORIA_PRINCIPALE}</#if>"," WHERE DOMINIO='CSE' "]);
+			$("#CATEGORIA_SECONDARIA").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CATEGORIA_SECONDARIA?exists>${CATEGORIA_SECONDARIA}</#if>"," WHERE DOMINIO='CPR' "]);
+			$("#SOTTOCATEGORIA_SECONDARIA").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if SOTTOCATEGORIA_SECONDARIA?exists>${SOTTOCATEGORIA_SECONDARIA}</#if>"," WHERE DOMINIO='CSE' "]);
+			
+			$("#COGNOME_NOME").val("<#if COGNOME_NOME?exists>${COGNOME_NOME}</#if>");
+			$("#CELLULARE").val("<#if CELLULARE?exists>${CELLULARE}</#if>");
+			$("#MAIL").val("<#if MAIL?exists>${MAIL}</#if>");
+			$("#DT_REPORT").val("<#if DT_REPORT?exists>${DT_REPORT}</#if>");
+			$("#NUM_FILIALE").val("<#if NUM_FILIALE?exists>${NUM_FILIALE}</#if>");
+			$("#NUM_AZIENDA").val("<#if NUM_AZIENDA?exists>${NUM_AZIENDA}</#if>");
+			
+			var operationType=$("#OPERATION_TYPE").val();
+			
+			if (operationType=="INSERT") {
+				$("#dettagli").hide();
+			}
+
+			if (readOnly=="Y") {
+				disableFieldsReadOnly();
+			} else {
+				if (profilo.indexOf("ADM")==-1 && profilo.indexOf("QHS")==-1 ) {
+					if (stato=="WAI") {
+						disableFieldsReadOnly();
+					} else if (stato=="WAI") {
+						disableFieldsReadOnly();
+					} else if (stato=="APP") {
+						disableFieldsStatusAPP();
+					} else if (stato=="DRA") {
+						disableFieldsStatusDRA();
+					}
+				}
+			}
+
+			$("#formInserimento").validate();
+			$("#formAggiungiDettaglio").validate();
+			
+			$("#CODICE_BL").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_AZIENDA").empty();
+				$("#ID_AZIENDA").select2("destroy");
+				$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiQHSE","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE codice_bl='"+id+"' "]);
+			});	
+			
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					$("#WORKFLOW_ACTION").val("");
+					return false;
+				}
+				
+				$("#salva-group").hide();
+
+				tokenizeOptionSelected("LISTA_TIPO_COMUNICAZIONE","TIPO_COMUNICAZIONE");
+				tokenizeOptionSelected("LISTA_AZIONI_EVENTO","AZIONI_EVENTO");
+
+				var idModulo=$("#ID_MODULO").val();
+				if (idModulo!='') {
+					$("#OPERATION_TYPE").val("UPDATE");
+				}				
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					
+					$("#salva-group").show();
+					var result = eval('('+response+')');
+					
+					if (result.result) {
+			    		var operationType=$("#OPERATION_TYPE").val();
+			    		if (operationType != "" && operationType=="INSERT") {
+			    			var idModulo=result.id;
+			    			var nrModulo=result.nr;
+			    			if (idModulo != null && idModulo != "") {
+								$("#ID_MODULO").val(idModulo);
+								$("#NR_MODULO").val(nrModulo);
+								$("#ID_MODULO_DETTAGLIO").val(idModulo);
+								$("#dettagli").show();
+				    			$("#inviaApprovatore").show();							
+	 						}
+			    		}
+			    		
+						$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+
+						resetUnsaved();
+
+						stato=result.stato;
+						$("#STATO").val(stato).change();
+						
+						if (profilo.indexOf("ADM")==-1 && profilo.indexOf("QHS")==-1 ) {
+							if (stato=="WAI") {
+								disableFieldsReadOnly();
+							} else if (stato=="WAI") {
+								disableFieldsReadOnly();
+							} else if (stato=="APP") {
+								disableFieldsStatusAPP();
+							} else if (stato=="DRA") {
+								disableFieldsStatusDRA();
+							}
+						}	
+						
+					}
+					
+				});
+				
+				
+			});
+					
+			
+			$("#formAggiungiDettaglio").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formAggiungiDettaglio").valid()) {
+					return false;
+				}		
+				
+				if ($("#ID_DETTAGLIO").val()=="") {
+					$("#OPERATION_TYPE_DETTAGLIO").val("INSERT");
+				} else {
+					$("#OPERATION_TYPE_DETTAGLIO").val("UPDATE");
+				}
+				
+				$("#formAggiungiDettaglio :input:visible").attr("disabled", false);
+				$("#aggiungi").text('Aggiungi'); 
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) {
+					var result = eval('('+response+')');
+					
+					if (result.result) {
+						
+						<#if STATO?exists && (STATO='APP')>			
+						disableFieldsStatusAPP();
+						</#if>				
+						
+						// reset dettaglio
+						$('#ID_DETTAGLIO').val("");
+						$('#PERSONA_INFORTUNATA').val("");
+						$('#CODICE_CODICE_CATEGORIA_PERSONALE').val("").change();
+						$('#CODICE_CODICE_TIPO_INFORTUNIO').val("").change();
+						$('#CODICE_CODICE_ATTREZZATURA_INTERESSATA').val("").change();
+						$('#CODICE_COMP_ATTR_INTERESSATA').val("").change();
+						$('#CODICE_GG_PROGNOSI').val("").change();
+						$('#CODICE_LESIONE_MAGGIORE').val("").change();
+						$('#CODICE_PARTE_CORPO').val("").change();
+						$('#CODICE_ALTRE_LESIONI').val("").change();
+						$('#CODICE_ALTRE_LESIONI_PARTE_CORPO').val("").change();
+						// reset dettaglio
+						
+			    		var id=$("#ID_MODULO").val();
+			    		dtWhereCondition=" WHERE 1=0 ";
+			    		if (id != "") {
+			    			dtWhereCondition=" WHERE ID_MODULO = "+id;
+			    		}
+			    		
+						$( "#dt" ).DataTable().ajax.url( dtAjax+dtWhereCondition ).load();
+						
+					}					
+				});
+				
+			});			
+			
+			
+	        $('#dt').DataTable({
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	  
+	            "ajax": dtAjax+dtWhereCondition,				
+				columnDefs: [
+					{
+						width:"1%",
+						targets:0,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="editRow" title="${label_edit}"><i class="fa fa-pencil fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						visible: <#if (READONLY?exists && READONLY='Y') || (STATO?exists && STATO!='DRA')>false<#else>true</#if>,
+						targets:1,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="deleteRow" title="${label_delete}"><i class="fa fa-trash-o fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						targets:3,
+						visible: false
+					},
+					{
+						targets:4,
+						visible: false
+					},
+					{
+						targets:5,
+						visible: false
+					},
+					{
+						targets:6,
+						visible: false
+					},
+					{
+						targets:7,
+						visible: false
+					},
+					{
+						targets:8,
+						visible: false
+					},
+					{
+						targets:9,
+						visible: false
+					},
+					{
+						targets:10,
+						visible: false
+					},
+					{
+						targets:11,
+						visible: false
+					}
+					
+				],
+				
+	            dom: '<"html5buttons"B>lTgitp',
+	            language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+	
+	            buttons: [
+	            ],
+				aaSorting: []
+	
+	        });
+	        
+	        
+	        $('#dt tbody').on( 'click', '.editRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_DETTAGLIO').val(data[0]);
+				$('#PERSONA_INFORTUNATA').val(data[2]);
+				$('#CODICE_CODICE_CATEGORIA_PERSONALE').val(data[3]).change();
+				$('#CODICE_CODICE_TIPO_INFORTUNIO').val(data[4]).change();
+				$('#CODICE_CODICE_ATTREZZATURA_INTERESSATA').val(data[5]).change();
+				$('#CODICE_COMP_ATTR_INTERESSATA').val(data[6]).change();
+				$('#CODICE_GG_PROGNOSI').val(data[7]).change();
+				$('#CODICE_LESIONE_MAGGIORE').val(data[8]).change();
+				$('#CODICE_PARTE_CORPO').val(data[9]).change();
+				$('#CODICE_ALTRE_LESIONI').val(data[10]).change();
+				$('#CODICE_ALTRE_LESIONI_PARTE_CORPO').val(data[11]).change();
+				$("#PERSONA_INFORTUNATA").focus(); 
+	        } );
+	        
+	        
+	        $('#dt tbody').on( 'click', '.deleteRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#keyField').val("ID_DETTAGLIO");
+				$('#keyValue').val(data[0]);
+				$('#FUNCTIONID_DELETE').val("InserimentoDettaglioALIMOD80");
+				$('.modal-title').html('${label_delete_title_message}');
+				$('.modal-text').html('${label_delete_text_message}');
+				$("#modalQuestionDialog").modal({backdrop: true});
+				$('#modalQuestionDialog').collapse("show");
+	        } );	        
+	        
+	        
+			$("#formDelete").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( "#dt-impurezze" ).DataTable().ajax.reload();
+					$( "#dt-prodotti" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});
+			
+			
+        	$( "#inviaApprovatore" ).click(function() {
+				$('.modal-title').html('Invia modulo');
+				$('.modal-text').html('Confermi invio modulo per approvazione?');
+				$("#modalQuestionDialogPublish").modal({backdrop: true});
+				$('#modalQuestionDialogPublish').collapse("show");
+        	});
+        	
+
+	        
+		});
+
+		function disableFieldsStatusDRA() {
+			var idModulo=$("#ID_MODULO").val();
+			if (idModulo!=null && idModulo!="") {
+				$("#inviaApprovatore").show();
+			} else {
+				$("#inviaApprovatore").hide();
+			}
+		}
+
+		function disableFieldsStatusAPP() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#formAggiungiDettaglio :input:visible").attr("disabled", true);
+			$("#aggiungi").attr("disabled", false);
+			$("#salva").hide();
+			$("#aggiungi").hide();
+			$("#inviaApprovatore").hide();
+			$("#aggiungi").show();
+		}
+
+		function disableFieldsReadOnly() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#formAggiungiDettaglio :input:visible").attr("disabled", true);
+			$("#salva").hide();
+			$("#inviaApprovatore").hide();
+			$("#aggiungi").hide();
+		}
+
+		function initDropzone() {
+			
+			var myDropzone = Dropzone.forElement("#myDropzone");
+				
+			var listaFile=$("#LISTA_ALLEGATI").val();
+			if (listaFile !="") {
+				var myStringArray = listaFile.split(";");
+				var arrayLength = myStringArray.length;
+				for (var i = 0; i < arrayLength; i++) {
+
+					// Create the mock file:
+					var mockFile = { name: myStringArray[i] };
+
+					// Call the default addedfile event handler
+					myDropzone.emit("addedfile", mockFile);
+
+					// And optionally show the thumbnail of the file:
+					if (myStringArray[i].toLowerCase().indexOf(".jpg")!=-1) {
+						myDropzone.emit("thumbnail", mockFile, "upload/"+mockFile.name);
+					}
+
+					// Make sure that there is no progress bar, etc...
+					myDropzone.emit("complete", mockFile);
+				}
+				
+			}
+ 	
+		}
+		
+    </script> 
+
+</head>
+
+<body onload="initDropzone();">
+
+	
+	<form action="astro" method="post" id="formDelete" name="formDelete">
+		<input type="hidden" id="FUNCTIONID_DELETE" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="DELETE"> 
+		<input type="hidden" id="keyField" name="keyField">
+		<input type="hidden" id="keyValue" name="keyValue">
+	</form>
+
+
+	<div class="modal inmodal fade" id="modalQuestionDialogPublish"	tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm"	onclick="$('#modalQuestionDialogPublish').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialogPublish').collapse('toggle');inviaApprovazione();" data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1"
+		role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal"
+						class="btn btn-white btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();"
+						data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists>
+		<#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row">
+                <div class="col-sm-12">
+                
+				
+                    <div class="ibox">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                        	
+                        	<form action="astro" method="post" id="formInserimento" name="formInserimento" class="form-horizontal">
+							<div class="row">
+                        	<div class="col-sm-12">
+                        
+								<input type="hidden" name="FUNCTIONID" value="InserimentoALIMOD80"> 
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+								<input type="hidden" id="ID_MODULO" name="ID_MODULO">
+								<input type="hidden" id="CODICE_MODULO" name="CODICE_MODULO">
+								<input type="hidden" id="ID_UTENTE" name="ID_UTENTE">
+								<input type="hidden" id="TIPO_COMUNICAZIONE" name="TIPO_COMUNICAZIONE">
+								<input type="hidden" id="AZIONI_EVENTO" name="AZIONI_EVENTO">
+								<input type="hidden" id="WORKFLOW_ACTION" name="WORKFLOW_ACTION">
+												
+								<div class="form-group">
+									<label class="col-sm-2 control-label-left">Business Line:</label>
+									<div class="col-sm-2">
+										<select class="form-control" id="CODICE_BL" name="CODICE_BL" required>
+										</select>
+									</div>
+
+                                	<label class="col-sm-1 control-label-left">Sito:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control" required>
+	                                    </select>
+									</div>
+									
+                                	<label class="col-sm-1 control-label-left">Redattore:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_UTENTE_CON" name="ID_UTENTE_CON"  class="form-control" required>
+	                                    </select>
+									</div>                                	
+                                </div>                                  
+											         
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Nr.Modulo</label>
+                                    <div class="col-sm-2"><input type="text" class="form-control" id="NR_MODULO" name="NR_MODULO"></div>
+
+                                	<label class="col-sm-1 control-label-left">Data evento</label>
+                                    <div class="col-sm-3">
+					                <div class="input-group date">
+	                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_MODULO" id="DT_MODULO" required>
+	                                </div>
+                                    </div>
+                                    
+                                	<label class="col-sm-1 control-label-left">Stato:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="STATO" name="STATO"  class="form-control" required>
+	                                    </select>
+									</div>                                	
+                                </div>   
+                                
+                                <div class="form-group">
+									<label class="col-sm-2 control-label-left">Tipo Comunicazione:</label>
+									<div class="col-sm-10">
+										<select class="form-control" id="LISTA_TIPO_COMUNICAZIONE" name="LISTA_TIPO_COMUNICAZIONE" multiple required>
+										</select>
+									</div>
+								</div>
+                                
+                                
+								<div class="form-group" id="salva-group">
+									<div class="col-sm-12">
+										<button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+										<button class="btn btn-primary btn-sm" type="button" id="inviaApprovatore" name="inviaApprovatore">Invia Approvatore</button>
+									</div>
+								</div>
+							</div>
+							</div>
+							
+							<div id="dettagli">
+							<div class="tabs-container">
+								
+								<ul class="nav nav-tabs">
+									<li class="active"><a data-toggle="tab" href="#tab-1"><b>Circostanze generali</b></a></li>
+									<li class=""><a data-toggle="tab" href="#tab-2"><b>Conseguenze</b></a></li>
+									<li class=""><a data-toggle="tab" href="#tab-3"><b>Descrizione delle azioni immediate</b></a></li>
+									<li class=""><a data-toggle="tab" href="#tab-4"><b>Cause</b></a></li>
+							<!--	<li class=""><a data-toggle="tab" href="#tab-5"><b>Informazioni infortunati</b></a></li>	  -->
+								</ul>			
+	
+								<div class="tab-content">
+									<div id="tab-1" class="tab-pane active">
+										<div class="panel-body">
+											<div class="row">
+					                        	<div class="col-sm-12">
+					                        		<div class="form-group">
+														<label class="col-sm-2 control-label-left">Azioni al momento dell'evento:</label>
+														<div class="col-sm-10">
+															<select class="form-control" id="LISTA_AZIONI_EVENTO" name="LISTA_AZIONI_EVENTO" multiple>
+															</select>
+														</div>
+													</div>                                
+					                                
+													<div class='form-group'><label class='col-sm-2 control-label-left'>Tipo di impianto:</label><div class='col-sm-10'><select class='form-control' id='CODICE_TIPO_IMPIANTO' name='CODICE_TIPO_IMPIANTO'></select></div></div>
+													<div class='form-group'><label class='col-sm-2 control-label-left'>Natura dell'evento:</label><div class='col-sm-10'><select class='form-control' id='CODICE_NATURA_EVENTO' name='CODICE_NATURA_EVENTO' required></select></div></div>
+													<div class='form-group'><label class='col-sm-2 control-label-left'>Prodotto pertinente:</label><div class='col-sm-10'><select class='form-control' id='CODICE_PRODOTTO_PERTINENTE' name='CODICE_PRODOTTO_PERTINENTE' required></select></div></div>
+													<div class='form-group'>
+														<label class='col-sm-2 control-label-left'>Ora locale nel luogo dell'evento - Ore:</label><div class='col-sm-2'><select class='form-control' id='CODICE_ORE_LOCALE' name='CODICE_ORE_LOCALE'></select></div>
+														<label class='col-sm-2 control-label-left'>Ora locale nel luogo dell'evento - Min:</label><div class='col-sm-2'><select class='form-control' id='CODICE_MIN_LOCALE' name='CODICE_MIN_LOCALE'></select></div>
+													</div>
+													<div class='form-group'>
+														<label class='col-sm-2 control-label-left'>Durata stimata dell'evento - Giorni:</label><div class='col-sm-2'><select class='form-control' id='CODICE_GIORNI' name='CODICE_GIORNI'></select></div>
+														<label class='col-sm-2 control-label-left'>Durata stimata dell'evento - Ore:</label><div class='col-sm-2'><select class='form-control' id='CODICE_ORE' name='CODICE_ORE'></select></div>
+														<label class='col-sm-2 control-label-left'>Durata stimata dell'evento - Min:</label><div class='col-sm-2'><select class='form-control' id='CODICE_MIN' name='CODICE_MIN'></select></div>
+													</div>
+					                        	</div>
+											</div>					                        	
+										</div>
+									</div>
+									
+									
+									
+									<div id="tab-3" class="tab-pane">
+										<div class="panel-body">
+											<div class="row">
+												<div class="col-sm-12">
+						                        	<div class="form-group">
+														<label class="col-sm-2 control-label-left">Descrizione delle azioni immediate</label>
+														<div class="col-sm-10">
+															<textarea class="form-control" id="DESCRIZIONE_AZIONI" name="DESCRIZIONE_AZIONI" rows="3" required></textarea>
+														</div>
+													</div>
+												</div>
+											</div>					                        	
+										</div>
+									</div>
+									
+									<div id="tab-4" class="tab-pane">
+										<div class="panel-body">
+											<div class="row">
+					                        	<div class="col-sm-12">
+					                        		<div class="form-group">
+					                                	<label class='col-sm-2 control-label-left'>Albero della cause</label> 
+					                                	<div class='col-sm-4'><select class="form-control" id="ALBERO_CAUSE" name="ALBERO_CAUSE"></select></div>
+					                                </div>
+					                                
+					                                <div class="form-group">
+					                                	<label class='col-sm-2 control-label-left'>Categoria causa principale</label> 
+					                                	<div class='col-sm-4'><select class="form-control" id="CATEGORIA_PRINCIPALE" name="CATEGORIA_PRINCIPALE"></select></div>
+					                                
+					                                	<label class='col-sm-2 control-label-left'>Sottocategoria</label> 
+					                                	<div class='col-sm-4'><select class="form-control" id="SOTTOCATEGORIA_PRINCIPALE" name="SOTTOCATEGORIA_PRINCIPALE"></select></div>
+					                                </div>
+					                                
+					                                <div class="form-group">
+					                                	<label class='col-sm-2 control-label-left'>Categoria causa secondaria</label> 
+					                                	<div class='col-sm-4'><select class="form-control" id="CATEGORIA_SECONDARIA" name="CATEGORIA_SECONDARIA"></select></div>
+					                                
+					                                	<label class='col-sm-2 control-label-left'>Sottocategoria</label> 
+					                                	<div class='col-sm-4'><select class="form-control" id="SOTTOCATEGORIA_SECONDARIA" name="SOTTOCATEGORIA_SECONDARIA"></select></div>
+					                                </div>
+					                                
+					                                <div class="form-group">
+														<label class="col-sm-2 control-label-left">Informazioni supplementari sull'analisi dell'infortunio, dell'incidente e/o del mancato incidente</label>
+														<div class="col-sm-10">
+															<textarea class="form-control" id="INFO_SUPPLEMENTARI" name="INFO_SUPPLEMENTARI" rows="3"></textarea>
+														</div>
+													</div>
+													
+													
+													<div class="form-group">
+					                                	<label class="col-sm-2 control-label-left">Cognome nome</label>
+					                                    <div class="col-sm-2">
+						                                    <input type="text"  id="COGNOME_NOME" name="COGNOME_NOME"  class="form-control">
+														</div>                                	
+					                                
+					                                	<label class="col-sm-2 control-label-left">N° cellulare</label>
+					                                    <div class="col-sm-2">
+						                                    <input type="text"  id="CELLULARE" name="CELLULARE"  class="form-control">
+														</div>                                	
+					                                
+					                                	<label class="col-sm-2 control-label-left">Indirizzo e-mail</label>
+					                                    <div class="col-sm-2">
+						                                    <input type="text"  id="MAIL" name="MAIL"  class="form-control">
+														</div>                                	
+					                                </div>
+					                                <div class="form-group">
+					                                	<label class="col-sm-2 control-label-left">Data redazione report</label>
+					                                    <div class="col-sm-2">
+										                <div class="input-group date">
+						                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_REPORT" id="DT_REPORT" required>
+						                                </div>
+					                                    </div>
+					                                    
+					                                	<label class="col-sm-2 control-label-left">N° della filiale</label>
+					                                    <div class="col-sm-2">
+						                                    <input type="text"  id="NUM_FILIALE" name="NUM_FILIALE"  class="form-control">
+														</div>                                	
+					                              
+					                                	<label class="col-sm-2 control-label-left">N° dell'azienda</label>
+					                                    <div class="col-sm-2">
+						                                    <input type="text"  id="NUM_AZIENDA" name="NUM_AZIENDA"  class="form-control">
+														</div>                                	
+					                                </div>
+					                        	</div>
+											</div>					                        	
+										</div>
+									</div>
+									
+									
+									
+									
+									<div id="tab-2" class="tab-pane">
+										<div class="panel-body">
+										
+			                                <div class="form-group">
+												<label class="col-sm-2 control-label-left">Descrizione dell'evento, circostanze e conseguenze (umane, industriali, economiche e ambientali)</label>
+												<div class="col-sm-10">
+													<textarea class="form-control" id="DESCRIZIONE_EVENTO" name="DESCRIZIONE_EVENTO" rows="3" required></textarea>
+												</div>
+											</div>
+													
+										
+										
+											<div class="tabs-container">
+												
+												<ul class="nav nav-tabs">
+													<li class="active"><a data-toggle="tab" href="#tab-11"><b>Infortunio</b></a></li>
+													<li class=""><a data-toggle="tab" href="#tab-12"><b>Affidabilità e altri</b></a></li>
+													<li class=""><a data-toggle="tab" href="#tab-13"><b>Ambiente e trasporto</b></a></li>
+												</ul>			
+					
+					
+												<div class="tab-content">
+													
+													<div id="tab-12" class="tab-pane">
+														<div class="panel-body">
+															<div class="row">
+									                        	<div class="col-sm-12">
+									                        		<div class='form-group'><label class='col-sm-2 control-label-left'>Attrezzatura interessata:</label><div class='col-sm-10'><select class='form-control' id='CODICE_AFF_ATTREZZATURA_INTERESSATA' name='CODICE_AFF_ATTREZZATURA_INTERESSATA'></select></div></div>
+																	<div class='form-group'><label class='col-sm-2 control-label-left'>Componente attr. interessata :</label><div class='col-sm-10'><select class='form-control' id='CODICE_AFF_COMP_ATTR_INTERESSATA' name='CODICE_AFF_COMP_ATTR_INTERESSATA'></select></div></div>
+																	<div class='form-group'><label class='col-sm-2 control-label-left'>Costi stimati in Euro:</label><div class='col-sm-10'><select class='form-control' id='CODICE_COSTI_EURO' name='CODICE_COSTI_EURO'></select></div></div>
+																	<div class='form-group'><label class='col-sm-2 control-label-left'>Livello incidente:</label><div class='col-sm-10'><select class='form-control' id='CODICE_LIVELLO_INCIDENTE' name='CODICE_LIVELLO_INCIDENTE'></select></div></div>
+									
+									                                <div class="form-group">
+									                                	<label class='col-sm-2 control-label-left'>Reclamo Cliente:</label> 
+									                                	<div class='col-sm-4'><select class="form-control" id="RECLAMO_CLIENTE" name="RECLAMO_CLIENTE"></select></div>
+									                               
+									                                	<label class='col-sm-2 control-label-left'>Forza maggiore:</label> 
+									                                	<div class='col-sm-4'><select class="form-control" id="FORZA_MAGGIORE" name="FORZA_MAGGIORE"></select></div>
+									                                </div>
+									                                
+																	<div class='form-group'><label class='col-sm-2 control-label-left'>Cliente:</label><div class='col-sm-10'><select class='form-control' id='CODICE_CLIENTE' name='CODICE_CLIENTE'></select></div></div>
+									                                
+									                                <div class="form-group">
+									                                	<label class="col-sm-2 control-label-left">Altri Clienti:</label>
+									                                    <div class="col-sm-10">
+										                                    <input type="text"  id="ALTRI_CLIENTI" name="ALTRI_CLIENTI"  class="form-control">
+																		</div>                                	
+									                                </div>
+																</div>
+															</div>
+														</div>
+													</div>
+													<div id="tab-13" class="tab-pane">
+													
+														<div class="panel-body">
+															<div class="row">
+									                        	<div class="col-sm-12">
+									                        			
+									                        		<div class="form-group">
+									                                	<label class="col-sm-2 control-label-left">Parte interessata</label>
+									                                    <div class="col-sm-10">
+																			<select class='form-control' id='PARTE_INTERESSATA' name='PARTE_INTERESSATA'></select>
+																		</div>                                	
+									                                </div>
+									                                
+									                                 <div class="form-group">
+									                                	<label class="col-sm-2 control-label-left">Prodotto rilasciato</label>
+									                                    <div class="col-sm-10">
+																			<select class='form-control' id='PRODOTTO_RILASCIATO' name='PRODOTTO_RILASCIATO'></select>
+																		</div>                                	
+									                                </div>
+									                                
+									                                 <div class="form-group">
+									                                	<label class="col-sm-2 control-label-left">Livello incidente</label>
+									                                    <div class="col-sm-10">
+																			<select class='form-control' id='LIVELLO_INCIDENTE' name='LIVELLO_INCIDENTE'></select>
+																		</div>                                	
+									                                </div>
+									                                
+									                                 <div class="form-group">
+									                                	<label class="col-sm-2 control-label-left">Quantità rilasciata</label>
+									                                    <div class="col-sm-6">
+										                                    <input type="text"  id="QUANTITA_RILASCIATA" name="QUANTITA_RILASCIATA"  class="form-control">
+																		</div>  
+									                                    
+									                                	<label class='col-sm-1 control-label-left'>Unità</label> 
+									                                	<div class='col-sm-3'><select class="form-control" id="UNITA_RILASCIATA" name="UNITA_RILASCIATA"></select></div>                               	
+									                                </div>
+									                                
+									                                
+									                                 <div class="form-group">
+									                                	<label class="col-sm-2 control-label-left">Quantità max permessa</label>
+									                                    <div class="col-sm-6">
+										                                    <input type="text"  id="QUANTITA_MAX_PERMESSA" name="QUANTITA_MAX_PERMESSA"  class="form-control">
+																		</div>  
+									                                    
+									                                	<label class='col-sm-1 control-label-left'>Unità</label> 
+									                                	<div class='col-sm-3'><select class="form-control" id="UNITA_MAX_PERMESSA" name="UNITA_MAX_PERMESSA"></select></div>                                	
+									                                </div> 
+									                                
+									                                
+																</div>
+															</div>
+														</div>
+													</div>
+													</form>
+													
+													<div id="tab-11" class="tab-pane active">
+														<div class="panel-body">
+															<div class="row">
+									                        	<div class="col-sm-12">
+									                        		<form action="astro" method="post" id="formAggiungiDettaglio" name="formAggiungiDettaglio">
+																	<input type="hidden" name="FUNCTIONID" value="InserimentoDettaglioALIMOD80">
+																	<input type="hidden" id="OPERATION_TYPE_DETTAGLIO" name="OPERATION_TYPE">
+																	<input type="hidden" id="ID_MODULO_DETTAGLIO" name="ID_MODULO">
+																	<input type="hidden" id="ID_DETTAGLIO" name="ID_DETTAGLIO">
+																	
+															    
+								                                	<div class='form-group'>
+								                                		<label class='col-sm-3 control-label-left'>Persona infortunata:</label>
+								                                		<div class='col-sm-9'><input type="text"  id="PERSONA_INFORTUNATA" name="PERSONA_INFORTUNATA"  class="form-control"></div>
+								                                	</div>
+								                                	
+									                                <div class='form-group'>
+									                                	<label class='col-sm-3 control-label-left'>Categoria del personale:</label>
+									                                	<div class='col-sm-9'><select class='form-control' id='CODICE_CODICE_CATEGORIA_PERSONALE' name='CODICE_CODICE_CATEGORIA_PERSONALE'></select></div>
+									                                </div>
+																	
+																	<div class='form-group'>
+																		<label class='col-sm-3 control-label-left'>Tipo di infortunio:</label>
+																		<div class='col-sm-9'><select class='form-control' id='CODICE_CODICE_TIPO_INFORTUNIO' name='CODICE_CODICE_TIPO_INFORTUNIO'></select></div>
+																	</div>
+																	
+																	<div class='form-group'>
+																		<label class='col-sm-3 control-label-left'>Attrezzatura interessata:</label>
+																		<div class='col-sm-9'><select class='form-control' id='CODICE_CODICE_ATTREZZATURA_INTERESSATA' name='CODICE_CODICE_ATTREZZATURA_INTERESSATA'></select></div>
+																	</div>
+																	
+																	<div class='form-group'>
+																		<label class='col-sm-3 control-label-left'>Componente attr. Interessata:</label>
+																		<div class='col-sm-9'><select class='form-control' id='CODICE_COMP_ATTR_INTERESSATA' name='CODICE_COMP_ATTR_INTERESSATA'></select></div>
+																	</div>
+																	
+																	<div class='form-group'>
+																		<label class='col-sm-3 control-label-left'>Giorni persi presunti (prognosi):</label>
+																		<div class='col-sm-9'><select class='form-control' id='CODICE_GG_PROGNOSI' name='CODICE_GG_PROGNOSI'></select></div>
+																	</div>
+																	
+																	<div class='form-group'>
+																		<label class='col-sm-3 control-label-left'>Lesione maggiore:</label>
+																		<div class='col-sm-9'><select class='form-control' id='CODICE_LESIONE_MAGGIORE' name='CODICE_LESIONE_MAGGIORE'></select></div>
+																	</div>
+																	
+																	<div class='form-group'>
+																		<label class='col-sm-3 control-label-left'>Parte del corpo interessata:</label>
+																		<div class='col-sm-9'><select class='form-control' id='CODICE_PARTE_CORPO' name='CODICE_PARTE_CORPO'></select></div>
+																	</div>
+																	
+																	<div class='form-group'>
+																		<label class='col-sm-3 control-label-left'>Altre lesioni, se ve ne sono:</label>
+																		<div class='col-sm-9'><select class='form-control' id='CODICE_ALTRE_LESIONI' name='CODICE_ALTRE_LESIONI'></select></div>
+																	</div>
+																	
+																	<div class='form-group'>
+																		<label class='col-sm-3 control-label-left'>Parte del corpo interessata:</label>
+																		<div class='col-sm-9'><select class='form-control' id='CODICE_ALTRE_LESIONI_PARTE_CORPO' name='CODICE_ALTRE_LESIONI_PARTE_CORPO'></select></div>
+																	</div>
+								                          
+								                          
+								                          			<div class="form-group">
+									                                    <div class="col-sm-2">
+																			<button class="btn btn-primary btn-sm" type="submit" id="aggiungi" name="aggiungi">${label_add}</button>
+									                                    </div>
+																	</div>
+																
+																</form>
+																
+																<div class="row">
+										                        	<div class="col-sm-12">
+												                        <div class="table-responsive">
+																			<table id="dt" class="table table-bordered">
+												                                <thead>
+													                                <tr>
+																						<th></th>
+																						<th></th>
+																						
+																						<th>Persona infortunata</th>
+																						
+																						<th></th>
+																						<th></th>
+																						<th></th>
+																						<th></th>
+																						<th></th>
+																						<th></th>
+																						<th></th>
+																						<th></th>
+																						<th></th>
+																						
+																						
+																						
+																						<th>Categoria del personale</th>
+																						<th>Tipo di infortunio</th>
+																						<th>Attrezzatura interessata</th>
+																						<th>Componente attr. Interessata</th>
+																						<th>Giorni persi presunti (prognosi)</th>
+																						<th>Lesione maggiore</th>
+																						<th>Parte del corpo interessata</th>
+																						<th>Altre lesioni, se ve ne sono</th>
+																						<th>Parte del corpo interessata</th>
+													                                </tr>
+												                                </thead>
+												                            </table>											
+												                         </div>
+										                             </div>
+									                             </div>
+																</div>
+															</div>
+														</div>
+													</div>
+													
+												</div>
+											</div> 
+										
+	
+																                        	
+										</div> 
+									</div> 
+									
+									
+									
+								</div> 
+							</div>
+							
+							<!-- </form> -->					
+							
+                                
+                            
+                            </div> 
+                            
+                            </div>
+						
+						
+                        							
+						</div>
+                          
+                    <div class="ibox">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+	                    <h4>Allegati</h4>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                        
+     					
+						<form id="myDropzone" action="astro?FUNCTIONID=UploadFile" method="post"  class="dropzone">
+							<input type="hidden" id="LISTA_ALLEGATI" name="LISTA_ALLEGATI" value="<#if LISTA_ALLEGATI?exists>${LISTA_ALLEGATI}</#if>">
+						    <input name="MODULO" id="MODULO_UPLOAD" type="hidden" value="ALIMOD80" />
+						    <input name="ID_MODULO" id="ID_MODULO_UPLOAD" type="hidden" value="${ID_MODULO}" />   						
+							<div class="dz-default dz-message"></div>
+						</form>
+      					
+						<script>
+						  // myDropzone is the configuration for the element that has an id attribute
+						  // with the value my-dropzone (or myDropzone)
+						  Dropzone.options.myDropzone = {
+						    init: function() {
+						      this.on("addedfile", function(file) {
+						        var _this = this;						    	  
+						    	  
+				        	    var a = document.createElement('a');
+				        	    a.setAttribute('href',"upload/" + file.name);
+				        	    a.setAttribute('target',"_blank");
+				        	    a.innerHTML = "<br>download";
+				        	    file.previewTemplate.appendChild(a);
+				        	    
+				        	    a = document.createElement('a');
+				                // Listen to the click event
+				                a.addEventListener("click", function(e) {
+				                  // Make sure the button click doesn't submit the form:
+				                  e.preventDefault();
+				                  e.stopPropagation();
+
+				                  // Remove the file preview.
+				                  _this.removeFile(file);
+				                  // If you want to the delete the file on the server as well,
+				                  // you can do the AJAX request here.
+				                });
+				                
+				        	    a.innerHTML = "<br>remove";
+				        	    file.previewTemplate.appendChild(a);
+				        	    
+						      });
+						    }
+						  };
+						</script>      					
+
+                        
+						</div>						
+					</div>						
+                            
+
+                       
+                    </div>
+                    
+
+                        	
+                </div>
+
+
+			
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

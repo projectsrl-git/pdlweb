@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="js/jquery-2.1.1.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
+	<script src="https://apis.google.com/js/client.js?onload=load"></script>
+
+			
+<style type="text/css">
+
+.wrapper {
+  position: relative;
+  width: 400px;
+  height: 200px;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.signature-pad {
+  position: relative;
+  left: 0;
+  top: 0;
+  width:400px;
+  height:200px;
+}
+
+</style>
+	
+	<script>
+	$( document ).ready(function() {
+
+		creaPadFirma();
+	});
+	
+
+
+function creaPadFirma(){
+	var signaturePad = new SignaturePad(document.getElementById('signature-pad'), {
+		  backgroundColor: 'rgba(255, 255, 255, 0)',
+		  penColor: 'rgb(0, 0, 0)'
+		});
+		
+		var cancelButton = document.getElementById('clear');
+		
+		cancelButton.addEventListener('click', function (event) {
+		  signaturePad.clear();
+		});
+}
+
+
+	function prendiImmagine(){
+		
+ 
+		var data = ''+document.getElementById('signature-pad').toDataURL('image/png');
+		var url=data;
+	    
+		document.getElementById("FIRMA_PDF").value=url;		
+		//alert(document.getElementById("FIRMA_PDF").value);
+		//window.open(document.getElementById("FIRMA_PDF").value);
+		
+		document.forms['formFirma'].submit();
+		
+		
+		
+		
+
+
+		
+		
+		//var download = document.createElement('a');
+		//download.href = url;
+		//download.download = 'firma1.png';
+		//download.click();
+		//document.getElementById("FIRMA_PDF").value=download.download;
+		//alert(document.getElementById("FIRMA_PDF").value);
+		//document.forms['formFirma'].submit();
+	}
+		
+		
+	</script>
+	
+	
+</head>
+<body>
+
+	<form action="astro" method="post" id="formFirma">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="CreaFirmaPDF" />
+		<input type="hidden" id="FIRMA_PDF" name="FIRMA_PDF" value="<#if FIRMA_PDF?exists>${FIRMA_PDF}</#if>">
+	</form>
+		
+	
+<div class="wrapper">
+  <canvas id="signature-pad" class="signature-pad" width=400 height=200></canvas>
+</div>
+<div>
+<input id="btnStampaPDF" type="button" data-inline="true" data-mini="true" data-theme="b" value="STAMPA PDF" onclick="prendiImmagine()" />
+<input id="clear" type="button" data-inline="true" data-mini="true" data-theme="b" value="cancella"/>
+</div>
+
+	
+	
+</body>
+</html>	
+
+
+
+

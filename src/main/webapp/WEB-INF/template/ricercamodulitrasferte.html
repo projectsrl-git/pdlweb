@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+    
+    <script type="text/javascript">
+	
+		$(function(){
+			
+			$("#LISTA_AZIENDE").trigger("loadDataSet",["DataSetAziende","CODICE","RAGSOC","<#if AZIENDA_TENDINA?exists>${AZIENDA_TENDINA}</#if>"]);
+			$("#LISTA_DIPENDENTI").trigger("loadDataSet",["DataSetDipendentiAzienda","ID_DIPENDENTE","NOMINATIVO","<#if DIPENDENTE?exists>${DIPENDENTE}</#if>"]);
+			
+
+			$("#Ricerca").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+			
+				if (!$("#Ricerca").valid()) {
+					return false;
+				}
+				
+				
+				tokenizeOptionSelected("LISTA_AZIENDE","AZIENDA_TENDINA");
+				tokenizeOptionSelected("LISTA_DIPENDENTI","DIPENDENTE");
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+
+			});
+
+		});
+		
+    </script>     
+    
+</head>
+
+<body>
+
+	<form action="astro" method="post" id="formDelete" name="formDelete">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoModuliTrasferte">
+		<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE" value="DELETE">
+		<input type="hidden" id="keyField" name="keyField" value="ID_MODTRASFERTA">
+		<input type="hidden" id="ID_MODTRASFERTA" name="ID_MODTRASFERTA">
+	</form>
+
+    <div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+		
+        <div id="page-wrapper" class="gray-bg">
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>        	
+			
+			<div class="wrapper wrapper-content animated fadeInRight">
+            	<div class="row">
+            		<div class="col-lg-12">
+
+	                	<div class="ibox float-e-margins">
+		            	    <#include "include/included_box_title.include">
+		            
+					            	    
+			            	<div class="ibox-content">
+			            		<form action="astro" method="post" id="Ricerca">
+									<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="RicercaModuliTrasferte" />
+									<input type="hidden" id="AGGIORNARE" name="AGGIORNARE" value="<#if AGGIORNARE?exists>${AGGIORNARE}</#if>" />
+									<input type="hidden" id="ID" name="ID" value="<#if ID?exists>${ID}</#if>" />
+									<input type="hidden" id="DATA_DAL" name="DATA_DAL" value="<#if DATA_DAL?exists>${DATA_DAL}</#if>" />
+									<input type="hidden" id="DATA_AL" name="DATA_AL" value="<#if DATA_AL?exists>${DATA_AL}</#if>" />
+									<input type="hidden" id="ST_APPROVAZ" name="ST_APPROVAZ" value="<#if ST_APPROVAZ?exists>${ST_APPROVAZ}</#if>" />
+									<input type="hidden" id="CAMPO" name="CAMPO" value="<#if CAMPO?exists>${CAMPO}</#if>" />
+									
+									<input type="hidden" id="AZIENDA_TENDINA" name="AZIENDA_TENDINA">
+									<input type="hidden" id="DIPENDENTE" name="DIPENDENTE">
+			            	    	
+									 <!-- <div class="row">
+		                	            <div class="col-md-4">
+				        	        		<label class="font-normal">${label_customer}</label>
+			                	            <input type="text" class="form-control" name="CLIENTE" id="CLIENTE" value="<#if CLIENTE?exists>${CLIENTE}</#if>">
+							            </div>
+							             
+							            <div class="col-md-2">
+							            	<div class="form-group" id="data_1">
+					    	            		<label class="font-normal">${label_date_from}</label>
+								                <div class="input-group date">
+			            	                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="DATA_DAL_FP" id="DATA_DAL_FP" type="text" class="form-control" value="<#if DATA_DAL_FP?exists>${DATA_DAL_FP}</#if>">
+			            	                    </div>
+			            	                </div>
+							            </div>		
+							            
+							            <div class="col-md-2">
+							            	<div class="form-group" id="data_1">
+					    	            		<label class="font-normal">${label_date_to}</label>
+								                <div class="input-group date">
+			            	                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input name="DATA_AL_FP" id="DATA_AL_FP" type="text" class="form-control" value="<#if DATA_AL_FP?exists>${DATA_AL_FP}</#if>">
+			            	                    </div>
+		                	                </div>
+							            </div>		
+							            
+							            		             
+				        	        </div>            
+				        	        
+				        	        
+				        	        <div class="row">
+		                	            <div class="col-md-4">
+				        	        		<label class="font-normal">${label_company}</label>
+							                <div class="input-group">
+								                <select id="LISTA_AZIENDE" name="LISTA_AZIENDE" class="form-control" multiple></select>
+							                </div>
+							            </div>
+							             
+							            <div class="col-md-4">
+				        	        		<label class="font-normal">${label_nominative}</label>
+							                <div class="input-group">
+								                <select id="LISTA_DIPENDENTI" name="LISTA_DIPENDENTI" class="form-control" multiple></select>
+							                </div>
+							            </div>				             
+				        	        </div>            chiude row -->
+				        	     </form>   
+				        	        
+				        	        
+			        	        <div class="row">
+			        	        	<div class="hr-separator"></div>
+	                	            <div class="form-group">
+	                	                <div class="col-sm-12">
+	                	                <!--<div class="col-sm-12 col-sm-offset-4">--> <!-- per centrare i tasti -->
+	                	                    <button class="btn btn-white btn-sm" id="nuovo" type="submit" name="nuovo">${label_new_insert}</button>
+                	                    	<button class="btn btn-primary btn-sm" id="cerca" type="submit" name="cerca">${label_search}</button>
+	                	                </div>
+	                	            </div>
+			        	        </div>			        	        
+		            	    </div>   <!-- chiude box content -->
+	                	</div>       <!-- chiude ibox float-e-margins -->     
+					</div> <!-- chiude col-lg-12 -->
+				</div> <!-- chiude row -->
+            
+                
+            
+                                
+                                
+            
+            
+            
+           
+
+            
+            
+            		<!-- inizia la tabella-->
+            
+            
+            	<div class="row">
+            	    <div class="col-lg-12">
+            	    	<div class="ibox float-e-margins">
+            	    	    <div class="ibox-content">
+            	    	        <div class="table-responsive">
+            	    	   			<table id="dt" class="table table-striped table-bordered table-hover dataTables-example" >
+            	    	    			<thead>
+            	    	    				<tr>
+            	    	    					<th></th>
+            	    	    					<th></th>
+						                        <th>${label_company}</th>
+								                <th>${label_employee}</th>
+												<th>${label_customer}</th>
+												<th>${label_order}</th>
+												<th>${label_site}</th>
+												<th>${label_date_from}</th>
+												<th>${label_date_to}</th>
+												<th>${label_hours_from}</th>
+												<th>${label_hours_to}</th>
+												<th>${label_hours}</th>
+												<th>${label_documentation}</th>                     
+						                    </tr>
+            	    	    			</thead>
+            	    	    			
+            	    	    		</table>
+            	    	        </div> <!-- chiude table responsive -->
+            	    	
+            	    	    </div> <!-- chiude ibox-content -->
+            	    	</div>	<!-- ibox float-e-margins -->
+            	    </div>	<!-- chiude col 12 lg -->
+            	</div>	<!-- chiude row -->
+            	
+            	<!-- finisce la tabella -->                    
+                    
+        	</div>	<!-- chiude wrapper wrapper-content animated fadeInRight -->
+        
+        
+        	<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+        	
+        </div>
+	</div>
+
+    
+
+    <script>
+        $(document).ready(function(){
+	        
+	        $('#dt').DataTable({
+				ajax: "astro?FUNCTIONID=AJAXArray&dataset=DSModuliTrasferte&columns=ID_MODTRASFERTA,ID_MODTRASFERTA,RAGSOC,NOMINATIVO,CLIENTE,COMMESSA,LUOGO,DATA_DAL,DATA_AL,ORE_DAL,ORE_AL,ORE,DOCUMENTAZIONE&WHERECONDITION=",
+				columnDefs: [
+					{
+						targets:0,
+						orderable: false,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display'){
+								data = '<a href="astro?FUNCTIONID=InserimentoModuliTrasferte&ID_MODTRASFERTA=' + data + '" title="${label_edit}"><i class="fa fa-pencil fa-color-auto" aria-hidden="true"></i></a>';
+							}
+
+							return data;
+						}
+					},
+					{
+						targets:1,
+						orderable: false,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display'){
+								data = '<a href="#" onclick="deleteRow('+data+');" title="${label_delete}"><i class="fa fa-trash-o fa-color-auto" aria-hidden="true"></i></a>';
+							}
+
+							return data;
+						}
+					}
+				],
+				
+                dom: '<"html5buttons"B>lTfgitp',
+                language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+    
+                buttons: [
+                    {extend: 'csv'},
+                    {extend: 'excel', title: $(document).find("title").text()},
+                    {extend: 'pdf', title: $(document).find("title").text(), orientation: 'landscape'},
+                    {extend: 'print',
+                     customize: function (win){
+                            $(win.document.body).addClass('white-bg');
+                            $(win.document.body).css('font-size', '10px');
+
+                            $(win.document.body).find('table')
+                                    .addClass('compact')
+                                    .css('font-size', 'inherit');
+                    }
+                    }
+                ]
+
+            });
+		
+			
+			$("#formDelete").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});	
+            
+            
+            $('#data_1 .input-group.date').datepicker({
+	            format: "dd/mm/yyyy",
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+            });
+        });
+    </script>
+    
+    <script type="text/javascript">
+
+    	$(function(){
+			$('#nuovo').click(function() {
+			      window.location.href = "astro?FUNCTIONID=InserimentoModuliTrasferte" ;
+			});
+			$('#cerca').click(function() {
+			      $("#Ricerca").submit();
+			});
+		});
+    </script> 
+    
+
+</body>
+
+</html>

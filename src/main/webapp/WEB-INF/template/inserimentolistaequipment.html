@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+	
+		$(function(){
+
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiPDL","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO","<#if ID_IMPIANTO?exists>${ID_IMPIANTO}</#if>"," WHERE 1=1 "]);
+			$("#ID_AREA").trigger("loadDataSet",["DSAreaLavoro","ID_AREA","DESCR_AREA","<#if ID_AREA?exists>${ID_AREA}</#if>"," WHERE 1=1 "]);
+
+			$("#ID_EQUIPMENT").val("<#if ID_EQUIPMENT?exists>${ID_EQUIPMENT}</#if>");
+			$("#DESCR_EQUIPMENT").val("<#if DESCR_EQUIPMENT?exists>${DESCR_EQUIPMENT}</#if>");
+			
+			$('#FL_EIS').prop('checked',"<#if FL_EIS?exists && FL_EIS!=''>${FL_EIS}<#else>false</#if>"==="true");	
+			
+			var flagDisattivato="<#if FL_DISATTIVO?exists>${FL_DISATTIVO}</#if>";
+			$('#CHECK_DISATTIVATO').prop('checked',flagDisattivato==="true");
+		
+			
+			$("#ID_AZIENDA").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_IMPIANTO").empty();
+				$("#ID_IMPIANTO").select2("destroy");
+				$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO",""," WHERE ID_AZIENDA="+id+" "]);
+				
+				$("#ID_AREA").val("").change();
+			});		        
+			
+			$("#ID_IMPIANTO").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_AREA").empty();
+				$("#ID_AREA").select2("destroy");
+				$("#ID_AREA").trigger("loadDataSet",["DSAreaLavoro","ID_AREA","DESCR_AREA",""," WHERE ID_IMPIANTO="+id+" "]);
+			});	
+
+			
+			$("#formInserimento").validate();
+
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				$("#FL_EIS").val($("#FL_EIS").is(':checked'));
+				
+				
+				document.getElementById("salva").style.display="none";
+				$("#FL_DISATTIVO").val($("#CHECK_DISATTIVATO").is(':checked'));
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					document.getElementById("salva").style.display="block";
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+
+			});
+
+		});
+		
+    </script> 
+
+</head>
+
+<body>
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row wrapper border-bottom page-heading">
+                <div class="col-sm-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- titolo form-->
+						<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+
+							<form action="astro" class="form-horizontal" method="post" id="formInserimento" name="formInserimento">
+								
+								<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoListaEquipment">
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE" value="<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>">
+								<input type="hidden" id="ID_EQUIPMENT" name="ID_EQUIPMENT">
+								<input type="hidden" id="FL_DISATTIVO" name="FL_DISATTIVO">
+								
+								
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">${label_sito}</label>
+                                    <div class="col-sm-10">
+	                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control" required>
+	                                    </select>
+									</div>
+                                </div>
+									
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Impianto:</label>
+                                    <div class="col-sm-10">
+	                                    <select id="ID_IMPIANTO" name="ID_IMPIANTO"  class="form-control" required>
+	                                    </select>
+									</div>
+                                </div>
+                                    
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Area di lavoro:</label>
+                                    <div class="col-sm-10">
+	                                    <select id="ID_AREA" name="ID_AREA"  class="form-control" required>
+	                                    </select>
+									</div>
+                                </div>
+									
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Equipment:</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" name="DESCR_EQUIPMENT" id="DESCR_EQUIPMENT" required></div>
+                                </div>    
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">EIS:</label>
+                                    <div class="col-sm-10"><input id="FL_EIS" name="FL_EIS" type="checkbox"></div>
+                                </div>    
+                                
+                                 <div class="form-group"><label class="col-sm-2 control-label-left">${label_utente_disattivato}</label>
+                                    <div class="col-sm-10">
+                                        <div class="i-checks"><label> <input name="CHECK_DISATTIVATO" id="CHECK_DISATTIVATO" type="checkbox" value=""><i></i></label></div>
+                                    </div>
+                                </div>
+                                
+								
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+                                        <button class="btn btn-primary btn-sm" id="salva" type="submit">${label_save}</button>
+                                    </div>
+                                </div>
+								
+                            </form>
+
+                        </div>
+						
+                    </div>
+                </div>
+            </div>
+			
+			<#if INCLUDED_FOOTER_PDLWEB?exists><#include INCLUDED_FOOTER_PDLWEB></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

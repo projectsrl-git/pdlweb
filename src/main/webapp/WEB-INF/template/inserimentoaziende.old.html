@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+    <#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+    
+    
+    <script type="text/javascript">
+	
+		$(function(){
+			
+			$("#LISTA_AZIENDE").trigger("loadDataSet",["DataSetAziende","CODICE","RAGSOC","<#if AZIENDA_TENDINA?exists>${AZIENDA_TENDINA}</#if>"," WHERE 1=1 "]);
+
+			$("#formInserimento").validate();
+			$("#Inserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+			
+				if (!$("#Inserimento").valid()) {
+					return false;
+				}
+				
+				
+				tokenizeOptionSelected("LISTA_AZIENDE","AZIENDA_TENDINA");
+
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+
+			});			
+		});		
+		
+		
+    </script> 
+    
+    
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+    	<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+        <div id="page-wrapper" class="gray-bg">
+        	<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+        	
+        	<div class="wrapper wrapper-content animated fadeInRight">
+            	<div class="row">
+            		<div class="col-lg-12">
+
+	                	<div class="ibox float-e-margins">
+		            	    <#include "include/included_box_title.include">
+	
+		                <div class="ibox-content">
+		                	<form action="astro" method="post" id="Inserimento">
+			            		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoAziende" />
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE" value="<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>">
+
+								<input type="hidden" id="TABELLA" name="TABELLA" value="<#if TABELLA?exists>${TABELLA}</#if>" />
+								<input type="hidden" id="TAGGANCIO" name="TAGGANCIO" value="<#if TAGGANCIO?exists>${TAGGANCIO}</#if>" />
+								<input type="hidden" id="ID_UNIVOCO" name="ID_UNIVOCO" value="<#if ID_UNIVOCO?exists>${ID_UNIVOCO}</#if>" />
+								<input type="hidden" id="ID_UNIVOCO_NOME" name="ID_UNIVOCO_NOME" value="<#if ID_UNIVOCO_NOME?exists>${ID_UNIVOCO_NOME}</#if>" />
+								<input type="hidden" id="CODICE_ORIGINE" name="CODICE_ORIGINE" value="<#if CODICE_ORIGINE?exists>${CODICE_ORIGINE}</#if>" />
+								<input type="hidden" id="TABS" name="TABS" value="<#if TABS?exists>${TABS}<#else>tabs-1</#if>" />
+								<input type="hidden" id="CARTELLA_INIZIALE" name="CARTELLA_INIZIALE" value="<#if CARTELLA_INIZIALE?exists>${CARTELLA_INIZIALE}<#else>tabs-1</#if>" />
+								<input type="hidden" id="TAGGANCIO" name="TAGGANCIO" value="<#if TAGGANCIO?exists>${TAGGANCIO}</#if>" />
+								<input type="hidden" id="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_1" name="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_1" value="<#if OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_1?exists>${OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_1}</#if>" />
+								<input type="hidden" id="ID_ATECO" name="ID_ATECO" value="<#if ID_ATECO?exists>${ID_ATECO}</#if>" />
+								<input type="hidden" id="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_2" name="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_2" value="<#if OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_2?exists>${OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_2}</#if>" />
+								<input type="hidden" id="ID_CCNL" name="ID_CCNL" value="<#if ID_CCNL?exists>${ID_CCNL}</#if>" />
+								<input type="hidden" id="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_3" name="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_3" value="<#if OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_3?exists>${OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_3}</#if>" />
+								<input type="hidden" id="ID_INPS" name="ID_INPS" value="<#if ID_INPS?exists>${ID_INPS}</#if>" />
+								<input type="hidden" id="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_4" name="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_4" value="<#if OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_4?exists>${OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_4}</#if>" />
+								<input type="hidden" id="ID_BANCA" name="ID_BANCA" value="<#if ID_BANCA?exists>${ID_BANCA}</#if>" />
+								<input type="hidden" id="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_5" name="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_5" value="<#if OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_5?exists>${OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_5}</#if>" />
+								<input type="hidden" id="ID_ENTEP" name="ID_ENTEP" value="<#if ID_ENTEP?exists>${ID_ENTEP}</#if>" />
+								<input type="hidden" id="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_6" name="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_6" value="<#if OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_6?exists>${OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_6}</#if>" />
+								<input type="hidden" id="ID_ENTEA" name="ID_ENTEA" value="<#if ID_ENTEA?exists>${ID_ENTEA}</#if>" />
+								<input type="hidden" id="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_7" name="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_7" value="<#if OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_7?exists>${OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_7}</#if>" />
+								<input type="hidden" id="ID_CENTRO_COSTO" name="ID_CENTRO_COSTO" value="<#if ID_CENTRO_COSTO?exists>${ID_CENTRO_COSTO}</#if>" />
+								<input type="hidden" id="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_8" name="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_8" value="<#if OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_8?exists>${OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_8}</#if>" />
+								<input type="hidden" id="ID_TIPO_COSTO" name="ID_TIPO_COSTO" value="<#if ID_TIPO_COSTO?exists>${ID_TIPO_COSTO}</#if>" />
+								<input type="hidden" id="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_9" name="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_9" value="<#if OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_9?exists>${OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_9}</#if>" />
+								<input type="hidden" id="ID_PAT" name="ID_PAT" value="<#if ID_PAT?exists>${ID_PAT}</#if>" />
+								<input type="hidden" id="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_10" name="OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_10" value="<#if OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_10?exists>${OPZIONE_INSERIMENTO_MODIFICA_DETTAGLI_10}</#if>" />
+								<input type="hidden" id="ID_VOCE_TARIFFA" name="ID_VOCE_TARIFFA" value="<#if ID_VOCE_TARIFFA?exists>${ID_VOCE_TARIFFA}</#if>" />
+	
+								
+								<input type="hidden" id="AZIENDA_TENDINA" name="AZIENDA_TENDINA">
+								
+								
+			                	<div class="row">
+					                <div class="col-lg-12">
+					                    <div class="tabs-container">
+					                        <ul class="nav nav-tabs">
+					                            <li class="active"><a data-toggle="tab" href="#tab-1"> ${label_main_info}</a></li>
+					                            <li class=""><a data-toggle="tab" href="#tab-2"> ${label_ateco_sector}</a></li>
+					                            <li class=""><a data-toggle="tab" href="#tab-3"> CCNL</a></li>
+					                            <li class=""><a data-toggle="tab" href="#tab-4"> INPS</a></li>
+					                            <li class=""><a data-toggle="tab" href="#tab-5"> ${label_bank}</a></li>
+					                            <li class=""><a data-toggle="tab" href="#tab-6"> ${label_institution}</a></li>
+					                            <li class=""><a data-toggle="tab" href="#tab-7"> ${label_cost_centers}</a></li>
+					                            <li class=""><a data-toggle="tab" href="#tab-8"> ${label_types_of_costs}</a></li>
+					                            <li class=""><a data-toggle="tab" href="#tab-9"> PAT</a></li>
+					                            <li class=""><a data-toggle="tab" href="#tab-10"> ${label_tariff_items}</a></li>
+					                        </ul>
+					                        <div class="tab-content">
+					                            <div id="tab-1" class="tab-pane active">
+					                                <div class="panel-body">
+					                                    
+					                                	
+												        
+												        <div class="row">
+															<div class="form-group"><label class="col-sm-2 control-label">${label_top_company}</label>
+							                                    <div class="col-sm-10">
+																	<select id="LISTA_AZIENDE" name="LISTA_AZIENDE" class="form-control" required>
+																	</select>
+							                                    </div>
+							                                </div>
+							                            </div>
+							
+														<br>
+								
+														<div class="row">
+								                            <div class="col-md-3">
+										                		<label class="font-normal">${label_company_code}</label>
+									                	        <input type="text" class="form-control" name="CODICE" id="CODICE" value="<#if CODICE?exists>${CODICE}</#if>">                              
+												            </div>
+												        </div>    
+												        
+								
+												      
+										                
+										                <div class="row">
+								                            <div class="col-md-3">
+										                		<label class="font-normal">${label_ragsoc}</label>
+									                	        <input type="text" class="form-control" name="RAGSOC" id="RAGSOC" value="<#if RAGSOC?exists>${RAGSOC}</#if>" required>                              
+												            </div>
+												            <div class="col-md-3">
+										                		<label class="font-normal">${label_ragsoc_reduced}</label>
+									                	        <input type="text" class="form-control" name="RAGRID" id="RAGRID" value="<#if RAGRID?exists>${RAGRID}</#if>">                              
+												            </div>
+										                </div>             <!-- chiude row -->
+										                
+										                <div class="row">
+								                            <div class="col-md-3">
+										                		<label class="font-normal">${label_fiscal_code}</label>
+									                	        <input type="text" class="form-control" name="CODFISCALE_AZ" id="CODFISCALE_AZ" value="<#if CODFISCALE_AZ?exists>${CODFISCALE_AZ}</#if>">                              
+												            </div>
+												            <div class="col-md-3">
+										                		<label class="font-normal">${label_vat_number}</label>
+									                	        <input type="text" class="form-control" name="PARTITAIVA" id="PARTITAIVA" value="<#if PARTITAIVA?exists>${PARTITAIVA}</#if>" required>                              
+												            </div>
+												            <div class="col-md-3">
+										                		<label class="font-normal">${label_inail_code}</label>
+									                	        <input type="text" class="form-control" name="INAIL" id="INAIL" value="<#if INAIL?exists>${INAIL}</#if>">                              
+												            </div>
+										                </div>             <!-- chiude row -->
+					                                
+										                <br/>
+										                <strong>${label_legal_representative}</strong>
+										                
+										                <div class="row">
+								                            <div class="col-md-3">
+										                		<label class="font-normal">${label_nome}</label>
+									                	        <input type="text" class="form-control" name="NOME" id="NOME" value="<#if NOME?exists>${NOME}</#if>">                              
+												            </div>
+												            <div class="col-md-3">
+										                		<label class="font-normal">${label_cognome}</label>
+									                	        <input type="text" class="form-control" name="COGNOME" id="COGNOME" value="<#if COGNOME?exists>${COGNOME}</#if>">                              
+												            </div>
+												            <div class="col-md-3">
+										                		<label class="font-normal">${label_sex}</label>
+												                <div class="input-group">
+													                <select name="SESSO" id="SESSO" data-placeholder="Scegli un'opzione..." class="form-control m-b" style="width:350px;" tabindex="4">
+													                	<option value="">Seleziona</option>
+														    			<option value="M" <#if SESSO?exists><#if SESSO='M'>selected</#if></#if>>Maschio</option>
+														    			<option value="F" <#if SESSO?exists><#if SESSO='F'>selected</#if></#if>>Femmina</option>
+													                </select>
+												                </div>                        
+												            </div>
+										                </div>             <!-- chiude row -->
+										                
+										                <div class="row">
+										                	<div class="col-md-3">
+												            	<div class="form-group">
+											                		<label class="font-normal">${label_date_of_birth}</label>
+													                <div class="input-group date">
+									                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" name="D_NASCITA" id="D_NASCITA" value="<#if D_NASCITA?exists>${D_NASCITA}</#if>">
+									                                </div>
+									                            </div>
+												            </div>		
+												            <div class="col-md-3">
+										                		<label class="font-normal">${label_place_of_birth}</label>
+									                	        <input type="text" class="form-control" name="LOCNASCITA" id="LOCNASCITA" value="<#if LOCNASCITA?exists>${LOCNASCITA}</#if>">                              
+												            </div>
+												            <div class="col-md-3">
+										                		<label class="font-normal">${label_province}</label>
+												                <input type="text" class="form-control" name="PROVNASCITA" id="PROVNASCITA" value="<#if PROVNASCITA?exists>${PROVNASCITA}</#if>">                                   
+												            </div>
+										                </div>             <!-- chiude row -->
+										                
+										                <div class="row">
+												            <div class="col-md-3">
+										                		<label class="font-normal">${label_fiscal_code}</label>
+									                	        <input type="text" class="form-control" name="CODFISCALE" id="CODFISCALE" value="<#if CODFISCALE?exists>${CODFISCALE}</#if>">                              
+												            </div>
+										                </div>             <!-- chiude row -->
+					                                </div>
+					                            </div>
+					                            
+					                            
+					                            
+					                            <div id="tab-2" class="tab-pane">
+					                                <div class="panel-body">
+					                                	<div class="row">
+						                                    <div class="col-md-3">
+										                		<label class="font-normal">${label_ateco_sector}</label>
+												                <div class="input-group">
+													                <select data-placeholder="Scegli un'opzione..." name="SETTORE_TITOLO" id="SETTORE_TITOLO" class="form-control m-b" style="width:350px;" tabindex="4">
+													                	<option value="">Seleziona</option>
+													                	<#list elencoSettoriTitolo as elenco>
+																			<option value="${elenco.CODICE}" <#if SETTORE_TITOLO?exists><#if SETTORE_TITOLO?trim=elenco.CODICE?trim>selected</#if></#if> >${elenco.CODICE} ${elenco.DESCRI}</option>
+																		</#list>
+													                </select>
+												                </div>
+												            </div>
+												            <div class="col-md-3">
+										                		<label class="font-normal">${label_ateco_sector_detail}</label>
+												                <div class="input-group">
+													                <select data-placeholder="Scegli un'opzione..." name="ATECO" id="ATECO" class="form-control m-b" style="width:350px;" tabindex="4">
+													                	<option value="">Seleziona</option>
+													                	<#list elencoSettoriDettaglio as elenco>
+																			<option value="${elenco.CODICE}" <#if ATECO?exists><#if ATECO?trim=elenco.CODICE?trim>selected</#if></#if> >${elenco.CODICE_BREVE} ${elenco.DESCRI}</option>
+																		</#list>
+													                </select>
+												                </div>
+												            </div>
+												        </div>
+												        <!-- inizia la tabella-->
+										            	<div class="row"><br/>
+										            	    <div class="col-lg-12">
+										            	    	<div class="ibox float-e-margins">
+										            	    	    <div class="ibox-content">
+										            	    	        <div class="table-responsive">
+										            	    	   			<table class="table table-striped table-bordered table-hover dataTables-example" >
+										            	    	    			<thead>
+										            	    	    				<tr>
+										            	    	    					<th></th>
+																                        <th>Codice</th>
+																                        <th>Descrizione</th>
+																                    </tr>
+										            	    	    			</thead>
+										            	    	    			<tbody>
+										            	    	    				<#if ESITORICERCA?exists && ESITORICERCA=1>
+										            	    	    					<#list elencoAziendeAteco as elenco>
+										            	    	    						<tr>
+										            	    	    							<td class="center">
+										            	    	    								<a href="javascript:doSubmitAteco('${elenco.ID_ATECO}','CANCELLA')">
+										            	    	    									<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+										            	    	    								</a>
+										            	    	    							</td>
+																		                        <td>${elenco.ATECO}</td>
+                        																		<td>${elenco.DESCRI}</td>
+																		                    </tr>
+										            	    	    					</#list>
+										            	    	    				</#if>
+										            	    	    			</tbody>
+										            	    	    		</table>
+										            	    	        </div> <!-- chiude table responsive -->
+										            	    	
+										            	    	    </div> <!-- chiude ibox-content -->
+										            	    	</div>	<!-- ibox float-e-margins -->
+										            	    </div>	<!-- chiude col 12 lg -->
+										            	</div>	<!-- chiude row -->
+										            	<!-- finisce la tabella -->  
+					                                </div>
+					                            </div>
+					                            
+					                            
+					                            
+					                            <div id="tab-3" class="tab-pane">
+					                                <div class="panel-body">
+					                                	<div class="row">
+						                                    <div class="col-md-3">
+										                		<label class="font-normal">CCNL</label>
+												                <div class="input-group">
+													                <select data-placeholder="Scegli un'opzione..." name="CCNL" id="CCNL" class="form-control m-b" style="width:350px;" tabindex="4">
+													                	<option value="">Seleziona</option>
+													                	<#list elencoCCNL as elenco>
+																			<option value="${elenco.CODICE}" <#if CCNL?exists><#if CCNL?trim=elenco.CODICE?trim>selected</#if></#if> >${elenco.DESCRI}</option>
+																		</#list>
+													                </select>
+												                </div>
+												            </div>
+												        </div>
+												        <!-- inizia la tabella-->
+										            	<div class="row"><br/>
+										            	    <div class="col-lg-12">
+										            	    	<div class="ibox float-e-margins">
+										            	    	    <div class="ibox-content">
+										            	    	        <div class="table-responsive">
+										            	    	   			<table class="table table-striped table-bordered table-hover dataTables-example" >
+										            	    	    			<thead>
+										            	    	    				<tr>
+										            	    	    					<th></th>
+																                        <th>CCNL</th>
+																                    </tr>
+										            	    	    			</thead>
+										            	    	    			<tbody>
+										            	    	    				<#if ESITORICERCA?exists && ESITORICERCA=1>
+										            	    	    					<#list elencoCCNLElenco as elenco>
+										            	    	    						<tr>
+										            	    	    							<td class="center">
+										            	    	    								<a href="javascript:doSubmitCCNL('${elenco.ID_CCNL}','CANCELLA')">
+										            	    	    									<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+										            	    	    								</a>
+										            	    	    							</td>
+																		                        <td>${elenco.DESCRI}</td>
+																		                    </tr>
+										            	    	    					</#list>
+										            	    	    				</#if>
+										            	    	    			</tbody>
+										            	    	    		</table>
+										            	    	        </div> <!-- chiude table responsive -->
+										            	    	
+										            	    	    </div> <!-- chiude ibox-content -->
+										            	    	</div>	<!-- ibox float-e-margins -->
+										            	    </div>	<!-- chiude col 12 lg -->
+										            	</div>	<!-- chiude row -->
+										            	<!-- finisce la tabella -->  
+					                                </div>
+					                            </div>
+					                            
+					                            
+					                            
+					                            <div id="tab-4" class="tab-pane">
+					                                <div class="panel-body">
+					                                	<div class="row">
+						                                    <div class="col-md-3">
+										                		<label class="font-normal">${label_inps_registration_number}</label>
+									                	        <input type="text" class="form-control" name="INPS" id="INPS" value="<#if INPS?exists>${INPS}</#if>">                              
+												            </div>
+												        </div>
+												        <!-- inizia la tabella-->
+										            	<div class="row"><br/>
+										            	    <div class="col-lg-12">
+										            	    	<div class="ibox float-e-margins">
+										            	    	    <div class="ibox-content">
+										            	    	        <div class="table-responsive">
+										            	    	   			<table class="table table-striped table-bordered table-hover dataTables-example" >
+										            	    	    			<thead>
+										            	    	    				<tr>
+										            	    	    					<th></th>
+																                        <th>INPS</th>
+																                    </tr>
+										            	    	    			</thead>
+										            	    	    			<tbody>
+										            	    	    				<#if ESITORICERCA?exists && ESITORICERCA=1>
+										            	    	    					<#list elencoINPS as elenco>
+										            	    	    						<tr>
+										            	    	    							<td class="center">
+										            	    	    								<a href="javascript:doSubmitINPS('${elenco.ID_INPS}','CANCELLA')">
+										            	    	    									<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+										            	    	    								</a>
+										            	    	    							</td>
+																		                        <td>${elenco.INPS}</td>
+																		                    </tr>
+										            	    	    					</#list>
+										            	    	    				</#if>
+										            	    	    			</tbody>
+										            	    	    		</table>
+										            	    	        </div> <!-- chiude table responsive -->
+										            	    	
+										            	    	    </div> <!-- chiude ibox-content -->
+										            	    	</div>	<!-- ibox float-e-margins -->
+										            	    </div>	<!-- chiude col 12 lg -->
+										            	</div>	<!-- chiude row -->
+										            	<!-- finisce la tabella -->
+					                                </div>
+					                            </div>
+					                            
+					                            
+					                            
+					                             <div id="tab-5" class="tab-pane">
+					                                <div class="panel-body">
+					                                	<div class="row">
+					                                    	<div class="col-md-3">
+										                		<label class="font-normal">${label_bank_name}</label>
+									                	        <input type="text" class="form-control" name="NOME_BANCA" id="NOME_BANCA" value="<#if NOME_BANCA?exists>${NOME_BANCA}</#if>">                              
+								                	        </div>
+											            </div>
+											            
+											            <div class="row">
+					                                    	<div class="col-md-3">
+										                		<label class="font-normal">Abi</label>
+									                	        <input type="text" class="form-control" name="CODICE_ABI" id="CODICE_ABI" value="<#if CODICE_ABI?exists>${CODICE_ABI}</#if>">                              
+								                	        </div>
+								                	        <div class="col-md-3">
+										                		<label class="font-normal">Cab</label>
+									                	        <input type="text" class="form-control" name="CODICE_CAB" id="CODICE_CAB" value="<#if CODICE_CAB?exists>${CODICE_CAB}</#if>">                              
+								                	        </div>
+								                	        <div class="col-md-3">
+										                		<label class="font-normal">Cin</label>
+									                	        <input type="text" class="form-control" name="CODICE_CIN" id="CODICE_CIN" value="<#if CODICE_CIN?exists>${CODICE_CIN}</#if>">                              
+								                	        </div>
+								                	        <div class="col-md-3">
+										                		<label class="font-normal">Check digit</label>
+									                	        <input type="text" class="form-control" name="CODICE_CHK" id="CODICE_CHK" value="<#if CODICE_CHK?exists>${CODICE_CHK}</#if>">                              
+								                	        </div>
+											            </div>
+											            
+											            <div class="row">
+					                                    	<div class="col-md-3">
+										                		<label class="font-normal">${label_bank_account}</label>
+									                	        <input type="text" class="form-control" name="CONTO_CORRENTE" id="CONTO_CORRENTE" value="<#if CONTO_CORRENTE?exists>${CONTO_CORRENTE}</#if>">                              
+								                	        </div>
+								                	        <div class="col-md-3">
+										                		<label class="font-normal">Iban</label>
+									                	        <input type="text" class="form-control" name="CODICE_IBAN" id="CODICE_IBAN" value="<#if CODICE_IBAN?exists>${CODICE_IBAN}</#if>">                              
+								                	        </div>
+											            </div>
+											            
+											            <!-- inizia la tabella-->
+										            	<div class="row"><br/>
+										            	    <div class="col-lg-12">
+										            	    	<div class="ibox float-e-margins">
+										            	    	    <div class="ibox-content">
+										            	    	        <div class="table-responsive">
+										            	    	   			<table class="table table-striped table-bordered table-hover dataTables-example" >
+										            	    	    			<thead>
+										            	    	    				<tr>
+										            	    	    					<th></th>
+																                        <th>Banca</th>
+																			            <th>Abi</th>
+																			            <th>Cab</th>
+																			            <th>Cin</th>
+																			            <th>Check digit</th>
+																			            <th>Conto corrente</th>
+																			            <th>Iban</th>
+																                    </tr>
+										            	    	    			</thead>
+										            	    	    			<tbody>
+										            	    	    				<#if ESITORICERCA?exists && ESITORICERCA=1>
+										            	    	    					<#list elencoBanche as elenco>
+										            	    	    						<tr>
+										            	    	    							<td class="center">
+										            	    	    								<a href="javascript:doSubmitBanca('${elenco.ID_BANCA}','CANCELLA')">
+										            	    	    									<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+										            	    	    								</a>
+										            	    	    							</td>
+																		                        <td>${elenco.NOME_BANCA}</td>
+																		                        <td>${elenco.CODICE_ABI}</td>
+																		                        <td>${elenco.CODICE_CAB}</td>
+																		                        <td>${elenco.CODICE_CIN}</td>
+																		                        <td>${elenco.CODICE_CHK}</td>
+																		                        <td>${elenco.CONTO_CORRENTE}</td>
+																		                        <td>${elenco.CODICE_IBAN}</td>
+																		                    </tr>
+										            	    	    					</#list>
+										            	    	    				</#if>
+										            	    	    			</tbody>
+										            	    	    		</table>
+										            	    	        </div> <!-- chiude table responsive -->
+										            	    	
+										            	    	    </div> <!-- chiude ibox-content -->
+										            	    	</div>	<!-- ibox float-e-margins -->
+										            	    </div>	<!-- chiude col 12 lg -->
+										            	</div>	<!-- chiude row -->
+										            	<!-- finisce la tabella -->
+										            	
+					                                </div>
+					                            </div>
+					                            
+					                            
+					                            
+					                             <div id="tab-6" class="tab-pane">
+					                                 <div class="panel-body">
+					                                 	<div class="row">
+						                                    <div class="col-md-3">
+										                		<label class="font-normal">${label_social_security_institution}</label>
+												                <div class="input-group">
+													                <select data-placeholder="Scegli un'opzione..." name="ENTEP" id="ENTEP" class="form-control m-b" style="width:350px;" tabindex="4">
+													                	<option value="">Seleziona</option>
+													                	<#list elencoEntiPrevidenziali as elenco>
+																			<option value="${elenco.CODICE}" <#if ENTEP?exists><#if ENTEP?trim=elenco.CODICE?trim>selected</#if></#if> >${elenco.DESCRI}</option>
+																		</#list>
+													                </select>
+												                </div>
+												            </div>
+												            <div class="col-md-3">
+										                		<label class="font-normal">${label_care_institution}</label>
+												                <div class="input-group">
+													                <select data-placeholder="Scegli un'opzione..." name="ENTEA" id="ENTEA" class="form-control m-b" style="width:350px;" tabindex="4">
+													                	<option value="">Seleziona</option>
+													                	<#list elencoEntiAssistenziali as elenco>
+																			<option value="${elenco.CODICE}" <#if ENTEA?exists><#if ENTEA?trim=elenco.CODICE?trim>selected</#if></#if> >${elenco.DESCRI}</option>
+																		</#list>
+													                </select>
+												                </div>
+												            </div>
+												        </div>
+												        <!-- inizia la tabella-->
+										            	<div class="row"><br/>
+										            	    <div class="col-lg-6">
+										            	    	<div class="ibox float-e-margins">
+										            	    	    <div class="ibox-content">
+										            	    	        <div class="table-responsive">
+										            	    	   			<table class="table table-striped table-bordered table-hover dataTables-example" >
+										            	    	    			<thead>
+										            	    	    				<tr>
+										            	    	    					<th></th>
+																                        <th>Descrizione</th>
+																                    </tr>
+										            	    	    			</thead>
+										            	    	    			<tbody>
+										            	    	    				<#if ESITORICERCA?exists && ESITORICERCA=1>
+										            	    	    					<#list elencoEnteP as elenco>
+										            	    	    						<tr>
+										            	    	    							<td class="center">
+										            	    	    								<a href="javascript:doSubmitEnteP('${elenco.ID_ENTEP}','CANCELLA')">
+										            	    	    									<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+										            	    	    								</a>
+										            	    	    							</td>
+                        																		<td>${elenco.DESCRI}</td>
+																		                    </tr>
+										            	    	    					</#list>
+										            	    	    				</#if>
+										            	    	    			</tbody>
+										            	    	    		</table>
+										            	    	        </div> <!-- chiude table responsive -->
+										            	    	
+										            	    	    </div> <!-- chiude ibox-content -->
+										            	    	</div>	<!-- ibox float-e-margins -->
+										            	    </div>	<!-- chiude col 12 lg -->
+										            	    <div class="col-lg-6">
+										            	    	<div class="ibox float-e-margins">
+										            	    	    <div class="ibox-content">
+										            	    	        <div class="table-responsive">
+										            	    	   			<table class="table table-striped table-bordered table-hover dataTables-example" >
+										            	    	    			<thead>
+										            	    	    				<tr>
+										            	    	    					<th></th>
+																                        <th>Descrizione</th>
+																                    </tr>
+										            	    	    			</thead>
+										            	    	    			<tbody>
+										            	    	    				<#if ESITORICERCA?exists && ESITORICERCA=1>
+										            	    	    					<#list elencoEnteA as elenco>
+										            	    	    						<tr>
+										            	    	    							<td class="center">
+										            	    	    								<a href="javascript:doSubmitEnteA('${elenco.ID_ENTEA}','CANCELLA')">
+										            	    	    									<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+										            	    	    								</a>
+										            	    	    							</td>
+                        																		<td>${elenco.DESCRI}</td>
+																		                    </tr>
+										            	    	    					</#list>
+										            	    	    				</#if>
+										            	    	    			</tbody>
+										            	    	    		</table>
+										            	    	        </div> <!-- chiude table responsive -->
+										            	    	
+										            	    	    </div> <!-- chiude ibox-content -->
+										            	    	</div>	<!-- ibox float-e-margins -->
+										            	    </div>	<!-- chiude col 12 lg -->
+										            	</div>	<!-- chiude row -->
+										            	<!-- finisce la tabella -->
+					                                </div>
+					                            </div>
+					                            
+					                            
+					                            
+					                            <div id="tab-7" class="tab-pane">
+					                                <div class="panel-body">
+					                                	<div class="row">
+						                                    <div class="col-md-3">
+										                		<label class="font-normal">${label_code}</label>
+									                	        <input type="text" class="form-control" name="CENTRO_COSTO_CODICE" id="CENTRO_COSTO_CODICE" value="<#if CENTRO_COSTO_CODICE?exists>${CENTRO_COSTO_CODICE}</#if>">                              
+												            </div>
+												            
+												            <div class="col-md-3">
+										                		<label class="font-normal">${label_description}</label>
+									                	        <input type="text" class="form-control" name="CENTRO_COSTO_DESCRIZIONE" id="CENTRO_COSTO_DESCRIZIONE" value="<#if CENTRO_COSTO_DESCRIZIONE?exists>${CENTRO_COSTO_DESCRIZIONE}</#if>">                              
+												            </div>
+												        </div>
+												        <!-- inizia la tabella-->
+										            	<div class="row"><br/>
+										            	    <div class="col-lg-12">
+										            	    	<div class="ibox float-e-margins">
+										            	    	    <div class="ibox-content">
+										            	    	        <div class="table-responsive">
+										            	    	   			<table class="table table-striped table-bordered table-hover dataTables-example" >
+										            	    	    			<thead>
+										            	    	    				<tr>
+										            	    	    					<th></th>
+																                        <th>Codice</th>
+																                        <th>Descrizione</th>
+																                    </tr>
+										            	    	    			</thead>
+										            	    	    			<tbody>
+										            	    	    				<#if ESITORICERCA?exists && ESITORICERCA=1>
+										            	    	    					<#list elencoCentriCosto as elenco>
+										            	    	    						<tr>
+										            	    	    							<td class="center">
+										            	    	    								<a href="javascript:doSubmitCentroCosto('${elenco.ID_CENTRO_COSTO}','CANCELLA')">
+										            	    	    									<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+										            	    	    								</a>
+										            	    	    							</td>
+																		                        <td>${elenco.CENTRO_COSTO_CODICE}</td>
+                        																		<td>${elenco.CENTRO_COSTO_DESCRIZIONE}</td>
+																		                    </tr>
+										            	    	    					</#list>
+										            	    	    				</#if>
+										            	    	    			</tbody>
+										            	    	    		</table>
+										            	    	        </div> <!-- chiude table responsive -->
+										            	    	
+										            	    	    </div> <!-- chiude ibox-content -->
+										            	    	</div>	<!-- ibox float-e-margins -->
+										            	    </div>	<!-- chiude col 12 lg -->
+										            	</div>	<!-- chiude row -->
+										            	<!-- finisce la tabella -->
+					                                </div>
+					                            </div>
+					                            
+					                            
+					                            
+					                            <div id="tab-8" class="tab-pane">
+					                                <div class="panel-body">
+					                                	<div class="row">
+						                                    <div class="col-md-3">
+										                		<label class="font-normal">${label_code}</label>
+									                	        <input type="text" class="form-control" name="TIPO_COSTO_CODICE" id="TIPO_COSTO_CODICE" value="<#if TIPO_COSTO_CODICE?exists>${TIPO_COSTO_CODICE}</#if>">                              
+												            </div>
+												            
+												            <div class="col-md-3">
+										                		<label class="font-normal">${label_description}</label>
+									                	        <input type="text" class="form-control" name="TIPO_COSTO_DESCRIZIONE" id="TIPO_COSTO_DESCRIZIONE" value="<#if TIPO_COSTO_DESCRIZIONE?exists>${TIPO_COSTO_DESCRIZIONE}</#if>">                              
+												            </div>
+												        </div>
+												        <!-- inizia la tabella-->
+										            	<div class="row"><br/>
+										            	    <div class="col-lg-12">
+										            	    	<div class="ibox float-e-margins">
+										            	    	    <div class="ibox-content">
+										            	    	        <div class="table-responsive">
+										            	    	   			<table class="table table-striped table-bordered table-hover dataTables-example" >
+										            	    	    			<thead>
+										            	    	    				<tr>
+										            	    	    					<th></th>
+																                        <th>Codice</th>
+																                        <th>Descrizione</th>
+																                    </tr>
+										            	    	    			</thead>
+										            	    	    			<tbody>
+										            	    	    				<#if ESITORICERCA?exists && ESITORICERCA=1>
+										            	    	    					<#list elencoTipiCosto as elenco>
+										            	    	    						<tr>
+										            	    	    							<td class="center">
+										            	    	    								<a href="javascript:doSubmitCentroCosto('${elenco.ID_CENTRO_COSTO}','CANCELLA')">
+										            	    	    									<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+										            	    	    								</a>
+										            	    	    							</td>
+																		                        <td>${elenco.TIPO_COSTO_CODICE}</td>
+                        																		<td>${elenco.TIPO_COSTO_DESCRIZIONE}</td>
+																		                    </tr>
+										            	    	    					</#list>
+										            	    	    				</#if>
+										            	    	    			</tbody>
+										            	    	    		</table>
+										            	    	        </div> <!-- chiude table responsive -->
+										            	    	
+										            	    	    </div> <!-- chiude ibox-content -->
+										            	    	</div>	<!-- ibox float-e-margins -->
+										            	    </div>	<!-- chiude col 12 lg -->
+										            	</div>	<!-- chiude row -->
+										            	<!-- finisce la tabella -->
+					                                </div>
+					                            </div>
+					                            
+					                            
+					                            
+					                            
+					                            <div id="tab-9" class="tab-pane">
+					                                <div class="panel-body">
+					                                	<div class="row">
+						                                    <div class="col-md-3">
+										                		<label class="font-normal">PAT</label>
+									                	        <input type="text" class="form-control" name="PAT" id="PAT" value="<#if PAT?exists>${PAT}</#if>">                              
+												            </div>
+												        </div>
+												        <!-- inizia la tabella-->
+										            	<div class="row"><br/>
+										            	    <div class="col-lg-12">
+										            	    	<div class="ibox float-e-margins">
+										            	    	    <div class="ibox-content">
+										            	    	        <div class="table-responsive">
+										            	    	   			<table class="table table-striped table-bordered table-hover dataTables-example" >
+										            	    	    			<thead>
+										            	    	    				<tr>
+										            	    	    					<th></th>
+																                        <th>PAT</th>
+																                    </tr>
+										            	    	    			</thead>
+										            	    	    			<tbody>
+										            	    	    				<#if ESITORICERCA?exists && ESITORICERCA=1>
+										            	    	    					<#list elencoVociTariffa as elenco>
+										            	    	    						<tr>
+										            	    	    							<td class="center">
+										            	    	    								<a href="javascript:doSubmitPAT('${elenco.ID_PAT}','CANCELLA')">
+										            	    	    									<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+										            	    	    								</a>
+										            	    	    							</td>
+																		                        <td>${elenco.PAT}</td>
+																		                    </tr>
+										            	    	    					</#list>
+										            	    	    				</#if>
+										            	    	    			</tbody>
+										            	    	    		</table>
+										            	    	        </div> <!-- chiude table responsive -->
+										            	    	
+										            	    	    </div> <!-- chiude ibox-content -->
+										            	    	</div>	<!-- ibox float-e-margins -->
+										            	    </div>	<!-- chiude col 12 lg -->
+										            	</div>	<!-- chiude row -->
+										            	<!-- finisce la tabella -->    
+					                                </div>
+					                            </div>
+					                            
+					                            
+					                            
+					                            
+					                            <div id="tab-10" class="tab-pane">
+					                                <div class="panel-body">
+					                                	<div class="row">
+						                                    <div class="col-md-3">
+										                		<label class="font-normal">${label_tariff_items}</label>
+												                <div class="input-group">
+													                <select data-placeholder="Scegli un'opzione..." name="VOCE_TARIFFA" id="VOCE_TARIFFA" class="form-control m-b" style="width:350px;" tabindex="4">
+													                	<option value="">Seleziona</option>
+													                	<#list elencoVociTariffaElenco as elenco>
+																			<option value="${elenco.CODICE}" <#if VOCE_TARIFFA?exists><#if VOCE_TARIFFA?trim=elenco.CODICE?trim>selected</#if></#if> >${elenco.CODICE} ${elenco.DESCRI}</option>
+																		</#list>
+													                </select>
+												                </div>
+												            </div>
+												        </div>
+											            
+											            
+											            <!-- inizia la tabella-->
+										            	<div class="row"><br/>
+										            	    <div class="col-lg-12">
+										            	    	<div class="ibox float-e-margins">
+										            	    	    <div class="ibox-content">
+										            	    	        <div class="table-responsive">
+										            	    	   			<table class="table table-striped table-bordered table-hover dataTables-example" >
+										            	    	    			<thead>
+										            	    	    				<tr>
+										            	    	    					<th></th>
+																                        <th>Voci tariffa</th>
+																                    </tr>
+										            	    	    			</thead>
+										            	    	    			<tbody>
+										            	    	    				<#if ESITORICERCA?exists && ESITORICERCA=1>
+										            	    	    					<#list elencoVociTariffa as elenco>
+										            	    	    						<tr>
+										            	    	    							<td class="center">
+										            	    	    								<a href="javascript:doSubmitVociTariffa('${elenco.ID_VOCE_TARIFFA}','CANCELLA')">
+										            	    	    									<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+										            	    	    								</a>
+										            	    	    							</td>
+																		                        <td>${elenco.DESCRI}</td>
+																		                    </tr>
+										            	    	    					</#list>
+										            	    	    				</#if>
+										            	    	    			</tbody>
+										            	    	    		</table>
+										            	    	        </div> <!-- chiude table responsive -->
+										            	    	
+										            	    	    </div> <!-- chiude ibox-content -->
+										            	    	</div>	<!-- ibox float-e-margins -->
+										            	    </div>	<!-- chiude col 12 lg -->
+										            	</div>	<!-- chiude row -->
+										            	<!-- finisce la tabella -->    
+										            	
+										            	
+					                                </div>
+					                            </div>
+					                            
+					                            
+					                            
+					                        </div>
+					                    </div>
+					                </div>
+								</div>	<!-- chiude row -->
+								
+								<div class="row">
+					        	   	<div class="hr-separator"></div>
+		                            <div class="form-group">
+		                                <div class="col-sm-12">
+	                                    <button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+		                                </div>
+		                            </div>
+				                </div>
+				        	</form>        
+			                
+				        	
+			                
+			                <#if SALVATO?exists && SALVATO!=""><div class="alert alert-success" id="messagebox">${SALVATO}</div></#if>
+			                
+		                </div>   <!-- chiude box content -->
+            		</div>       <!-- chiude ibox float-e-margins -->     
+	            </div>	<!-- col-lg-12 -->
+            </div>	<!-- chiude row -->
+            
+            
+           
+
+            
+            
+        	</div>	<!-- chiude wrapper wrapper-content animated fadeInRight -->
+        
+        
+        	<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+        	
+        </div>
+	</div>
+
+    
+
+    <script>
+    	$(document).ready(function(){
+	        
+	        $('.dataTables-example').DataTable({
+                dom: '<"html5buttons"B>lTfgitp',
+                language: {
+			        url: 'locales/Italian.json'
+			    },
+    
+                buttons: [
+                    { extend: 'copy'},
+                    {extend: 'csv'},
+                    {extend: 'excel', title: 'Ferie e permessi'},
+                    {extend: 'pdf', title: 'Ferie e permessi', orientation: 'landscape'},
+
+                    {extend: 'print',
+                     customize: function (win){
+                            $(win.document.body).addClass('white-bg');
+                            $(win.document.body).css('font-size', '10px');
+
+                            $(win.document.body).find('table')
+                                    .addClass('compact')
+                                    .css('font-size', 'inherit');
+                    }
+                    }
+                ]
+
+            });
+
+            /* Init DataTables */
+            var oTable = $('#editable').DataTable();
+
+            /* Apply the jEditable handlers to the table */
+            oTable.$('td').editable( '../example_ajax.php', {
+                "callback": function( sValue, y ) {
+                    var aPos = oTable.fnGetPosition( this );
+                    oTable.fnUpdate( sValue, aPos[0], aPos[1] );
+                },
+                "submitdata": function ( value, settings ) {
+                    return {
+                        "row_id": this.parentNode.getAttribute('id'),
+                        "column": oTable.fnGetPosition( this )[2]
+                    };
+                },
+
+                "width": "90%",
+                "height": "100%"
+            } );
+
+            
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green'
+            });
+            
+            $('.clockpicker').clockpicker();
+        });
+    </script>
+    
+
+	<script type="text/javascript">
+		
+		
+		 function calculate() {
+	         var time1 = $(".Time1").val().split(':'), time2 = $(".Time2").val().split(':');
+	         var hours1 = parseInt(time1[0], 10), 
+	             hours2 = parseInt(time2[0], 10),
+	             mins1 = parseInt(time1[1], 10),
+	             mins2 = parseInt(time2[1], 10);
+	         var hours = hours2 - hours1, mins = 0;
+	         if(hours < 0) hours = 24 + hours;
+	         if(mins2 >= mins1) {
+	             mins = mins2 - mins1;
+	         }
+	         else {
+	             mins = (mins2 + 60) - mins1;
+	             hours--;
+	         }
+	         mins = mins / 60; // take percentage in 60
+	         hours += mins;
+	         hours = hours.toFixed(2);
+	         $(".Hours").val(hours);
+	     }
+	     
+    </script> 
+
+</body>
+
+</html>

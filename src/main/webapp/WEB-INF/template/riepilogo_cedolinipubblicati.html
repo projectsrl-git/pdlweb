@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+    <#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+
+</head>
+
+<body>
+
+     <div id="wrapper">
+
+    	<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+        <div id="page-wrapper" class="gray-bg">
+        	<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+        	
+        	<div class="wrapper wrapper-content animated fadeInRight">
+            	<div class="row">
+            		<div class="col-lg-12">
+
+	                	<div class="ibox float-e-margins">
+		            	    <#include "include/included_box_title.include">
+	
+			                <div class="ibox-content">
+            	    	        <div class="table-responsive">
+            	    	   			<table class="table table-striped table-bordered table-hover dataTables-example" >
+            	    	    			<thead>
+            	    	    				<tr>
+            	    	    					<th>Dipendente</th>
+									    		<th>Anno</th>
+									    		<th>Mese</th>
+									    		<th>Cedolino</th>
+									    		<th>Controllo nome dipendente contenuto nel file del cedolino</th>
+									    		<th>Controllo link cedolino con nome dipendente (da tabella a directory)</th>
+									    		<th>Controllo nome directory con link tabella (da directory a tabella)</th>
+									    		<th>Controllo congruenza numero pagine</th>                     
+						                    </tr>
+            	    	    			</thead>
+            	    	    			<tbody>
+            	    	    				<#list elencoCedoliniCaricati as elenco>
+        	    	    						<tr>
+        	    	    							<td>${elenco.NOME} ${elenco.COGNOME}</td>
+										    		<td>${elenco.ANNO}</td>
+										    		<td>${elenco.MESE}</td>
+													<td class="center"><#if elenco.LINK!=''><a href="${elenco.LINK}" target="_blank"><i class="fa fa-file-pdf-o" style="color:red" aria-hidden="true"></i></a></#if></td>
+										    		<td class="center"><#if elenco.CHECK1=='S'><i class="fa fa-check" aria-hidden="true" style="color:green"></i><#else><i class="fa fa-times" aria-hidden="true" style="color:red"></i></#if></td>
+										    		<td class="center"><#if elenco.CHECK2=='S'><i class="fa fa-check" aria-hidden="true" style="color:green"></i><#else><i class="fa fa-times" aria-hidden="true" style="color:red"></i></#if></td>
+										    		<td class="center"><#if elenco.CHECK3=='S'><i class="fa fa-check" aria-hidden="true" style="color:green"></i><#else><i class="fa fa-times" aria-hidden="true" style="color:red"></i></#if></td>
+										    		<td class="center"><#if elenco.NR_PAGINE!=0><i class="fa fa-check" aria-hidden="true" style="color:green"></i><#else><i class="fa fa-times" aria-hidden="true" style="color:red"></i></#if></td>
+							                    </tr>
+        	    	    					</#list>
+            	    	    			</tbody>
+            	    	    		</table>
+            	    	        </div> <!-- chiude table responsive -->
+            	    	
+            	    	    </div> <!-- chiude ibox-content -->
+            	    	</div>	<!-- ibox float-e-margins -->
+            	    </div>	<!-- chiude col 12 lg -->
+            	</div>	<!-- chiude row -->
+            	
+            	<!-- finisce la tabella -->       
+            	
+            	
+			</div>
+			
+			
+        
+        	<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+        	
+        </div>
+	</div>
+
+
+</body>
+
+</html>

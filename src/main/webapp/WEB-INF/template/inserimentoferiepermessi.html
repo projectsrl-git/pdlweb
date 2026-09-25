@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+    
+	<script type="text/javascript">
+	
+		 function calculate() {
+	         var time1 = $(".Time1").val().split(':'), time2 = $(".Time2").val().split(':');
+	        
+	         		         
+	         var hours1 = parseInt(time1[0], 10), 
+	             hours2 = parseInt(time2[0], 10),
+	             mins1 = parseInt(time1[1], 10),
+	             mins2 = parseInt(time2[1], 10);
+	         var hours = hours2 - hours1, mins = 0;
+	         if(hours < 0) hours = 24 + hours;
+	         if(mins2 >= mins1) {
+	             mins = mins2 - mins1;
+	         }
+	         else {
+	             mins = (mins2 + 60) - mins1;
+	             hours--;
+	         }
+	         
+
+	         
+			 
+			 date1_temp=$(".Date1").val().split("/");
+			 var date1=date1_temp[1]+"/"+date1_temp[0]+"/"+date1_temp[2];
+			
+			 date2_temp=$(".Date2").val().split("/");
+			 var date2=date2_temp[1]+"/"+date2_temp[0]+"/"+date2_temp[2];
+
+			 //date1= date1+' '+'12:49'
+			 //date2= date2+' '+'12:48'
+			 
+			 var date1 = new Date(date1);
+			 var date2 = new Date(date2);
+		
+			 
+			 			 			 
+			 var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+			 var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+			 
+			 if(isNaN(diffDays))
+			 	diffDays=0;
+			 	
+			 if(isNaN(hours))
+			 	hours=0;
+			 
+			 if(isNaN(mins))
+			 	mins=0;
+	         
+	         $(".Days").val(diffDays);
+	         $(".Hours").val(hours);
+	         $(".Minutes").val(mins);
+	     }	
+	     
+	     
+	
+		$(function(){
+			
+			$("#ID_AZIENDA").trigger("loadDataSet",["DataSetAziende","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+
+			$("#ID_DIREZIONE").trigger("loadDataSet",["DSDirezioni","ID_DIREZIONE","NOME_DIREZIONE","<#if ID_DIREZIONE?exists>${ID_DIREZIONE}</#if>","<#if ID_AZIENDA?exists> WHERE DI.ID_AZIENDA=${ID_AZIENDA} </#if> "]);
+
+			$("#ID_RISORSA").trigger("loadDataSet",["DSStaffDirezioniCombo","ID_RISORSA","NOMINATIVO","<#if ID_RISORSA?exists>${ID_RISORSA}</#if>",""]);
+
+			$("#GIUSTIFICATIVO").trigger("loadDataSet",["DSGiustificativiFeriePermessi","CODICE","DESCRIZIONE","<#if GIUSTIFICATIVO?exists>${GIUSTIFICATIVO}</#if>"]);
+			
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			
+			$("#ID_RICHIESTA").val("<#if ID_RICHIESTA?exists>${ID_RICHIESTA}</#if>");
+			
+			$("#STATO_RICHIESTA").val("<#if STATO_RICHIESTA?exists>${STATO_RICHIESTA}</#if>");
+
+			$('#ID_AZIENDA').on("select2:selecting", function(e) { 
+				var idAzienda= e.params.args.data.id;
+				$("#ID_RISORSA").empty();
+				$("#ID_RISORSA").select2("destroy");
+				$("#ID_RISORSA").trigger("loadDataSet",["DSStaffDirezioniCombo","ID_RISORSA","NOMINATIVO","<#if ID_RISORSA?exists>${ID_RISORSA}</#if>"," WHERE RA.ID_AZIENDA="+idAzienda+" "]);
+				
+				
+				$("#ID_DIREZIONE").empty();
+				$("#ID_DIREZIONE").select2("destroy");
+				$("#ID_DIREZIONE").trigger("loadDataSet",["DSDirezioni","ID_DIREZIONE","NOME_DIREZIONE","<#if ID_DIREZIONE?exists>${ID_DIREZIONE}</#if>"," WHERE DI.ID_AZIENDA="+idAzienda+" "]);
+				
+			});
+
+			$('#ID_DIREZIONE').on("select2:selecting", function(e) { 
+				var idDirezione= e.params.args.data.id;
+				$("#ID_RISORSA").empty();
+				$("#ID_RISORSA").select2("destroy");
+				$("#ID_RISORSA").trigger("loadDataSet",["DSStaffDirezioniCombo","ID_RISORSA","NOMINATIVO","<#if ID_RISORSA?exists>${ID_RISORSA}</#if>"," WHERE SD.ID_DIREZIONE="+idDirezione+" "]);
+			});
+
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green'
+            });
+            
+            $('.clockpicker').clockpicker();	
+		  
+			$("#Inserimento").validate();
+			
+			/* Controllo su date consecutive - inizio */
+			$.validator.addMethod("paymentDate", function(value, element) {
+			    return this.optional(element) || validatePaymentDate(value, element);
+			}, "Le date sono obbligatorie, devono essere in formato data, e devono essere consecutive");
+			
+			$.validator.addClassRules({
+			    paymentDateField: {
+			        required: true,
+			        //date: true,
+			        paymentDate: true
+			    }
+			});
+			
+			
+			
+			function validatePaymentDate(value, element) {
+			    var paymentDates = $('.paymentDateField');
+			    var dateArray = new Array();
+			    var arrayIndex = 0;
+			    var currentElementIndex = 0;
+			    var isValid = true;
+			    
+			
+			    $(paymentDates).each(function() {
+			        var currentElementVal = $(this).val();
+					
+			        dateArray[arrayIndex] = currentElementVal;
+			
+			        if (currentElementVal == $(element).val()) {
+			            currentElementIndex = arrayIndex;
+			            return false;
+			        }
+			
+			        arrayIndex++;
+			    });
+			
+			    for (var x = 0; x <= arrayIndex; x++) {
+			        console.log('array val: ' + dateArray[x]);
+			        console.log('dateVal: ' + value);
+			        
+			        
+			        d= dateArray[x];
+			        d_temp=d.split("/");
+			 		dateArray[x]=d_temp[1]+"/"+d_temp[0]+"/"+d_temp[2];
+			 		
+			 		
+			 		f= value;
+			        f_temp=f.split("/");
+			 		value=f_temp[1]+"/"+f_temp[0]+"/"+f_temp[2];
+			 				 			        
+			        
+			        
+			        if (x > currentElementIndex) {
+			            isValid = new Date(dateArray[x]) > new Date(value);
+			        }
+			
+			        if (x < currentElementIndex) {
+			            isValid = new Date(dateArray[x]) < new Date(value);
+			        }
+			    }
+			
+			    return isValid;
+			}
+
+			
+			
+			/* Controllo su date consecutive - fine */
+			
+			
+			
+			
+			
+			
+			
+			
+			 
+
+
+			$("#Inserimento").submit(function(event) {
+				document.getElementById("salva").style.display="none";
+				/* stop form from submitting normally */
+				event.preventDefault();			
+			
+				if (!$("#Inserimento").valid()) {
+					document.getElementById("salva").style.display="block";
+					return false;
+				}
+				
+				
+				var idRichiesta=$("#ID_RICHIESTA").val();
+				if (idRichiesta!='') {
+					$("#OPERATION_TYPE").val("UPDATE");
+				} else {
+					$("#OPERATION_TYPE").val("INSERT");
+				}
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					if (result.result) {
+						$("#ID_RICHIESTA").val(result.idRichiesta);
+						$("#STATO_RICHIESTA").val(result.statoRichiesta);
+						$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+					} else {
+						$( ".alert-danger" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+					}
+				});
+
+			});			
+		});		
+		
+		
+    </script> 
+    
+</head>
+
+<body>
+
+     <div id="wrapper">
+
+    	<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+        <div id="page-wrapper" class="gray-bg">
+		
+        	<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+        	
+        	<div class="wrapper wrapper-content animated fadeInRight">
+            	<div class="row">
+            		<div class="col-lg-12">
+
+	                	<div class="ibox float-e-margins">
+		            	    <#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+		            	
+			            <div class="ibox-content">
+			            	<form action="astro" method="post" id="Inserimento">
+			            		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoFeriePermessi" />
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+								<input type="hidden" id="ID_RICHIESTA" name="ID_RICHIESTA">
+								<input type="hidden" id="ID_TIPO_RICHIESTA" name="ID_TIPO_RICHIESTA">
+								<input type="hidden" id="STATO_RICHIESTA" name="STATO_RICHIESTA">
+								
+								
+			                	<div class="row">
+								<div class="form-group"><label class="col-sm-2 control-label">${label_company}</label>
+                                    <div class="col-sm-10">
+										<select id="ID_AZIENDA" name="ID_AZIENDA" class="form-control" required>
+										</select>
+                                    </div>
+                                </div>
+                                </div>
+
+								<br>
+										
+			                	<div class="row">
+								<div class="form-group"><label class="col-sm-2 control-label">${label_direzione}</label>
+                                    <div class="col-sm-10">
+										<select id="ID_DIREZIONE" name="ID_DIREZIONE" class="form-control" required>
+										</select>
+                                    </div>
+                                </div>
+                                </div>
+
+								<br>
+
+			                	<div class="row">
+								<div class="form-group"><label class="col-sm-2 control-label">${label_nominative}</label>
+                                    <div class="col-sm-10">
+										<select id="ID_RISORSA" name="ID_RISORSA" class="form-control" required></select>
+                                    </div>
+                                </div>
+                                </div>
+
+								<br>
+				                
+			                	<div class="row">
+									<div class="form-group"><label class="col-sm-2 control-label">${label_holiday_permits}</label>
+										<div class="col-sm-10">
+											<select id="GIUSTIFICATIVO" name="GIUSTIFICATIVO" class="form-control" required></select>
+										</div>
+									</div>
+                            </div>
+								
+								<br>
+				                
+			                	<div class="row">
+									<div class="form-group"><label class="col-sm-2 control-label">${label_motivo_richiesta}</label>
+										<div class="col-sm-10">
+											<textarea class="form-control" rows="5" id="MOTIVO" name="MOTIVO" required></textarea>
+										</div>
+									</div>
+                            </div>
+								  
+								<br>
+			                	
+			                	<div class="row">
+						            
+						            <div class="col-md-2">
+						            	<div class="form-group">
+					                		<label class="font-normal">${label_date_from}</label>
+							                <div class="input-group date">
+			                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_DAL" id="DT_DAL" value="<#if DT_DAL?exists>${DT_DAL}</#if>" onchange="javascript:calculate()" required>
+			                                </div>
+			                            </div>
+						            </div>		
+						            
+						            <div class="col-md-2">
+						            	<div class="form-group">
+					                		<label class="font-normal">${label_date_to}</label>
+							                <div class="input-group date">
+			                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date2 paymentDateField form-control" name="DT_AL" id="DT_AL" value="<#if DT_AL?exists>${DT_AL}</#if>" onchange="javascript:calculate()" required>
+			                                </div>
+		                                </div>
+						            </div>		
+				                </div>             <!-- chiude row -->
+				                
+				                
+				                <div class="row">
+				                	<div class="col-md-2">
+				                		<label class="font-normal">${label_hours_from}</label>
+						                <div class="input-group clockpicker" data-autoclose="true">
+			                                <input type="text" class="Time1 paymentTimeField form-control" name="ORA_DAL" id="ORA_DAL" onchange="javascript:calculate()" value="<#if ORA_DAL?exists>${ORA_DAL}</#if>" >
+			                                <span class="input-group-addon">
+			                                    <span class="fa fa-clock-o"></span>
+			                                </span>
+		                            	</div>
+						            </div>
+						             
+						            <div class="col-md-2">
+				                		<label class="font-normal">${label_hours_to}</label>
+						                <div class="input-group clockpicker" data-autoclose="true">
+			                                <input type="text" class="Time2 paymentTimeField form-control" name="ORA_AL" id="ORA_AL" onchange="javascript:calculate()" value="<#if ORA_AL?exists>${ORA_AL}</#if>" >
+			                                <span class="input-group-addon">
+			                                    <span class="fa fa-clock-o"></span>
+			                                </span>
+		                            	</div>
+						            </div>	
+						            
+				                </div>             <!-- chiude row -->
+				                
+				                
+				                <div class="row">
+						            <div class="col-md-2">
+				                		<label class="font-normal">${label_days}</label>
+		                                <div><input type="text" class="Days form-control" name="GIORNI" id="GIORNI" readonly value="<#if GIORNI?exists>${GIORNI}</#if>"></div>
+						            </div>	
+									
+						            <div class="col-md-2">
+				                		<label class="font-normal">${label_hours}</label>
+		                                <div><input type="text" class="Hours form-control" name="ORE" id="ORE" readonly value="<#if ORE?exists>${ORE}</#if>"></div>
+						            </div>	
+									
+						            <div class="col-md-2">
+				                		<label class="font-normal">${label_minutes}</label>
+		                                <div><input type="text" class="Minutes form-control" name="MINUTI" id="MINUTI" readonly value="<#if MINUTI?exists>${MINUTI}</#if>"></div>
+						            </div>	
+				                </div>             <!-- chiude row -->
+				                
+								<div class="row">
+									<div class="hr-separator"></div>
+									<div class="form-group">
+										<div class="col-sm-12">
+											<button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+										</div>
+									</div>
+								</div>
+							
+		                          
+				            </form> 							
+			                
+				            <div class="hr-line-dashed"></div>
+		                        
+	                        <form id="file-upload-1" class="dropzone" name="filesForm" method="post" action="astro?FUNCTIONID=FileUploadAllegatiRichieste" enctype="multipart/form-data">
+	                        	<input type="hidden" name="ID_DOCUMENTAZIONE" value="<#if ID_DOCUMENTAZIONE?exists>${ID_DOCUMENTAZIONE}</#if>">
+	                        	<input type="hidden" name="ID_RICHIESTA" value="<#if ID_RICHIESTA?exists>${ID_RICHIESTA}</#if>">
+	                        	<input type="hidden" name="ID_RISORSA" value="<#if ID_RISORSA?exists>${ID_RISORSA}</#if>">
+								<input type="hidden" name="TIPO" value="FP">
+		                        <div class="fileinput fileinput-new" data-provides="fileinput">
+								    <span class="btn btn-default btn-file"><span class="fileinput-new">Seleziona il file da caricare</span>
+								    <span class="fileinput-exists">Cambia file</span><input type="file" name="..."/></span>
+								    <span class="fileinput-filename"></span>
+								    <a href="#" class="close fileinput-exists" data-dismiss="fileinput" style="float: none">×</a>
+								    <button type="submit" class="btn btn-primary pull-right">Carica</button>
+								</div> 
+	                        </form>							
+		                </div>   <!-- chiude box content -->
+            		</div>       <!-- chiude ibox float-e-margins -->     
+	            </div>	<!-- col-lg-12 -->
+            </div>	<!-- chiude row -->
+            
+            
+        	</div>	<!-- chiude wrapper wrapper-content animated fadeInRight -->
+        
+        
+        	<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+        	
+        </div>
+	</div>
+
+
+</body>
+
+</html>

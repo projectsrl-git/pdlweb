@@ -1,0 +1,3 @@
+-- MENU INTERFERENZE
+INSERT INTO MENU (id_menu_sup,ordine,alias,link,icon) VALUES ((select id_menu from menu where alias ='interferenze'),20,'ModuloInterferenze','astro?FUNCTIONID=ModuloInterferenze','');
+INSERT INTO MENU_LINGUE (id_menu,id_lingue_iso,descrizione) VALUES ((select id_menu from menu where alias ='ModuloInterferenze'),(select id_lingue_iso from lingue_iso where codice_iso='it'),'Modulo Interferenze');

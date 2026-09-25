@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	
+    <script type="text/javascript">
+		var flagRicerca=false;
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSPDL&columns=ID_PDL,FLG_MESSA_IN_SICUREZZA_ELETTRICA,FLG_RIMOZIONE_TEMPORANEA_EIS,FLG_CONSEGNA_VERIFICA_ACCETTAZIONE,FLG_PERMESSO_DI_ACCESSO,FLG_INTERFERENZA_LI_MOD_40_LI_SR_MOD_89,FLG_INTERFERENZA_LI_MOD_40_LI_SR_MOD_89,FLG_CIECATURA,FLG_LOTO,FLG_PERMESSO_ELETTRICO,FLG_PP_MOD_01,NR_PDL,DT_PDL,DESCR_IMPIANTO,DESCR_AREA,DESCR_EQUIPMENT,DESCRIZIONE_LAVORO,RESPONSABILE_CENTRALE_DELEGATO,CANCELLATO&JOLLY_CHAR=*&WHERECONDITION=";
+		var dtWhereCondition="<#if WHERECONDITION?exists>${WHERECONDITION}<#else> AND 1=1 AND NOT CANCELLATO </#if>";
+
+		$(function(){
+			
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiPDL","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO","<#if ID_IMPIANTO?exists>${ID_IMPIANTO}</#if>"," WHERE 1=1 "]);
+			$("#ID_AREA").trigger("loadDataSet",["DSAreaLavoro","ID_AREA","DESCR_AREA","<#if ID_AREA?exists>${ID_AREA}</#if>"," WHERE 1=0 "]);
+			$("#ID_EQUIPMENT").trigger("loadDataSet",["DSEquipment","ID_EQUIPMENT","DESCR_EQUIPMENT","<#if ID_EQUIPMENT?exists>${ID_EQUIPMENT}</#if>"," WHERE 1=0 "]);
+			
+			$("#FERMATA").trigger("loadDataSet",["OpzioneFermata","CODICE","DESCR","true;false",""]);
+			
+			$("#MODULI").trigger("loadDataSet",["OpzioneModuliPDL","CODICE","DESCR","26;32;47;52;71;73;120;01",""]);
+			
+			$("#FERMATA").change(function(){
+				selectedValue=$(this).val();
+			    if (selectedValue.length!=2){
+			    	$("#CHECKBOX_FERMATA").prop('checked',false);
+			    }else{
+			    	$("#CHECKBOX_FERMATA").prop('checked',true);
+			    }
+			});
+			
+			$("#CHECKBOX_FERMATA").click(function(){
+	            if($("#CHECKBOX_FERMATA").is(':checked') ){
+	                $("#FERMATA > option").prop("selected","selected");
+	                $("#FERMATA").trigger("change");
+	            }else{
+	                $("#FERMATA > option").removeAttr("selected");
+	                 $("#FERMATA").trigger("change");
+	             }
+	        });
+			
+			
+			
+			$("#MODULI").change(function(){
+				selectedValue=$(this).val();
+			    if (selectedValue.length!=7){
+			    	$("#CHECKBOX_MODULI").prop('checked',false);
+			    }else{
+			    	$("#CHECKBOX_MODULI").prop('checked',true);
+			    }
+			});
+			
+			$("#CHECKBOX_MODULI").click(function(){
+	            if($("#CHECKBOX_MODULI").is(':checked') ){
+	                $("#MODULI > option").prop("selected","selected");
+	                $("#MODULI").trigger("change");
+	            }else{
+	                $("#MODULI > option").removeAttr("selected");
+	                 $("#MODULI").trigger("change");
+	             }
+	        });
+			
+			
+			$("#ID_IMPIANTO").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_AREA").empty();
+				$("#ID_AREA").select2("destroy");
+				$("#ID_AREA").trigger("loadDataSet",["DSAreaLavoro","ID_AREA","DESCR_AREA","<#if ID_AREA?exists>${ID_AREA}</#if>"," WHERE ID_IMPIANTO="+id+" "]);
+				
+				$("#ID_EQUIPMENT").val("").change();
+			});	
+			
+			
+			$("#ID_AREA").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_EQUIPMENT").empty();
+				$("#ID_EQUIPMENT").select2("destroy");
+				$("#ID_EQUIPMENT").trigger("loadDataSet",["DSEquipment","ID_EQUIPMENT","DESCR_EQUIPMENT","<#if ID_EQUIPMENT?exists>${ID_EQUIPMENT}</#if>"," WHERE ID_AREA="+id+" "]);
+			});	
+			
+			
+	        $('#dt').DataTable({
+				ajax: dtAjax+dtWhereCondition,
+				pageLength:25,
+				columnDefs: [
+					{
+						width:"1%",
+						targets:0,
+						orderable: false,
+						data:null,
+			            defaultContent: '<input type="checkbox">'
+					},
+					{
+						width:"1%",
+						targets:1,
+						orderable: false,
+						data:null,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data[1]==='true') {
+									data = '<a href="#" class="pdfA4Row26" title="Stampa A4"><i class="fa fa-file-pdf-o fa-color-auto" aria-hidden="true"></i></a>';
+								} else {
+									data = '';
+								}
+							}
+							return data;
+						}
+					},
+					{
+						width:"1%",
+						targets:2,
+						orderable: false,
+						data:null,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data[2]==='true') {
+									data = '<a href="#" class="pdfA4Row32" title="Stampa A4"><i class="fa fa-file-pdf-o fa-color-auto" aria-hidden="true"></i></a>';
+								} else {
+									data = '';
+								}
+							}
+							return data;
+						}
+					},
+					{
+						width:"1%",
+						targets:3,
+						orderable: false,
+						data:null,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data[3]==='true') {
+									data = '<a href="#" class="pdfA4Row47" title="Stampa A4"><i class="fa fa-file-pdf-o fa-color-auto" aria-hidden="true"></i></a>';
+								} else {
+									data = '';
+								}
+							}
+							return data;
+						}
+					},
+					{
+						width:"1%",
+						targets:4,
+						orderable: false,
+						data:null,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data[4]==='true') {
+									data = '<a href="#" class="pdfA4Row52" title="Stampa A4"><i class="fa fa-file-pdf-o fa-color-auto" aria-hidden="true"></i></a>';
+								} else {
+									data = '';
+								}
+							}
+							return data;
+						}
+					},
+					{
+						width:"1%",
+						targets:5,
+						orderable: false,
+						visible: false,
+						data:null,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data[5]==='true') {
+									data = '';
+									//data = '<a href="#" class="pdfA4Row64" title="Stampa A4"><i class="fa fa-file-pdf-o fa-color-auto" aria-hidden="true"></i></a>';
+								} else {
+									data = '';
+								}
+							}
+							return data;
+						}
+					},
+					{
+						width:"1%",
+						targets:6,
+						orderable: false,
+						visible: false,
+						data:null,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data[6]==='true') {
+									data = '';
+									//data = '<a href="#" class="pdfA4Row70" title="Stampa A4"><i class="fa fa-file-pdf-o fa-color-auto" aria-hidden="true"></i></a>';
+								} else {
+									data = '';
+								}
+							}
+							return data;
+						}
+					},
+					{
+						width:"1%",
+						targets:7,
+						orderable: false,
+						data:null,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data[7]==='true') {
+									data = '<a href="#" class="pdfA4Row71" title="Stampa A4"><i class="fa fa-file-pdf-o fa-color-auto" aria-hidden="true"></i></a>';
+								} else {
+									data = '';
+								}
+							}
+							return data;
+						}
+					},
+					{
+						width:"1%",
+						targets:8,
+						orderable: false,
+						data:null,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data[8]==='true') {
+									data = '<a href="#" class="pdfA4Row73" title="Stampa A4"><i class="fa fa-file-pdf-o fa-color-auto" aria-hidden="true"></i></a>';
+								} else {
+									data = '';
+								}
+							}
+							return data;
+						}
+					},
+					{
+						width:"1%",
+						targets:9,
+						orderable: false,
+						data:null,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data[9]==='true') {
+									data = '<a href="#" class="pdfA4Row120" title="Stampa A4"><i class="fa fa-file-pdf-o fa-color-auto" aria-hidden="true"></i></a>';
+								} else {
+									data = '';
+								}
+							}
+							return data;
+						}
+					},
+					{
+						width:"1%",
+						targets:10,
+						orderable: false,
+						data:null,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data[10]==='true') {
+									data = '<a href="#" class="pdfA4Row01" title="Stampa A4"><i class="fa fa-file-pdf-o fa-color-auto" aria-hidden="true"></i></a>';
+								} else {
+									data = '';
+								}
+							}
+							return data;
+						}
+					}
+								
+				],
+				
+                dom: '<"html5buttons"B>lTfgitp',
+                language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+    
+                buttons: [
+                    {extend: 'csv', title: $(document).find("title").text()},
+                    {extend: 'excel', title: $(document).find("title").text()},
+                    {extend: 'pdf', title: $(document).find("title").text(), orientation: 'landscape'},
+                    {extend: 'print',
+                     customize: function (win){
+                            $(win.document.body).addClass('white-bg');
+                            $(win.document.body).css('font-size', '10px');
+
+                            $(win.document.body).find('table')
+                                    .addClass('compact')
+                                    .css('font-size', 'inherit');
+                    }
+                    }
+                ],
+                "drawCallback": function( settings ) {
+                	$(".dataTables_filter").hide();    
+                	$(".html5buttons").hide();   
+    	    		
+                	var dataCount=$('#dt').DataTable().column( 0 ).data().length;
+    	    		if(dataCount==0 && flagRicerca) {
+    					$('.modal-title').html('Attenzione!');
+    					$('.modal-text').html('Nessun risultato ottenuto: controllare i filtri impostati per la ricerca...');
+    					$("#modalAlert").modal({backdrop: true});
+    					$('#modalAlert').collapse("show");	    			
+    	    		}
+    	    		
+                },
+                'rowCallback': function(row, data, index){
+                	if (data[17]=='true'){
+                		$(row).find('td:eq(8)').css('background-color', 'yellow');
+                	}
+                },
+				aaSorting: []
+
+            });
+		
+	        $('#free-text-search').keyup(function(){
+	        	$('#dt').DataTable().search($(this).val()).draw() ;
+	        })	        
+	        
+			
+			$("#formDelete").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});					
+			
+			$("#formSearch").validate();
+			
+			$("#formSearch").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();			
+	
+				if (!$("#formSearch").valid()) {
+					return false;
+				}		
+				
+				flagRicerca=true;
+				
+				
+				dtWhereCondition="";
+				
+	    		
+	    		var idImpianto=$("#ID_IMPIANTO").val();
+	    		if (idImpianto != null && idImpianto != "") {
+	    			dtWhereCondition+=" AND ID_IMPIANTO = "+idImpianto+" ";
+	    		}
+
+	    		var idArea=$("#ID_AREA").val();
+	    		if (idArea!=null && idArea != "") {
+	    			dtWhereCondition+=" AND ID_AREA = "+idArea+" ";
+	    		}
+
+	    		var idEquipment=$("#ID_EQUIPMENT").val();
+	    		if (idEquipment !=null && idEquipment != "") {
+	    			dtWhereCondition+=" AND ID_EQUIPMENT = "+idEquipment+" ";
+	    		}
+
+	    		var nrPdl=$("#NR_PDL").val();
+	    		if (nrPdl != "") {
+	    			dtWhereCondition+=" AND NR_PDL LIKE '"+nrPdl+"*' ";
+	    		}
+	    		
+	    		var fermata=tokenizeInConditionFromOptionSelected("FERMATA","'");
+	    		if (fermata != "") {
+	    			dtWhereCondition+=" AND FLG_TA IN ("+fermata+") ";
+	    		}
+	    		
+	    		var moduli=tokenizeInConditionFromOptionSelected("MODULI","'");
+	    		if (moduli != "") {
+	    			
+	    			dtWhereCondition+=" AND (1=0";
+	    			if (moduli.includes("26")){
+	    				dtWhereCondition+=" OR FLG_MESSA_IN_SICUREZZA_ELETTRICA";
+	    			}
+	    			if (moduli.includes("32")){
+	    				dtWhereCondition+=" OR FLG_RIMOZIONE_TEMPORANEA_EIS";
+	    			}
+	    			if (moduli.includes("47")){
+	    				dtWhereCondition+=" OR FLG_CONSEGNA_VERIFICA_ACCETTAZIONE";
+	    			}
+	    			if (moduli.includes("52")){
+	    				dtWhereCondition+=" OR FLG_PERMESSO_DI_ACCESSO";
+	    			}
+	    			if (moduli.includes("71")){
+	    				dtWhereCondition+=" OR FLG_CIECATURA";
+	    			}
+	    			if (moduli.includes("73")){
+	    				dtWhereCondition+=" OR FLG_LOTO";
+	    			}
+	    			if (moduli.includes("120")){
+	    				dtWhereCondition+=" OR FLG_PERMESSO_ELETTRICO";
+	    			}
+	    			
+	    			if (moduli.includes("01")){
+	    				dtWhereCondition+=" OR FLG_IN_QUOTA or FLG_SCAVO or FLG_V9_PDL_A_CALDO";
+	    			}
+	    			dtWhereCondition+=") ";
+	    		}
+	    		
+	    		<#if PROFILO?contains('PLA') || PROFILO?contains('SPL') || PROFILO?contains('ADM')>
+	    			var cancellato=$("#CANCELLATO").is(':checked');
+	    			if (cancellato){
+		    			//dtWhereCondition+=" AND CANCELLATO";
+	    			}else{
+		    			dtWhereCondition+=" AND NOT CANCELLATO";
+	    			}
+				</#if>
+			
+	    		
+	    		$( "#dt" ).DataTable().ajax.url( dtAjax+dtWhereCondition ).load();
+				
+			});			
+			
+			$('#dt tbody').on( 'click', '.pdfA4Row26', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+	            
+				$('#ID_PDL_STAMPA').val(data[0]);
+				$('#FORMATO_STAMPA').val('A4');
+				$('#MODULO').val("LIMOD26");
+				$('.modal-title').html('Stampa');
+				$('.modal-text').html('Confermi la stampa PDF del modulo selezionato?');
+				$("#modalQuestionDialogPrint").modal({backdrop: true});
+				$('#modalQuestionDialogPrint').collapse("show");
+	    	});		
+			
+			$('#dt tbody').on( 'click', '.pdfA4Row32', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+	            
+				$('#ID_PDL_STAMPA').val(data[0]);
+				$('#FORMATO_STAMPA').val('A4');
+				$('#MODULO').val("LIMOD32");
+				$('.modal-title').html('Stampa');
+				$('.modal-text').html('Confermi la stampa PDF del modulo selezionato?');
+				$("#modalQuestionDialogPrint").modal({backdrop: true});
+				$('#modalQuestionDialogPrint').collapse("show");
+	    	});	
+			
+			$('#dt tbody').on( 'click', '.pdfA4Row47', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+	            
+				$('#ID_PDL_STAMPA').val(data[0]);
+				$('#FORMATO_STAMPA').val('A4');
+				$('#MODULO').val("LIMOD47");
+				$('.modal-title').html('Stampa');
+				$('.modal-text').html('Confermi la stampa PDF del modulo selezionato?');
+				$("#modalQuestionDialogPrint").modal({backdrop: true});
+				$('#modalQuestionDialogPrint').collapse("show");
+	    	});	
+			
+			$('#dt tbody').on( 'click', '.pdfA4Row52', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+	            
+				$('#ID_PDL_STAMPA').val(data[0]);
+				$('#FORMATO_STAMPA').val('A4');
+				$('#MODULO').val("LIMOD52");
+				$('.modal-title').html('Stampa');
+				$('.modal-text').html('Confermi la stampa PDF del modulo selezionato?');
+				$("#modalQuestionDialogPrint").modal({backdrop: true});
+				$('#modalQuestionDialogPrint').collapse("show");
+	    	});	
+			
+			$('#dt tbody').on( 'click', '.pdfA4Row64', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+	            
+				$('#ID_PDL_STAMPA').val(data[0]);
+				$('#FORMATO_STAMPA').val('A4');
+				$('#MODULO').val("LIMOD64");
+				$('.modal-title').html('Stampa');
+				$('.modal-text').html('Confermi la stampa PDF del modulo selezionato?');
+				$("#modalQuestionDialogPrint").modal({backdrop: true});
+				$('#modalQuestionDialogPrint').collapse("show");
+	    	});	
+			
+			$('#dt tbody').on( 'click', '.pdfA4Row70', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+	            
+				$('#ID_PDL_STAMPA').val(data[0]);
+				$('#FORMATO_STAMPA').val('A4');
+				$('#MODULO').val("LIMOD70");
+				$('.modal-title').html('Stampa');
+				$('.modal-text').html('Confermi la stampa PDF del modulo selezionato?');
+				$("#modalQuestionDialogPrint").modal({backdrop: true});
+				$('#modalQuestionDialogPrint').collapse("show");
+	    	});	
+			
+			$('#dt tbody').on( 'click', '.pdfA4Row71', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+	            
+				$('#ID_PDL_STAMPA').val(data[0]);
+				$('#FORMATO_STAMPA').val('A4');
+				$('#MODULO').val("LIMOD71");
+				$('.modal-title').html('Stampa');
+				$('.modal-text').html('Confermi la stampa PDF del modulo selezionato?');
+				$("#modalQuestionDialogPrint").modal({backdrop: true});
+				$('#modalQuestionDialogPrint').collapse("show");
+	    	});	
+			
+			$('#dt tbody').on( 'click', '.pdfA4Row73', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+	            
+				$('#ID_PDL_STAMPA').val(data[0]);
+				$('#FORMATO_STAMPA').val('A4');
+				$('#MODULO').val("LIMOD73");
+				$('.modal-title').html('Stampa');
+				$('.modal-text').html('Confermi la stampa PDF del modulo selezionato?');
+				$("#modalQuestionDialogPrint").modal({backdrop: true});
+				$('#modalQuestionDialogPrint').collapse("show");
+	    	});	
+			
+			$('#dt tbody').on( 'click', '.pdfA4Row120', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+	            
+				$('#ID_PDL_STAMPA').val(data[0]);
+				$('#FORMATO_STAMPA').val('A4');
+				$('#MODULO').val("LIMOD120");
+				$('.modal-title').html('Stampa');
+				$('.modal-text').html('Confermi la stampa PDF del modulo selezionato?');
+				$("#modalQuestionDialogPrint").modal({backdrop: true});
+				$('#modalQuestionDialogPrint').collapse("show");
+	    	});	
+			
+			$('#dt tbody').on( 'click', '.pdfA4Row01', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+	            
+				$('#ID_PDL_STAMPA').val(data[0]);
+				$('#FORMATO_STAMPA').val('A4');
+				$('#MODULO').val("PPMOD01");
+				$('.modal-title').html('Stampa');
+				$('.modal-text').html('Confermi la stampa PDF del modulo selezionato?');
+				$("#modalQuestionDialogPrint").modal({backdrop: true});
+				$('#modalQuestionDialogPrint').collapse("show");
+	    	});	
+			
+			
+			$( "#report" ).click(function() {
+	    		var dataCount=$('#dt').DataTable().column( 0 ).data().length;
+	    		if(dataCount>200) {
+					$('.modal-title').html('Attenzione!');
+					$('.modal-text').html('Il report che si desidera stampare supera le 200 righe. Si consiglia di restringere la ricerca');
+					$("#modalAlert").modal({backdrop: true});
+					$('#modalAlert').collapse("show");	    			
+	    		} else {
+		    		$('#dt').DataTable().button( 2 ).trigger();
+	    		}
+	    		
+	    	});
+	    	
+	    	$( "#excel" ).click(function() {
+	    		$('#dt').DataTable().button( 1 ).trigger();
+	    	});
+	    	
+	    	$( "#csv" ).click(function() {
+	    		$('#dt').DataTable().button( 0 ).trigger();
+	    	});				
+	    	
+		});	        
+		
+		
+		
+		 $(document).ready(function (){
+			    // Array holding selected row IDs
+			    var rows_selected = [];
+			    var table = $('#dt').DataTable();
+
+			    // Handle click on checkbox
+			    $('#dt tbody').on('click', 'input[type="checkbox"]', function(e){
+			       var $row = $(this).closest('tr');
+
+			       // Get row data
+			       var data = table.row($row).data();
+
+			       // Get row ID
+			       var rowId = data[0];
+
+			       // Determine whether row ID is in the list of selected row IDs 
+			       var index = $.inArray(rowId, rows_selected);
+
+			       // If checkbox is checked and row ID is not in list of selected row IDs
+			       if(this.checked && index === -1){
+			          rows_selected.push(rowId);
+
+			       // Otherwise, if checkbox is not checked and row ID is in list of selected row IDs
+			       } else if (!this.checked && index !== -1){
+			          rows_selected.splice(index, 1);
+			       }
+
+			       if(this.checked){
+			          $row.addClass('selected');
+			       } else {
+			          $row.removeClass('selected');
+			       }
+
+			      
+
+			       // Prevent click event from propagating to parent
+			       e.stopPropagation();
+			    });
+
+			    // Handle click on table cells with checkboxes
+			    $('#dt').on('click', 'tbody td, thead th:first-child', function(e){
+			       $(this).parent().find('input[type="checkbox"]').trigger('click');
+			    });
+
+			  
+			    // Handle form submission event 
+			    $( "#stampa" ).click(function() {
+					var count=0;
+					var arraySelezionati = [];
+					
+			       // Iterate over all selected checkboxes
+			       $.each(rows_selected, function(index, rowId){
+			          // Create a hidden element
+			          count++;
+			         arraySelezionati.push(rowId);
+			       });
+			       
+			       
+			       $('#ID_MODULO_STAMPA_MULTIPLI').val(arraySelezionati);
+				   
+			       alert(arraySelezionati);
+			       
+	   			   //$('#ID_PDL_STAMPA').val(data[0]);
+	   			   $('#ID_PDL_STAMPA_MULTIPLI').val(arraySelezionati[0]);
+				   $('#FORMATO_STAMPA_MULTIPLI').val('A4');
+				   $("#formStampaPDLMultipliWorkbook").submit();
+				   
+				   
+				   
+				   
+			    });
+			  
+			    $("#formStampa").submit(function(event) {
+					event.preventDefault();
+					this.submit();
+					//setTimeout(function(){
+					//	$( "#dt" ).DataTable().ajax.reload();
+					//}, 100);
+				});		
+			    
+			    
+			    $("#formStampaPDLMultipliWorkbook").submit(function(event) {
+					event.preventDefault();
+					this.submit();
+					//setTimeout(function(){
+					//	$( "#dt" ).DataTable().ajax.reload();
+					//}, 100);
+				});		
+				
+			 });
+		
+    </script> 
+
+</head>
+
+<body>
+
+	<form action="astro" method="post" id="formStampa" name="formStampa">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="StampaPDL">	
+		<input type="hidden" id="ID_PDL_STAMPA" name="ID_PDL">
+		<input type="hidden" id="FORMATO_STAMPA" name="FORMATO_STAMPA">
+		<input type="hidden" id="MODULO" name="MODULO">
+	</form>
+	
+		<form action="astro" method="post" id="formStampaPDLMultipliWorkbook" name="formStampaPDLMultipliWorkbook">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="StampaPDLMultipliWorkbook">	
+		<input type="hidden" id="ID_PDL_STAMPA_MULTIPLI" name="ID_PDL">
+		<input type="hidden" id="FORMATO_STAMPA_MULTIPLI" name="FORMATO_STAMPA">
+		<input type="hidden" id="ID_MODULO_STAMPA_MULTIPLI" name="ID_MODULO_STAMPA">
+	</form>
+	
+	<div class="modal inmodal fade" id="modalAlert" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalAlert').collapse('hide');">${label_ok}</button>
+				</div>
+			</div>
+		</div>
+	</div>		
+	
+	<div class="modal inmodal fade" id="modalQuestionDialogPrint" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialogPrint').collapse('toggle');$('#formStampa').submit();" data-dismiss="modal" type="button">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+		
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();" data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+           
+			<div class="row">
+                <div class="col-sm-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                                   
+							<div class="row">
+								<div class="col-sm-12">							
+							
+									<form action="astro" method="get" id="formSearch" name="formSearch" class="form-horizontal">
+										<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="RicercaPDL">
+										
+		                                <div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">${label_sito}:</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control" required>
+			                                    </select>
+											</div>
+											
+		                                	<label class="col-sm-2 control-label-left">Impianto:</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="ID_IMPIANTO" name="ID_IMPIANTO"  class="form-control">
+			                                    </select>
+											</div>
+		                                </div>
+		                                    
+		                                <div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">Area di lavoro:</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="ID_AREA" name="ID_AREA"  class="form-control">
+			                                    </select>
+											</div>
+											
+		                                	<label class="col-sm-2 control-label-left">Equipment:</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="ID_EQUIPMENT" name="ID_EQUIPMENT"  class="form-control">
+			                                    </select>
+											</div>
+		                                </div>
+		                                    
+		                                <div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">Nr.PdL:</label>
+		                                    <div class="col-sm-4"><input type="text" class="form-control" id="NR_PDL" name="NR_PDL"></div>
+		                                   
+		                                	<label class="col-sm-2 control-label-left">Stato fermata:</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="FERMATA" name="FERMATA"  class="form-control" multiple>
+			                                    </select>
+												<input type="checkbox" id="CHECKBOX_FERMATA">${label_select_all}
+											</div>
+		                                </div>
+		                                
+		                                
+		                                <div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">Moduli:</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="MODULI" name="MODULI"  class="form-control" multiple>
+			                                    </select>
+												<input type="checkbox" id="CHECKBOX_MODULI">${label_select_all}
+											</div>
+											
+											<#if PROFILO?contains('PLA') || PROFILO?contains('SPL') || PROFILO?contains('ADM')>
+												<label class="col-sm-2 control-label-left">Visualizza PdL cancellati</label>
+			                                    <div class="col-sm-4">
+				                                   <input id="CANCELLATO" name="CANCELLATO" type="checkbox">
+												</div>
+											</#if>
+		                                
+		                                </div>
+										
+										
+										<div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">Ricerca in linea:</label>
+		                                    <div class="col-sm-10">
+				                                <input type="text" id="free-text-search" name="free-text-search"  class="form-control" placeholder="digita il testo che vuoi cercare per aggiornare subito i risultati">
+											</div>
+		                                </div>
+		                                
+										<div class="form-group" id="salva-group">
+											<div class="col-sm-12">
+												<button class="btn btn-primary btn-sm" type="submit">${label_search}</button>
+												<button class="btn btn-primary btn-sm" type="button" id="report" name="report">PDF</button>
+												<button class="btn btn-primary btn-sm" type="button" id="excel" name="excel">XLS</button>
+												<button class="btn btn-primary btn-sm" type="button" id="csv" name="csv">CSV</button>
+												<!-- <button class="btn btn-primary btn-sm" id="ricerca" type="button" name="ricerca">Stampa Documenti</button> -->
+												<button class="btn btn-primary btn-sm" type="button" id="stampa" name="stampa">Stampa Documenti</button>
+											</div>
+										</div>				
+										
+									</form>
+									
+									<div class="hr-line-dashed"></div>
+						
+			                        <div class="table-responsive">
+										<table id="dt" class="table table-striped table-bordered table-hover" >
+											<thead>
+												<tr>
+													<th></th>
+													<th>LI-MOD 26</th>
+													<th>LI-MOD 32</th>
+													<th>LI-MOD 47</th>
+													
+													<th>LI-MOD 52</th>
+													<th>LI-MOD 64</th>
+													<th>LI-MOD 70</th>
+													<th>LI-MOD 71</th>
+													<th>LI-MOD 73</th>
+													<th>LI-MOD 120</th>
+													<th>PP MOD 01</th>
+													
+													<th>Nr.PdL</th>
+													<th>Data</th>
+													<th>Impianto</th>
+													<th>Area</th>
+													<th>Equipment</th>
+													<th>Descrizione Lavoro</th>
+													<th>Permit Issuer</th>
+												</tr>
+											</thead>
+										
+										</table>
+			                        </div>
+
+                    			</div>
+					
+                			</div>
+						</div>
+            		</div>
+				</div>
+			</div>
+						
+			<#if INCLUDED_FOOTER_PDLWEB?exists><#include INCLUDED_FOOTER_PDLWEB></#if>
+		
+		</div>
+
+	</div>
+	
+
+</body>
+
+</html>

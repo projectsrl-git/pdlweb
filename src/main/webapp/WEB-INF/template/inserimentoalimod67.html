@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+
+	<script src="js/pjwebapp_insert_form.jquery.js?201803012"></script>
+    <script src="js/plugins/dropzone/dropzone.js"></script>
+
+    <link href="css/plugins/dropzone/basic.css" rel="stylesheet">
+    <link href="css/plugins/dropzone/dropzone.css" rel="stylesheet">
+	
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+<style type="text/css">
+
+</style>
+
+    <script type="text/javascript">
+    
+		var profilo="<#if PROFILO?exists>${PROFILO}</#if>";
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSALIMOD67Dettaglio&columns=ID_DETTAGLIO,ID_DETTAGLIO,AZIONI_RACCOMANDATE&WHERECONDITION=";
+    	var dtWhereCondition="<#if ID_MODULO?exists && ID_MODULO!=''>WHERE ID_MODULO = ${ID_MODULO}<#else> WHERE 1=0 </#if>";
+    	var stato="<#if STATO?exists>${STATO}</#if>";
+    	var readOnly="<#if READONLY?exists>${READONLY}<#else>N</#if>";
+		
+    	function creaPadFirma(){
+    		
+    		<#if FILE_FIRMA1?exists>
+    		<#else>
+			var signaturePadFirma1 = new SignaturePad(document.getElementById('signature-pad-firma1'), {
+    			  backgroundColor: 'rgb(255,255,255)',
+    			  penColor: 'rgb(0, 0, 0)'
+    		});
+    			
+    		var cancelButton1 = document.getElementById('clear1');
+    			cancelButton1.addEventListener('click', function (event) {
+    			signaturePadFirma1.clear();
+			});
+    		  	</#if>
+
+        		<#if FILE_FIRMA2?exists>
+        		<#else>
+			var signaturePadFirma2 = new SignaturePad(document.getElementById('signature-pad-firma2'), {
+  			  backgroundColor: 'rgb(255,255,255)',
+  			  penColor: 'rgb(0, 0, 0)'
+	  		});
+	  			
+    		var cancelButton2 = document.getElementById('clear2');
+    			cancelButton2.addEventListener('click', function (event) {
+				signaturePadFirma2.clear();
+			});
+    		  	</#if>
+
+        		<#if FILE_FIRMA3?exists>
+        		<#else>
+    		var signaturePadFirma3 = new SignaturePad(document.getElementById('signature-pad-firma3'), {
+				  backgroundColor: 'rgb(255,255,255)',
+				  penColor: 'rgb(0, 0, 0)'
+			});
+				
+    		var cancelButton3 = document.getElementById('clear3');
+    			cancelButton3.addEventListener('click', function (event) {
+    			signaturePadFirma3.clear();
+			});
+		  	</#if>
+    	}
+
+		$(function(){
+			
+	        $("#WORKFLOW_ACTION").val("");
+			$("#STATO").attr("disabled", true);
+			$("#inviaApprovatore").hide();
+			$("#ALTRO_EMAIL").attr("disabled", true);
+			
+			creaPadFirma();
+			
+			$("#ID_UTENTE").val(<#if ID_UTENTE?exists>${ID_UTENTE}</#if>);
+			
+			$("#CODICE_BL").trigger("loadDataSet",["DSBusinessLine","CODICE","DESCRIZIONE","<#if CODICE_BL?exists>${CODICE_BL}</#if>"," WHERE 1=1 "]);
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiQHSE","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_UTENTE_CON").trigger("loadDataSet",["DSUtentiAziendeProfili","ID_UTENTE","NOME_COGNOME","<#if ID_UTENTE_CON?exists>${ID_UTENTE_CON}</#if>","  WHERE CODICE_PROFILO='CON' "]);
+			$("#STATO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if STATO?exists>${STATO}</#if>"," WHERE DOMINIO='STA' "]);
+
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			$("#ID_MODULO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			$("#CODICE_MODULO").val("<#if CODICE_MODULO?exists>${CODICE_MODULO}</#if>");
+			$("#DT_MODULO").val("<#if DT_MODULO?exists>${DT_MODULO}</#if>").change();
+			$("#TITOLO").val("<#if TITOLO?exists>${TITOLO}</#if>").change();
+			$("#NR_MODULO").val("<#if NR_MODULO?exists>${NR_MODULO}</#if>");
+			$("#NR_MODULO").attr("disabled", true);
+			
+			$("#ID_MODULO_DETTAGLIO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+
+			$("#OSSERVATO").val("<#if OSSERVATO?exists>${OSSERVATO}</#if>");
+			$("#MANSIONE").val("<#if MANSIONE?exists>${MANSIONE}</#if>");
+			$("#ATTIVITA_OSSERVATA").val("<#if ATTIVITA_OSSERVATA?exists>${ATTIVITA_OSSERVATA}</#if>");
+			$("#OSSERVATORE").val("<#if OSSERVATORE?exists>${OSSERVATORE}</#if>");
+			$("#ALTRO_OSSERVATORE").val("<#if ALTRO_OSSERVATORE?exists>${ALTRO_OSSERVATORE}</#if>");
+			
+			$("#FL_GEST_POSTAZIONE_1").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_GEST_POSTAZIONE_1?exists>${FL_GEST_POSTAZIONE_1}</#if>"]);
+			$("#FL_GEST_POSTAZIONE_2").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_GEST_POSTAZIONE_2?exists>${FL_GEST_POSTAZIONE_2}</#if>"]);
+			$("#FL_GEST_POSTAZIONE_3").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_GEST_POSTAZIONE_3?exists>${FL_GEST_POSTAZIONE_3}</#if>"]);
+			$("#FL_GEST_POSTAZIONE_4").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_GEST_POSTAZIONE_4?exists>${FL_GEST_POSTAZIONE_4}</#if>"]);
+
+			$("#NOTE_GEST_POSTAZIONE_1").val("<#if NOTE_GEST_POSTAZIONE_1?exists>${NOTE_GEST_POSTAZIONE_1}</#if>");
+			$("#NOTE_GEST_POSTAZIONE_2").val("<#if NOTE_GEST_POSTAZIONE_2?exists>${NOTE_GEST_POSTAZIONE_2}</#if>");
+			$("#NOTE_GEST_POSTAZIONE_3").val("<#if NOTE_GEST_POSTAZIONE_3?exists>${NOTE_GEST_POSTAZIONE_3}</#if>");
+			$("#NOTE_GEST_POSTAZIONE_4").val("<#if NOTE_GEST_POSTAZIONE_4?exists>${NOTE_GEST_POSTAZIONE_4}</#if>");
+			
+			$("#FL_ERGONOMIA_1").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_ERGONOMIA_1?exists>${FL_ERGONOMIA_1}</#if>"]);
+			$("#FL_ERGONOMIA_2").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_ERGONOMIA_2?exists>${FL_ERGONOMIA_2}</#if>"]);
+			$("#FL_ERGONOMIA_3").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_ERGONOMIA_3?exists>${FL_ERGONOMIA_3}</#if>"]);
+			$("#FL_ERGONOMIA_4").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_ERGONOMIA_4?exists>${FL_ERGONOMIA_4}</#if>"]);
+			$("#FL_ERGONOMIA_5").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_ERGONOMIA_5?exists>${FL_ERGONOMIA_5}</#if>"]);
+			$("#FL_ERGONOMIA_6").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_ERGONOMIA_6?exists>${FL_ERGONOMIA_6}</#if>"]);
+			
+			$("#NOTE_ERGONOMIA_1").val("<#if NOTE_ERGONOMIA_1?exists>${NOTE_ERGONOMIA_1}</#if>");
+			$("#NOTE_ERGONOMIA_2").val("<#if NOTE_ERGONOMIA_2?exists>${NOTE_ERGONOMIA_2}</#if>");
+			$("#NOTE_ERGONOMIA_3").val("<#if NOTE_ERGONOMIA_3?exists>${NOTE_ERGONOMIA_3}</#if>");
+			$("#NOTE_ERGONOMIA_4").val("<#if NOTE_ERGONOMIA_4?exists>${NOTE_ERGONOMIA_4}</#if>");
+			$("#NOTE_ERGONOMIA_5").val("<#if NOTE_ERGONOMIA_5?exists>${NOTE_ERGONOMIA_5}</#if>");
+			$("#NOTE_ERGONOMIA_6").val("<#if NOTE_ERGONOMIA_6?exists>${NOTE_ERGONOMIA_6}</#if>");
+
+			$("#FL_PROCEDURE_1").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_PROCEDURE_1?exists>${FL_PROCEDURE_1}</#if>"]);
+			$("#FL_PROCEDURE_2").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_PROCEDURE_2?exists>${FL_PROCEDURE_2}</#if>"]);
+			$("#FL_PROCEDURE_3").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_PROCEDURE_3?exists>${FL_PROCEDURE_3}</#if>"]);
+			$("#FL_PROCEDURE_4").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_PROCEDURE_4?exists>${FL_PROCEDURE_4}</#if>"]);
+			
+			$("#NOTE_PROCEDURE_1").val("<#if NOTE_PROCEDURE_1?exists>${NOTE_PROCEDURE_1}</#if>");
+			$("#NOTE_PROCEDURE_2").val("<#if NOTE_PROCEDURE_2?exists>${NOTE_PROCEDURE_2}</#if>");
+			$("#NOTE_PROCEDURE_3").val("<#if NOTE_PROCEDURE_3?exists>${NOTE_PROCEDURE_3}</#if>");
+			$("#NOTE_PROCEDURE_4").val("<#if NOTE_PROCEDURE_4?exists>${NOTE_PROCEDURE_4}</#if>");
+
+			
+			
+			$("#FL_ATTREZZATURE_1").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_ATTREZZATURE_1?exists>${FL_ATTREZZATURE_1}</#if>"]);
+			$("#FL_ATTREZZATURE_2").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_ATTREZZATURE_2?exists>${FL_ATTREZZATURE_2}</#if>"]);
+			
+			$("#NOTE_ATTREZZATURE_1").val("<#if NOTE_ATTREZZATURE_1?exists>${NOTE_ATTREZZATURE_1}</#if>");
+			$("#NOTE_ATTREZZATURE_2").val("<#if NOTE_ATTREZZATURE_2?exists>${NOTE_ATTREZZATURE_2}</#if>");
+			
+			$("#FL_DPI_1").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_DPI_1?exists>${FL_DPI_1}</#if>"]);
+			$("#FL_DPI_2").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_DPI_2?exists>${FL_DPI_2}</#if>"]);
+			$("#FL_DPI_3").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_DPI_3?exists>${FL_DPI_3}</#if>"]);
+			$("#FL_DPI_4").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_DPI_4?exists>${FL_DPI_4}</#if>"]);
+			$("#FL_DPI_5").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_DPI_5?exists>${FL_DPI_5}</#if>"]);
+			$("#FL_DPI_6").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_DPI_6?exists>${FL_DPI_6}</#if>"]);
+			$("#FL_DPI_7").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_DPI_7?exists>${FL_DPI_7}</#if>"]);
+
+			$("#NOTE_DPI_1").val("<#if NOTE_DPI_1?exists>${NOTE_DPI_1}</#if>");
+			$("#NOTE_DPI_2").val("<#if NOTE_DPI_2?exists>${NOTE_DPI_2}</#if>");
+			$("#NOTE_DPI_3").val("<#if NOTE_DPI_3?exists>${NOTE_DPI_3}</#if>");
+			$("#NOTE_DPI_4").val("<#if NOTE_DPI_4?exists>${NOTE_DPI_4}</#if>");
+			$("#NOTE_DPI_5").val("<#if NOTE_DPI_5?exists>${NOTE_DPI_5}</#if>");
+			$("#NOTE_DPI_6").val("<#if NOTE_DPI_6?exists>${NOTE_DPI_6}</#if>");
+			$("#NOTE_DPI_7").val("<#if NOTE_DPI_7?exists>${NOTE_DPI_7}</#if>");
+			
+			$("#FL_VALUTAZIONE_1").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_VALUTAZIONE_1?exists>${FL_VALUTAZIONE_1}</#if>"]);
+			$("#FL_VALUTAZIONE_2").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR","<#if FL_VALUTAZIONE_2?exists>${FL_VALUTAZIONE_2}</#if>"]);
+			
+			$("#NOTE_VALUTAZIONE_1").val("<#if NOTE_VALUTAZIONE_1?exists>${NOTE_VALUTAZIONE_1}</#if>");
+			$("#NOTE_VALUTAZIONE_2").val("<#if NOTE_VALUTAZIONE_2?exists>${NOTE_VALUTAZIONE_2}</#if>");
+			
+			
+			var operationType=$("#OPERATION_TYPE").val();
+			
+			if (operationType=="INSERT") {
+				$("#dettagli").hide();
+    			$("#questionario").hide();
+			}
+
+			if (readOnly=="Y") {
+				disableFieldsReadOnly();
+			} else {
+				if (stato=="WAI" || stato=='WQP') {
+					disableFieldsReadOnly();
+				} else if (stato=="WAI" || stato=='WQP') {
+					disableFieldsReadOnly();
+				} else if (stato=="APP" || stato=='AQP') {
+					disableFieldsStatusAPP();
+				} else if (stato=="DRA") {
+					disableFieldsStatusDRA();
+				}
+			}
+
+			$("#formInserimento").validate();
+			$("#formAggiungiDettaglio").validate();
+			
+			$("#CODICE_BL").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_AZIENDA").empty();
+				$("#ID_AZIENDA").select2("destroy");
+				$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiQHSE","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE codice_bl='"+id+"' "]);
+			});	
+			
+			
+			$("#ID_UTENTE_CON").on("select2:selecting", function(e) { 
+				var text= e.params.args.data.text;
+				$("#OSSERVATO").val(text);
+			});	
+			
+
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					$("#WORKFLOW_ACTION").val("");
+					return false;
+				}
+				
+				$("#salva-group").hide();
+
+				var idModulo=$("#ID_MODULO").val();
+				if (idModulo!='') {
+					$("#OPERATION_TYPE").val("UPDATE");
+				}
+				
+	    		<#if FILE_FIRMA1?exists>
+				$("#FIRMA1").val("${FILE_FIRMA1}");	
+				$("#FIRMA2").val("${FILE_FIRMA2}");	
+				$("#FIRMA3").val("${FILE_FIRMA3}");	    		
+	    		<#else>
+				var firma1 = ''+document.getElementById('signature-pad-firma1').toDataURL('image/png');
+				var firma2 = ''+document.getElementById('signature-pad-firma2').toDataURL('image/png');
+				var firma3 = ''+document.getElementById('signature-pad-firma3').toDataURL('image/png');
+				$("#FIRMA1").val(firma1);	
+				$("#FIRMA2").val(firma2);	
+				$("#FIRMA3").val(firma3);
+				</#if>
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					
+					$("#salva-group").show();
+					var result = eval('('+response+')');
+					
+					if (result.result) {
+		    		var operationType=$("#OPERATION_TYPE").val();
+		    		if (operationType != "" && operationType=="INSERT") {
+		    			var idModulo=result.id;
+		    			var nrModulo=result.nr;
+		    			if (idModulo != null && idModulo != "") {
+							$("#ID_MODULO").val(idModulo);
+							$("#NR_MODULO").val(nrModulo);
+							$("#ID_MODULO_DETTAGLIO").val(idModulo);
+							$("#dettagli").show();
+				    			$("#inviaApprovatore").show();
+			    			$("#questionario").show();
+						}
+		    		}
+		    		
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+
+						stato=result.stato;
+						$("#STATO").val(stato).change();
+
+						resetUnsaved();
+
+						/*
+						if (profilo.indexOf("ADM")==-1 && profilo.indexOf("QHS")==-1 ) {
+							if (stato=="WAI") {
+								disableFieldsReadOnly();
+							} else if (stato=="WAI") {
+								disableFieldsReadOnly();
+							} else if (stato=="APP") {
+								disableFieldsStatusAPP();
+							} else if (stato=="DRA") {
+								disableFieldsStatusDRA();
+							}
+						}
+						*/
+					}
+
+				});
+				
+			});
+					
+			
+			$("#formAggiungiDettaglio").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formAggiungiDettaglio").valid()) {
+					return false;
+				}		
+				
+				if ($("#ID_DETTAGLIO").val()=="") {
+					$("#OPERATION_TYPE_DETTAGLIO").val("INSERT");
+				} else {
+					$("#OPERATION_TYPE_DETTAGLIO").val("UPDATE");
+				}
+				
+				$("#formAggiungiDettaglio :input:visible").attr("disabled", false);
+				$("#aggiungi").text('Aggiungi'); 
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) {
+					var result = eval('('+response+')');
+					
+					if (result.result) {
+						
+						<#if STATO?exists && (STATO='APP' || STATO='AQP')>			
+						disableFieldsStatusAPP();
+						</#if>				
+						
+						// reset dettaglio
+						$('#ID_DETTAGLIO').val("");
+						$('#AZIONI_RACCOMANDATE').val("");
+						// reset dettaglio
+						
+			    		var id=$("#ID_MODULO").val();
+			    		
+			    		dtWhereCondition=" WHERE 1=0 ";
+			    		if (id != "") {
+			    			dtWhereCondition=" WHERE ID_MODULO = "+id;
+			    		}
+						
+						$( "#dt" ).DataTable().ajax.url( dtAjax+dtWhereCondition ).load();
+					}					
+				});
+				
+			});			
+			
+			
+			$("#aggiungi").click(function() {
+				
+				if ($("#ID_DETTAGLIO").val()=="") {
+					$("#OPERATION_TYPE_DETTAGLIO").val("INSERT");
+				} else {
+					$("#OPERATION_TYPE_DETTAGLIO").val("UPDATE");
+				}
+				
+				$("#formAggiungiDettaglio").submit();
+				
+			});			
+			
+			
+	        $('#dt').DataTable({
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	  
+	            "ajax": dtAjax+dtWhereCondition,				
+				columnDefs: [
+					{
+						width:"1%",
+						targets:0,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="editRow" title="${label_edit}"><i class="fa fa-pencil fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						visible: <#if (READONLY?exists && READONLY='Y') || (STATO?exists && STATO!='DRA')>false<#else>true</#if>,
+						targets:1,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="deleteRow" title="${label_delete}"><i class="fa fa-trash-o fa-color-auto" aria-hidden="true"></i></a>'
+					}
+					
+				],
+				
+	            dom: '<"html5buttons"B>lTgitp',
+	            language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+	
+	            buttons: [
+	            ],
+				aaSorting: []
+	
+	        });
+	        
+	        
+	        $('#dt tbody').on( 'click', '.editRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_DETTAGLIO').val(data[0]);
+				$('#AZIONI_RACCOMANDATE').val(data[2]);
+				$("#AZIONI_RACCOMANDATE").focus(); 
+	        } );
+	        
+	        
+	        $('#dt tbody').on( 'click', '.deleteRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#keyField').val("ID_DETTAGLIO");
+				$('#keyValue').val(data[0]);
+				$('#FUNCTIONID_DELETE').val("InserimentoDettaglioALIMOD67");
+				$('.modal-title').html('${label_delete_title_message}');
+				$('.modal-text').html('${label_delete_text_message}');
+				$("#modalQuestionDialog").modal({backdrop: true});
+				$('#modalQuestionDialog').collapse("show");
+	        } );	        
+	        
+	        
+			$("#formDelete").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( "#dt-impurezze" ).DataTable().ajax.reload();
+					$( "#dt-prodotti" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});
+			
+			
+        	$( "#inviaApprovatore" ).click(function() {
+				$('.modal-title').html('Invia modulo');
+				$('.modal-text').html('Confermi invio modulo per approvazione?');
+				$("#modalQuestionDialogPublish").modal({backdrop: true});
+				$('#modalQuestionDialogPublish').collapse("show");
+        	});
+	        			
+			$("#formPublish").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+				
+		        var formName = $(this).attr('name');
+
+		        var id_modulo=$("#ID_MODULO").val();
+				$("#SQL_STATEMENT").val("update ALIMOD67 set STATO='WAI' where id_modulo="+id_modulo+" ");
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+					disableFieldsReadOnly();
+					$("#STATO").val("WAI").change();
+				});
+			});		
+			
+			
+		});
+
+		function disableFieldsStatusDRA() {
+			var idModulo=$("#ID_MODULO").val();
+			if (idModulo!=null && idModulo!="") {
+				$("#inviaApprovatore").show();
+			} else {
+				$("#inviaApprovatore").hide();
+			}
+			
+		}
+
+
+		function disableFieldsStatusAPP() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#formAggiungiDettaglio :input:visible").attr("disabled", true);
+			$("#aggiungi").attr("disabled", false);
+			$("#salva").hide();
+			$("#inviaApprovatore").hide();
+			$("#aggiungi").show();
+		}
+
+		function disableFieldsReadOnly() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#formAggiungiDettaglio :input:visible").attr("disabled", true);
+			$("#salva").hide();
+			$("#inviaApprovatore").hide();
+			$("#aggiungi").hide();
+		}
+
+		
+		function initDropzone() {
+			
+			var myDropzone = Dropzone.forElement("#myDropzone");
+				
+			var listaFile=$("#LISTA_ALLEGATI").val();
+			if (listaFile !="") {
+				var myStringArray = listaFile.split(";");
+				var arrayLength = myStringArray.length;
+				for (var i = 0; i < arrayLength; i++) {
+
+					// Create the mock file:
+					var mockFile = { name: myStringArray[i] };
+
+					// Call the default addedfile event handler
+					myDropzone.emit("addedfile", mockFile);
+
+					// And optionally show the thumbnail of the file:
+					if (myStringArray[i].toLowerCase().indexOf(".jpg")!=-1) {
+						myDropzone.emit("thumbnail", mockFile, "upload/"+mockFile.name);
+					}
+
+					// Make sure that there is no progress bar, etc...
+					myDropzone.emit("complete", mockFile);
+				}
+				
+			}
+ 	
+		}		
+		
+    </script> 
+
+</head>
+
+<body onload="initDropzone();">
+
+	<form action="astro" method="post" id="formDelete" name="formDelete">
+		<input type="hidden" id="FUNCTIONID_DELETE" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="DELETE"> 
+		<input type="hidden" id="keyField" name="keyField">
+		<input type="hidden" id="keyValue" name="keyValue">
+	</form>
+
+
+	<div class="modal inmodal fade" id="modalQuestionDialogPublish"	tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm"	onclick="$('#modalQuestionDialogPublish').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialogPublish').collapse('toggle');inviaApprovazione();" data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1"
+		role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal"
+						class="btn btn-white btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();"
+						data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists>
+		<#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row">
+                <div class="col-sm-12">
+				
+                    <div class="ibox">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                        	
+							<div class="row">
+                        	<div class="col-sm-12">
+                        
+                            <form action="astro" method="post" id="formInserimento" name="formInserimento" class="form-horizontal">
+								<input type="hidden" name="FUNCTIONID" value="InserimentoALIMOD67"> 
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+								<input type="hidden" id="ID_MODULO" name="ID_MODULO">
+								<input type="hidden" id="CODICE_MODULO" name="CODICE_MODULO">
+								<input type="hidden" id="ID_UTENTE" name="ID_UTENTE">
+								<input type="hidden" id="WORKFLOW_ACTION" name="WORKFLOW_ACTION">
+								<input type="hidden" id="FIRMA1" name="FIRMA1">
+								<input type="hidden" id="FIRMA2" name="FIRMA2">
+								<input type="hidden" id="FIRMA3" name="FIRMA3">
+												
+								<div class="form-group">
+									<label class="col-sm-2 control-label-left">Business Line:</label>
+									<div class="col-sm-2">
+										<select class="form-control" id="CODICE_BL" name="CODICE_BL" required>
+										</select>
+									</div>
+
+                                	<label class="col-sm-1 control-label-left">Sito:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control" required>
+	                                    </select>
+									</div>
+									
+                                	<label class="col-sm-1 control-label-left">Redattore:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_UTENTE_CON" name="ID_UTENTE_CON"  class="form-control" required>
+	                                    </select>
+									</div>                                	
+                                </div>                                  
+											         
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Nr.Modulo</label>
+                                    <div class="col-sm-2"><input type="text" class="form-control" id="NR_MODULO" name="NR_MODULO"></div>
+
+                                	<label class="col-sm-1 control-label-left">Data</label>
+                                    <div class="col-sm-3">
+					                <div class="input-group date">
+	                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_MODULO" id="DT_MODULO" required>
+	                                </div>
+                                    </div>
+                                    
+                                	<label class="col-sm-1 control-label-left">Stato:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="STATO" name="STATO"  class="form-control" required>
+	                                    </select>
+									</div>                                	
+                                </div>    											         
+											         
+                            
+                                
+								<div class="form-group">
+									<label class="col-sm-2 control-label-left">Osservato:</label>
+									<div class="col-sm-4">
+										<input type="text" class="form-control" id="OSSERVATO" name="OSSERVATO" required>
+									</div>
+									
+                                	<label class="col-sm-2 control-label-left">Mansione:</label>
+                                    <div class="col-sm-4"><input type="text" class="form-control" id="MANSIONE" name="MANSIONE" required></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Attivita' osservata:</label>
+                                    <div class="col-sm-10">
+	                                    <input type="text"  id="ATTIVITA_OSSERVATA" name="ATTIVITA_OSSERVATA"  class="form-control" required>
+									</div>                                	
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Osservatore:</label>
+                                    <div class="col-sm-4">
+	                                    <input type="text"  id="OSSERVATORE" name="OSSERVATORE"  class="form-control" required>
+									</div>
+									                                	
+                                	<label class="col-sm-2 control-label-left">Altro Osservatore (se presente):</label>
+                                    <div class="col-sm-4">
+	                                    <input type="text" id="ALTRO_OSSERVATORE" name="ALTRO_OSSERVATORE"  class="form-control">
+									</div>                                	
+                                </div>
+                                
+                                
+								<div class="form-group">
+									<div class="col-sm-12">
+										<button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+										<button class="btn btn-primary btn-sm" type="button" id="inviaApprovatore" name="inviaApprovatore">Invia Approvatore</button>
+									</div>
+								</div>       
+								
+                            </div>
+                            </div>
+						</div>
+					</div>
+					
+                    <div class="ibox"  id="questionario">					
+                            
+	                    <div class="ibox-title">
+	                        <div>
+								<h4><strong>Questionario</strong></h4>
+	                        </div>                    
+	                    </div>	
+	                                                
+                        <div class="ibox-content">
+                        
+							<div class="row">
+							
+								<div class="col-sm-12">
+
+                                
+                                
+                                                                
+                                <div class="form-group">
+									<div class="col-sm-12">
+										<div class="table-responsive">
+											<table class="table table-bordered">
+												<tbody>
+												
+													<tr><td colspan="4"><h4><b>1. Gestione della postazione di lavoro</b></h4></td></tr>
+													<tr>
+														<td>1.1</td><td>Ordine e pulizia</td>
+														<td><select class="form-control" id="FL_GEST_POSTAZIONE_1" name="FL_GEST_POSTAZIONE_1"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_GEST_POSTAZIONE_1" id="NOTE_GEST_POSTAZIONE_1"></td>
+													</tr>
+													<tr>
+														<td>1.2</td><td>Spazi di manovra</td>
+														<td><select class="form-control" id="FL_GEST_POSTAZIONE_2" name="FL_GEST_POSTAZIONE_2"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_GEST_POSTAZIONE_2" id="NOTE_GEST_POSTAZIONE_2"></td>
+													</tr>
+													<tr>
+														<td>1.3</td><td>Segnalazione di pericoli e prescrizioni</td>
+														<td><select class="form-control" id="FL_GEST_POSTAZIONE_3" name="FL_GEST_POSTAZIONE_3"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_GEST_POSTAZIONE_3" id="NOTE_GEST_POSTAZIONE_3"></td>
+													</tr>
+													<tr>
+														<td>1.4</td><td>Misure di prevenzione e protezione</td>
+														<td><select class="form-control" id="FL_GEST_POSTAZIONE_4" name="FL_GEST_POSTAZIONE_4"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_GEST_POSTAZIONE_4" id="NOTE_GEST_POSTAZIONE_4"></td>
+													</tr>
+												
+												
+													<tr><td colspan="4"><h4><b>2. Ergonomia</b></h4></td></tr>
+													<tr>
+														<td>2.1</td><td>Spinta/Traino</td>
+														<td><select class="form-control" id="FL_ERGONOMIA_1" name="FL_ERGONOMIA_1"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_ERGONOMIA_1" id="NOTE_ERGONOMIA_1"></td>
+													</tr>
+													<tr>
+														<td>2.2</td><td>Sollevamento/Abbassamento</td>
+														<td><select class="form-control" id="FL_ERGONOMIA_2" name="FL_ERGONOMIA_2"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_ERGONOMIA_2" id="NOTE_ERGONOMIA_2"></td>
+													</tr>
+													<tr>
+														<td>2.3</td><td>Torsione</td>
+														<td><select class="form-control" id="FL_ERGONOMIA_3" name="FL_ERGONOMIA_3"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_ERGONOMIA_3" id="NOTE_ERGONOMIA_3"></td>
+													</tr>
+													<tr>
+														<td>2.4</td><td>Rannicchiamento</td>
+														<td><select class="form-control" id="FL_ERGONOMIA_4" name="FL_ERGONOMIA_4"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_ERGONOMIA_4" id="NOTE_ERGONOMIA_4"></td>
+													</tr>
+													<tr>
+														<td>2.5</td><td>Iper affaticamento</td>
+														<td><select class="form-control" id="FL_ERGONOMIA_5" name="FL_ERGONOMIA_5"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_ERGONOMIA_5" id="NOTE_ERGONOMIA_5"></td>
+													</tr>
+													<tr>
+														<td>2.6</td><td>Movimenti ripetitivi</td>
+														<td><select class="form-control" id="FL_ERGONOMIA_6" name="FL_ERGONOMIA_6"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_ERGONOMIA_6" id="NOTE_ERGONOMIA_6"></td>
+													</tr>
+													
+													
+													
+													<tr><td colspan="4"><h4><b>3. Procedure</b></h4></td></tr>
+													<tr>
+														<td>3.1</td><td>Le procedure di riferimento sono conosciute?</td>
+														<td><select class="form-control" id="FL_PROCEDURE_1" name="FL_PROCEDURE_1"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_PROCEDURE_1" id="NOTE_PROCEDURE_1"></td>
+													</tr>
+													<tr>
+														<td>3.2</td><td>Le procedure sono attuate correttamente?</td>
+														<td><select class="form-control" id="FL_PROCEDURE_2" name="FL_PROCEDURE_2"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_PROCEDURE_2" id="NOTE_PROCEDURE_2"></td>
+													</tr>
+													<tr>
+														<td>3.3</td><td>Gli standard di sicurezza alimentare e/o medicinale sono rispettati?</td>
+														<td><select class="form-control" id="FL_PROCEDURE_3" name="FL_PROCEDURE_3"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_PROCEDURE_3" id="NOTE_PROCEDURE_3"></td>
+													</tr>
+													<tr>
+														<td>3.4</td><td>Gli standard di sicurezza sono rispettati?</td>
+														<td><select class="form-control" id="FL_PROCEDURE_4" name="FL_PROCEDURE_4"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_PROCEDURE_4" id="NOTE_PROCEDURE_4"></td>
+													</tr>
+													
+													
+													
+													<tr><td colspan="4"><h4><b>4. Attrezzature e dispositivi</b></h4></td></tr>
+													<tr>
+														<td>4.1</td><td>Le attrezzature da lavoro sono idonee e in buono stato?</td>
+														<td><select class="form-control" id="FL_ATTREZZATURE_1" name="FL_ATTREZZATURE_1"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_ATTREZZATURE_1" id="NOTE_ATTREZZATURE_1"></td>
+													</tr>
+													<tr>
+														<td>4.2</td><td>Attrezzature e dispositivi sono ustati correttamente?</td>
+														<td><select class="form-control" id="FL_ATTREZZATURE_2" name="FL_ATTREZZATURE_2"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_ATTREZZATURE_2" id="NOTE_ATTREZZATURE_2"></td>
+													</tr>
+													
+													
+													
+													<tr><td colspan="4"><h4><b>5. DPI</b></h4></td></tr>
+													<tr>
+														<td>5.1</td><td>Mani</td>
+														<td><select class="form-control" id="FL_DPI_1" name="FL_DPI_1"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_DPI_1" id="NOTE_DPI_1"></td>
+													</tr>
+													<tr>
+														<td>5.2</td><td>Testa</td>
+														<td><select class="form-control" id="FL_DPI_2" name="FL_DPI_2"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_DPI_2" id="NOTE_DPI_2"></td>
+													</tr>
+													<tr>
+														<td>5.3</td><td>Occhi e volto</td>
+														<td><select class="form-control" id="FL_DPI_3" name="FL_DPI_3"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_DPI_3" id="NOTE_DPI_3"></td>
+													</tr>
+													<tr>
+														<td>5.4</td><td>Orecchie</td>
+														<td><select class="form-control" id="FL_DPI_4" name="FL_DPI_4"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_DPI_4" id="NOTE_DPI_4"></td>
+													</tr>
+													<tr>
+														<td>5.5</td><td>Naso e bocca</td>
+														<td><select class="form-control" id="FL_DPI_5" name="FL_DPI_5"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_DPI_5" id="NOTE_DPI_5"></td>
+													</tr>
+													<tr>
+														<td>5.6</td><td>Piedi</td>
+														<td><select class="form-control" id="FL_DPI_6" name="FL_DPI_6"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_DPI_6" id="NOTE_DPI_6"></td>
+													</tr>
+													<tr>
+														<td>5.7</td><td>Corpo</td>
+														<td><select class="form-control" id="FL_DPI_7" name="FL_DPI_7"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_DPI_7" id="NOTE_DPI_7"></td>
+													</tr>
+													
+													
+													
+													<tr><td colspan="4"><h4><b>6. Valutazione dell'osservatore</b></h4></td></tr>
+													<tr>
+														<td>6.1</td><td>L'operatore è consapevole e previene i rischi connessi alle lavorazioni e al luogo in cui queste si svolgono?</td>
+														<td><select class="form-control" id="FL_VALUTAZIONE_1" name="FL_VALUTAZIONE_1"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_VALUTAZIONE_1" id="NOTE_VALUTAZIONE_1"></td>
+													</tr>
+													<tr>
+														<td>6.2</td><td>I requisiti dell'abilitazione IMS sono adeguatamente soddisfatti?</td>
+														<td><select class="form-control" id="FL_VALUTAZIONE_2" name="FL_VALUTAZIONE_2"></select></td>
+														<td><input type="text" class="form-control" name="NOTE_VALUTAZIONE_2" id="NOTE_VALUTAZIONE_2"></td>
+													</tr>
+													
+													
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+								
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Firma Osservatore:</label>
+                                    <div class="col-sm-10">
+										<div class="signature-wrapper">
+											<#if FILE_FIRMA1?exists>
+											<img src="${FILE_FIRMA1}">
+											<#else>
+										  	<canvas id="signature-pad-firma1" class="signature-pad" width=400 height=200></canvas>
+										  	</#if>
+										</div>
+                                    </div>
+								</div>
+
+								<#if FILE_FIRMA1?exists>
+								<#else>
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+										<button class="btn btn-primary btn-sm" type="button" id="clear1">Pulisci Firma</button>
+                                    </div>
+								</div>
+							  	</#if>
+								
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Firma Osservato:</label>
+                                    <div class="col-sm-10">
+										<div class="signature-wrapper">
+											<#if FILE_FIRMA2?exists>
+											<img src="${FILE_FIRMA2}">
+											<#else>
+										  <canvas id="signature-pad-firma2" class="signature-pad" width=400 height=200></canvas>
+										  	</#if>
+										</div>
+                                    </div>
+								</div>
+
+								<#if FILE_FIRMA2?exists>
+								<#else>
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+										<button class="btn btn-primary btn-sm" type="button" id="clear2">Pulisci Firma</button>
+                                    </div>
+								</div>
+							  	</#if>
+
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Firma altro osservatore:</label>
+                                    <div class="col-sm-10">
+										<div class="signature-wrapper">
+											<#if FILE_FIRMA3?exists>
+											<img src="${FILE_FIRMA3}">
+											<#else>
+										  <canvas id="signature-pad-firma3" class="signature-pad" width=400 height=200></canvas>
+										  	</#if>
+										</div>
+                                    </div>
+								</div>
+
+								<#if FILE_FIRMA3?exists>
+								<#else>
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+										<button class="btn btn-primary btn-sm" type="button" id="clear3">Pulisci Firma</button>
+                                    </div>
+								</div>
+							  	</#if>
+
+								<div class="form-group" id="salva-group">
+									<div class="col-sm-12">
+										<button class="btn btn-primary btn-sm" id="salva2" type="submit" name="salva2">${label_save}</button>
+									</div>       
+								</div>       
+								
+							</div>
+															
+
+                            </form>
+                            </div>
+                            </div>
+						
+						</div>
+                            
+                        <div class="ibox-content">
+                                                
+							<div class="row" id="dettagli">
+							
+								<div class="col-sm-12">
+                            
+                                <div class="form-group">
+								<div class="row">
+			                        <div class="col-sm-12"><h3>Azioni raccomandate</h3></div>
+                                </div>
+                                </div>
+                                
+                                
+								<form action="astro" method="post" id="formAggiungiDettaglio" name="formAggiungiDettaglio">
+									
+									<input type="hidden" name="FUNCTIONID" value="InserimentoDettaglioALIMOD67">
+									<input type="hidden" id="OPERATION_TYPE_DETTAGLIO" name="OPERATION_TYPE">
+									<input type="hidden" id="ID_MODULO_DETTAGLIO" name="ID_MODULO">
+									<input type="hidden" id="ID_DETTAGLIO" name="ID_DETTAGLIO">
+                                
+                                
+	                                <div class="form-group">
+										<div class="row">
+		                                	<label class="col-sm-2 control-label-left">Azioni raccomandate:</label>
+		                                    <div class="col-sm-10">
+		                                    <input type="text" class="form-control" name="AZIONI_RACCOMANDATE" id="AZIONI_RACCOMANDATE">
+											</div>
+		                                </div>                                  
+	                                </div>                                  
+                      
+	                                <div class="form-group">
+										<div class="row">
+		                                    <div class="col-sm-2">
+												<button class="btn btn-primary btn-sm" type="button" id="aggiungi" name="aggiungi">${label_add}</button>
+		                                    </div>
+		                                </div>
+									</div>
+								
+								</form>
+								
+								
+	                            <div class="row">
+	                        	<div class="col-sm-12">
+					
+			                        <div class="table-responsive">
+										<table id="dt" class="table table-bordered">
+			                                <thead>
+			                                <tr>
+												<th></th>
+												<th></th>
+												<th>Azioni raccomandate</th>
+			                                </tr>
+			                                </thead>
+			                            </table>											
+			                        </div>
+					                        
+	                                                                
+	                            </div>
+	                            </div>
+                            								
+                                </div>
+                            </div>
+                                
+                        </div>
+
+                    <div class="ibox">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+	                    <h4>Allegati</h4>
+                <#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+            </div>		
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+			
+     					
+						<form id="myDropzone" action="astro?FUNCTIONID=UploadFile" method="post"  class="dropzone">
+							<input type="hidden" id="LISTA_ALLEGATI" name="LISTA_ALLEGATI" value="<#if LISTA_ALLEGATI?exists>${LISTA_ALLEGATI}</#if>">
+						    <input name="MODULO" id="MODULO_UPLOAD" type="hidden" value="ALIMOD67" />
+						    <input name="ID_MODULO" id="ID_MODULO_UPLOAD" type="hidden" value="${ID_MODULO}" />   						
+							<div class="dz-default dz-message"></div>
+						</form>
+      					
+						<script>
+						  // myDropzone is the configuration for the element that has an id attribute
+						  // with the value my-dropzone (or myDropzone)
+						  Dropzone.options.myDropzone = {
+						    init: function() {
+						      this.on("addedfile", function(file) {
+						        var _this = this;						    	  
+						    	  
+				        	    var a = document.createElement('a');
+				        	    a.setAttribute('href',"upload/" + file.name);
+				        	    a.setAttribute('target',"_blank");
+				        	    a.innerHTML = "<br>download";
+				        	    file.previewTemplate.appendChild(a);
+				        	    
+				        	    a = document.createElement('a');
+				                // Listen to the click event
+				                a.addEventListener("click", function(e) {
+				                  // Make sure the button click doesn't submit the form:
+				                  e.preventDefault();
+				                  e.stopPropagation();
+
+				                  // Remove the file preview.
+				                  _this.removeFile(file);
+				                  // If you want to the delete the file on the server as well,
+				                  // you can do the AJAX request here.
+				                });
+	
+				        	    a.innerHTML = "<br>remove";
+				        	    file.previewTemplate.appendChild(a);
+		
+						      });
+						    }
+						  };
+						</script>      					
+
+                        
+						</div>						
+					</div>						
+
+                        
+                    </div>
+                </div>
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+            </div>		
+		</div>
+	</div>
+
+</body>
+</html>

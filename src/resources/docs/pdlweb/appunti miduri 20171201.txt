@@ -1,0 +1,236 @@
+- pdl web in alto più piccolo
+- bordatura più marcata sulle sezioni
+- altro:aggiungere specifica di altro (tipo attività, rischi)
+	- aggiungere e salvare per sito
+	
+- guida in word
+
+- equipment, nel layout deve comparire nella descrizione lavoro
+
+- descrizione lavoro: aggiungere un'altra riga
+- nella stampa: descrizione lavoro: aggiungere un campetto con il codice equipment prima della descrizione libera	
+
+- impianto/area/equipment
+- setup nr. permesso di lavoro al primo login
+	- sequenza dmce
+	- sequenza alimod 72
+
+
+====================================
+- utensili e mezzi: altro (salvato per impianto)
+- impresa: 
+	es: COEMI legata a impianto anche se lavora per diversi impianti
+
+- crea nuovo pdl: togliere PDL
+
+- aziende: imprese terze
+- folder work: allegati schede di sicurezza (gestione allegati multipli)	
+
+- stampa multipla pdl
+- campo turn/around
+
+
+=====================================
+centrale priolo dwg
+
+
+=====================================
+x- disposizione homepage: sopra struttura + planimetria, sotto contatori e grafico
+
+x- "Impianti abilitati" diventa semplicemente "Impianto"
+
+x- "planimetria" diventa"SCHEMA IMPIANTO PER VERIFICA EVENTUALI INTERFERENZE"
+
+- homepage: finchè la planimetria non sarà dinamica, cliccando sul disegno facciamo comparire un popup di avviso (ad esempio potrebbe essere: "LO SCHEMA IMPIANTO E' IN LAVORAZIONE: LE FUNZIONALITA' INTERATTIVE NON SONO ATTUALMENTE DISPONIBILI")
+
+x- homepage: ridurre il carattere numerico dei contatori
+
+x- homepage (ma vale ovunque questa osservazione): evidenziare bene la bordatura su tutti i riquadri, compresa il riquadro della planimetria e dei grafici
+
+- Profilo "responsabile": può stampare comunque la planimetria ma nel suo caso non deve comparire il nome (in basso a destra). Il nome sulla planimetria è solo per i capiturno
+
+- Profilo "capo turno": alla fine del turno se non ha stampato le planimetrie deve essere avvisato con un alert
+
+- Turni previsti: 6-14 14-22 22-6 6-18 18-6
+
+- Ad ogni login con profilo "capo turno" devo far comparire un popup di selezione del turno previsto in modo che sia possibile selezionare il turno su cui sta lavorano. La scelta è OBBLIGATORIA e senza avere impostato il turno non si può proseguire
+
+
+============================================
+codice modulo interferenze è specifico per sito
+importante: riportare 120 sulla rev.6
+
+rimuovere allinone>>> PDL(bold) web(non bold)
+
+crea nuovo pdl> non ripetere la parola pdl
+
+anche nello stato permesso, titoli e campo a capo come nella sezione 2
+
+solo admin deve vedere lo stato permesso
+
+
+==========================================
+
+- capo turno: nel popup specidicare "1 turno (bold) 6-14 (non bold)ecc..."
+
+- nel menu permessi di lavoro: voce "registro giornaliero" 
+
+
+RESPONSABILE
+
+- permessi di lavoro
+--- crea nuovo
+--- ricerca > deve permettere riattivazione
+
+
+CAPO TURNO
+- Registri
+--- registro giornaliero lavori
+--- elenco permessi scaduti (identico alla precedente ma già filtrato per i permessi scaduri)
+
+sia per ricerca che per i registri>>> stampa pdf elenco
+
+
+- segnalazione nuova interferenza diventa >>> segnalazione possibile interferenza
+
+- mail: possibile interferenza, prego processare area X, Y, Z
+----- a fronte di questa mail il responsabile può processare la possibile interferenza segnalata e procedere con il normale flusso di gestione dell'interferenza
+
+- menu capo turno: selezioniare impoanto per visualizzazione interattiva interferenze
+
+- invece di pdlweb: @PDL
+
+- solo per capoturno vedere già aperto il sito
+
+- solo per capoturno: dalla struttura ad albero, filtro automatico sui registri
+
+- contatori: togliere scritte sotto
+
+- togliere contatori in fianco al grafico e lo losciamo solo sopra
+
+- Aggiungere un contatore con possibili interferenze:
+--- possibili interferenze= rosso
+--- pdl aperti= azzurro (ali)
+--- pdl attivi= verde
+--- pdl sospesi= giallo
+--- pdl chiusi= arancio
+
+- cartella works (folder work) per i capi turno: alle 13:59 salvo la planimetria e la chiamo "nome planimetria (modulo) - data -turno"-
+- togliere comunicazioni
+- folder work >>> WORKBOOK
+	--- "elenco planimetria interferenze" per data
+	--- evidenziare quelle che sono state stampate o meno (bold)
+	
+- upload di file
+	
+DL: sez 1 readonly / stato permesso readonly
+
+	
+- osoppo + gargnacco
+
+	
+	
+
+
+
+	
+- versione GESTORE: riccardo.sala@airliquide.com
+- Siti-Aziende> gestione siti
+- bloccato nr.pdl
+- tasto in alto
+- togliere tasto pulisci
+- sez 2: impresa portare sopra
+- dl non gestisce interferenze
+- dl: sez1 grigia e sez 2 abilitata
+- ct: eliminari il workbook
+- ct: in home propone ancora i turni
+
+- tutti i dpi checkati
+- verificare campi obbligatori
+- responsabile della centrale o persona da lui nominata
+- esecuzione interna o ditta terza, bloccare le tendine
+
+
+- se pdl attivo non si può più eliminare
+- stampa pdl invece di alimod 25
+- popup eis
+
+- campo fermata: TA (TURN AROUND)
+
+
+
+- hompage responsabile come admin
+
+- capo turno solo attivi da meno di 31 gg: al 31gg automaticamente scaduti
+- legenda bordatura
+- delegato lavori: crea nuovo diventa modifica
+
+- report: 
+------ DL e CAPO TURNO
+----- tolgo ricerca rapida
+		Ricerca rapida per Nr.PdL:
+----- testo in funzione del filtro
+----- aggiungere per il DL le colonne responsabile centrale/delegato
+
+- registri:
+----- default quelli aperti
+----- icone con semaforo per cambiare stato
+
+
+x capo turno: lente per visualizza (no modifica)
+
+x Ricerca: ricerca/modifica
+
+pogressivo li mod-26
+
+scheda "Scheda_EIS_nr" per gestire il popup
+
+x- engineered by F.Miduri
+
+- stato in testa su tutte le ricerche
+
+==============================================
+formattazione report: separare con righe grigie le righe del report
+
+capo turno: bloccare sezione 3
+
+popup attivazione/sospensione/chiusura 
+
+ricerca/report/registri: aggiungere dal-al
+
+numero del pdl nel nome del file.
+
+- report pdf: blocco dei 200 deve essere solo alert e poi chiedere se vuoi continuare comunque
+
+- sospensione/chiusura: aggiungere popoup con motivazione
+
+- registro pdl: usare modulo LI-MOD 16 (per SMR Priolo lasciare riferimenti secondo esempio di francesco, per altri siti rimuovere i riferimenti a destra)
+
+- nel workbook mancano alcuni moduli
+
+- aggiungere popup per dati non presenti
+
+- togliere il filtro seleziona tutto quando si rimuove una voce
+
+- stampa PDL ERRORE 
+
+
+
+
+- chiudere permessi fino a -31
+- dove non c'è nome mettere interno
+
+
+- responsabile centrale deve essere selezionato in automatico quando si crea nuovo permesso
+
+
+
+- in corrispondenza del testo del nr.modulo mettere il codice del modulo corrispondete (LI-MOD 26 ad esempio)
+- li-mod 26: richiedente è chi fa il permesso di lavoro
+- li-mod 26: potrebbe generare un numero automatico >>>> setfocus in grigio con placeholder "inserire nr. dmce"
+
+- li-71 >>> delegato lavori AL del permesso
+
+
+
+

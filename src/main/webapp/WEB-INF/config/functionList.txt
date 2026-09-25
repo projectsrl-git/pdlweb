@@ -1,0 +1,212 @@
+﻿# nome funzione					nome classe																			function id
+
+Login							net.projectsrl.dafne.authentication.FunctionLogin         							00
+Home                            net.projectsrl.bow.core.FunctionHome      											00
+Logout							net.projectsrl.webapp.authentication.FunctionLogout            						00
+RicercaUtenti					net.projectsrl.dafne.authentication.FunctionRicercaUtenti           				00
+InserimentoUtenti				net.projectsrl.dafne.authentication.FunctionInserimentoUtenti						00
+JSONDataSet						net.projectsrl.json.FunctionJSONDataSet												00
+AJAXArray						net.projectsrl.json.FunctionDataSourceAjaxArray										00
+AjaxCheckUnique					net.projectsrl.webapp.core.FunctionAjaxCheckUnique									00
+ResetPassword                   net.projectsrl.dafne.authentication.FunctionResetPassword							00
+NewPassword                     net.projectsrl.bow.authentication.FunctionNewPassword            	 				00
+ExecuteSQLWithMail             	net.projectsrl.bow.core.FunctionExecuteSQLWithMail									00
+
+# MENU Configurazione
+InserimentoDomini               net.projectsrl.bow.parameters.FunctionInserimentoDomini 							00
+RicercaDomini                   net.projectsrl.bow.parameters.FunctionRicercaDomini 								00
+InserimentoParametri            net.projectsrl.bow.parameters.FunctionInserimentoParametri							00
+RicercaParametri                net.projectsrl.bow.parameters.FunctionRicercaParametri								00
+InserimentoProfili            	net.projectsrl.bow.configuration.core.FunctionInserimentoProfili							00
+RicercaProfili                	net.projectsrl.bow.configuration.core.FunctionRicercaProfili								00
+InserimentoLingueIso            net.projectsrl.bow.parameters.FunctionInserimentoLingueIso							00
+RicercaLingueIso                net.projectsrl.bow.parameters.FunctionRicercaLingueIso	                            00
+
+
+RicercaTipiRichiesta			net.projectsrl.dafne.richieste.core.FunctionRicercaTipiRichiesta					00
+RicercaTipiRichiestaAzienda		net.projectsrl.dafne.richieste.core.FunctionRicercaTipiRichiestaAzienda				00
+RicercaFeriePermessi			net.projectsrl.dafne.richieste.core.FunctionRicercaFeriePermessi					00
+RicercaStraordinari				net.projectsrl.dafne.richieste.core.FunctionRicercaStraordinari						00
+RicercaMalattieInfortuni		net.projectsrl.dafne.richieste.core.FunctionRicercaMalattieInfortuni				00
+RicercaModuliTrasferte			net.projectsrl.dafne.richieste.core.FunctionRicercaModuliTrasferte					00
+RicercaTrasferte				net.projectsrl.dafne.richieste.core.FunctionRicercaTrasferte						00
+RicercaRendicontazioni			net.projectsrl.dafne.richieste.core.FunctionRicercaRendicontazioni					00
+
+InserimentoTipiRichiesta		net.projectsrl.dafne.richieste.core.FunctionInserimentoTipiRichiesta		   		00
+InserimentoTipiRichiestaAzienda	net.projectsrl.dafne.richieste.core.FunctionInserimentoTipiRichiestaAzienda			00
+InserimentoFeriePermessi		net.projectsrl.dafne.richieste.core.FunctionInserimentoFeriePermessi		   		00
+ApprovazioneFeriePermessi		net.projectsrl.dafne.richieste.core.FunctionApprovazioneFeriePermessi		   		00
+InserimentoStraordinari			net.projectsrl.dafne.richieste.core.FunctionInserimentoStraordinari		   			00
+InserimentoMalattieInfortuni	net.projectsrl.dafne.richieste.core.FunctionInserimentoMalattieInfortuni		 	00
+InserimentoTrasferte			net.projectsrl.dafne.richieste.core.FunctionInserimentoTrasferte		   			00
+InserimentoRendicontazioni		net.projectsrl.dafne.richieste.core.FunctionInserimentoRendicontazioni		   		00
+InserimentoModuliTrasferte		net.projectsrl.dafne.richieste.core.FunctionInserimentoModuliTrasferte		   		00
+
+#InserimentoAziende 				net.projectsrl.dafne.aziende.FunctionInserimentoAziende			    		00
+InserimentoAziende 				net.projectsrl.bow.company.core.FunctionInserimentoAziende			    		00
+
+InserimentoSediAziendali		net.projectsrl.dafne.aziende.FunctionInserimentoSediAziendali			    00
+
+RicercaSediAziendali			net.projectsrl.dafne.aziende.FunctionRicercaSediAziendali					00
+RicercaAziende					net.projectsrl.dafne.aziende.FunctionRicercaAziende							00
+
+InserimentoDirezioni			net.projectsrl.dafne.aziende.FunctionInserimentoDirezioni			    	00
+RicercaDirezioni				net.projectsrl.dafne.aziende.FunctionRicercaDirezioni					    00
+
+RicercaCurriculum               net.projectsrl.dafne.anagrafiche.FunctionRicercaCurriculum					00
+
+RicercaCedolini              	net.projectsrl.dafne.documenti.FunctionRicercaCedolini               		00
+
+RicercaRisorse              	net.projectsrl.dafne.risorse.FunctionRicercaRisorse							00
+InserimentoRisorse				net.projectsrl.dafne.risorse.FunctionInserimentoRisorse						00
+
+
+InserimentoNews 				net.projectsrl.dafne.comunicazioni.FunctionInserimentoNews		    		00
+RicercaNews						net.projectsrl.dafne.comunicazioni.FunctionRicercaNews						00
+
+
+
+ImportCedolini					net.projectsrl.dafne.documenti.FunctionImportCedolini         				00
+FileUploadCedolini              net.projectsrl.wm.importdata.FunctionFileUploadCedolini               		00
+RiepilogoCedoliniPubblicati		net.projectsrl.dafne.documenti.FunctionRiepilogoCedoliniPubblicati	 		00
+
+
+InserimentoApprovatoriRichiesta		net.projectsrl.dafne.richieste.core.FunctionInserimentoApprovatoriRichiesta		   	00
+RicercaApprovatoriRichiesta			net.projectsrl.dafne.richieste.core.FunctionRicercaApprovatoriRichiesta		   		00
+
+CreaFirmaPDF					net.projectsrl.dafne.pdf.FunctionCreaFirmaPDF		   		00
+
+
+
+
+### AIR LIQUIDE CATALOGHI CLOUD
+
+ExecuteSQL                      	net.projectsrl.bow.core.FunctionExecuteSQL                        							00
+Download							net.projectsrl.webapp.core.FunctionDownload                                 00
+
+ManualeProdottiCondizionati			net.projectsrl.cataloghicloud.prodottigas.core.FunctionManualeProdottiCondizionati			00
+CatalogoAllestimento				net.projectsrl.cataloghicloud.prodottigas.core.FunctionCatalogoAllestimento					00
+
+InserimentoFamigliaProdottiGas		net.projectsrl.cataloghicloud.prodottigas.core.FunctionInserimentoFamigliaProdottiGas		00
+InserimentoProdottiGas				net.projectsrl.cataloghicloud.prodottigas.core.FunctionInserimentoProdottiGas				00
+InserimentoComponente				net.projectsrl.cataloghicloud.prodottigas.core.FunctionInserimentoComponente	            00
+InserimentoImpurezzaGarantita   	net.projectsrl.cataloghicloud.prodottigas.core.FunctionInserimentoImpurezzaGarantita    	00
+InserimentoSpecificheAllestimento	net.projectsrl.cataloghicloud.prodottigas.core.FunctionInserimentoSpecificheAllestimento	00
+SchedaProdotto						net.projectsrl.cataloghicloud.prodottigas.core.FunctionSchedaProdotto						00
+StampSchedaProdotto					net.projectsrl.cataloghicloud.prodottigas.core.FunctionStampaSchedaProdotto					00
+RicercaProdottiGas					net.projectsrl.cataloghicloud.prodottigas.core.FunctionRicercaProdottiGas					00
+
+InserimentoAllestimento				net.projectsrl.cataloghicloud.anagrafiche.allestimenti.core.FunctionInserimentoAllestimento	00
+InserimentoSpecificheAllestimento   net.projectsrl.cataloghicloud.prodottigas.core.FunctionInserimentoSpecificheAllestimento	00
+RicercaAllestimenti					net.projectsrl.cataloghicloud.anagrafiche.allestimenti.core.FunctionRicercaAllestimenti		00
+
+### PDL
+
+HomePdLWeb                          net.projectsrl.pdlweb.core.FunctionHome      											00
+
+InserimentoPDL						net.projectsrl.pdlweb.pdl.core.FunctionInserimentoPDL								00
+InserimentoPDLv9					net.projectsrl.pdlweb.pdl.core.FunctionInserimentoPDLv9								00
+RicercaPDL							net.projectsrl.pdlweb.pdl.core.FunctionRicercaPDL									00
+RichiestePDL						net.projectsrl.pdlweb.pdl.core.FunctionRichiestePDL									00
+
+InserimentoImpianti             	net.projectsrl.pdlweb.pdl.core.FunctionInserimentoImpianti 							00
+RicercaImpianti                 	net.projectsrl.pdlweb.pdl.core.FunctionRicercaImpianti 								00
+
+InserimentoDitteTerze             	net.projectsrl.pdlweb.anagrafiche.core.FunctionInserimentoDitteTerze 				00
+RicercaDitteTerze                 	net.projectsrl.pdlweb.anagrafiche.core.FunctionRicercaDitteTerze 					00
+
+InserimentoListaEquipment           net.projectsrl.pdlweb.anagrafiche.core.FunctionInserimentoListaEquipment 			00
+RicercaListaEquipment               net.projectsrl.pdlweb.anagrafiche.core.FunctionRicercaListaEquipment 				00
+
+InserimentoAreaLavoro          	 	net.projectsrl.pdlweb.anagrafiche.core.FunctionInserimentoAreaLavoro 				00
+RicercaAreaLavoro               	net.projectsrl.pdlweb.anagrafiche.core.FunctionRicercaAreaLavoro 					00
+
+InserimentoImpianti             	net.projectsrl.pdlweb.pdl.core.FunctionInserimentoImpianti 							00
+RicercaImpianti                 	net.projectsrl.pdlweb.pdl.core.FunctionRicercaImpianti 								00
+RegistroGiornalieroLavori			net.projectsrl.pdlweb.registri.FunctionRegistroGiornalieroLavori					00
+StampaRegistroGiornalieroLavori		net.projectsrl.pdlweb.registri.FunctionStampaRegistroGiornalieroLavori				00
+RegistroPermessiScaduti				net.projectsrl.pdlweb.registri.FunctionRegistroPermessiScaduti						00
+RegistroPermessiCancellati			net.projectsrl.pdlweb.registri.FunctionRegistroPermessiCancellati					00
+
+Workbook							net.projectsrl.pdlweb.workbook.FunctionWorkbook										00
+StampaPDLMultipliWorkbook			net.projectsrl.pdlweb.workbook.FunctionStampaPDLMultipliWorkbook					00
+
+ReportPDL							net.projectsrl.pdlweb.report.FunctionReportPDL										00
+ReportStatusPDL						net.projectsrl.pdlweb.report.FunctionReportStatusPDL								00
+
+StampaPDL							net.projectsrl.pdlweb.pdl.core.FunctionStampaPDL									00
+StampaPDLMultipli					net.projectsrl.pdlweb.pdl.core.FunctionStampaPDLMultipli							00
+
+DuplicaPDL							net.projectsrl.pdlweb.pdl.core.FunctionDuplicaPDL									00
+
+SelezionaTurnoCT					net.projectsrl.pdlweb.pdl.core.FunctionSelezionaTurnoCT								00
+
+StampaModuloPlanimetria				net.projectsrl.pdlweb.interferenze.core.FunctionStampaModuloPlanimetria				00
+
+### QHSE
+HomeAliRep                          net.projectsrl.qhse.core.FunctionHome      											00
+InserimentoALIMOD20					net.projectsrl.qhse.moduli.alimod20.core.FunctionInserimentoALIMOD20                00
+InserimentoDettaglioALIMOD20		net.projectsrl.qhse.moduli.alimod20.core.FunctionInserimentoDettaglioALIMOD20       00
+RicercaALIMOD20				    	net.projectsrl.qhse.moduli.alimod20.core.FunctionRicercaALIMOD20                    00
+MasterTableALIMOD20					net.projectsrl.qhse.moduli.alimod20.core.FunctionMasterTableALIMOD20				00
+StampaALIMOD20 						net.projectsrl.qhse.moduli.alimod20.core.FunctionStampaALIMOD20                     00
+
+InserimentoALIMOD50					net.projectsrl.qhse.moduli.alimod50.core.FunctionInserimentoALIMOD50                00
+InserimentoDettaglioALIMOD50		net.projectsrl.qhse.moduli.alimod50.core.FunctionInserimentoDettaglioALIMOD50       00
+RicercaALIMOD50				    	net.projectsrl.qhse.moduli.alimod50.core.FunctionRicercaALIMOD50                    00
+StampaALIMOD50 						net.projectsrl.qhse.moduli.alimod50.core.FunctionStampaALIMOD50                     00
+MasterTableALIMOD50					net.projectsrl.qhse.moduli.alimod50.core.FunctionMasterTableALIMOD50				00
+
+InserimentoALIMOD80					net.projectsrl.qhse.moduli.alimod80.core.FunctionInserimentoALIMOD80                00
+InserimentoDettaglioALIMOD80		net.projectsrl.qhse.moduli.alimod80.core.FunctionInserimentoDettaglioALIMOD80       00
+RicercaALIMOD80				    	net.projectsrl.qhse.moduli.alimod80.core.FunctionRicercaALIMOD80                    00
+StampaALIMOD80 						net.projectsrl.qhse.moduli.alimod80.core.FunctionStampaALIMOD80                     00
+MasterTableALIMOD80					net.projectsrl.qhse.moduli.alimod80.core.FunctionMasterTableALIMOD80				00
+
+InserimentoALIMOD67					net.projectsrl.qhse.moduli.alimod67.core.FunctionInserimentoALIMOD67                00
+InserimentoDettaglioALIMOD67		net.projectsrl.qhse.moduli.alimod67.core.FunctionInserimentoDettaglioALIMOD67       00
+RicercaALIMOD67				    	net.projectsrl.qhse.moduli.alimod67.core.FunctionRicercaALIMOD67                    00
+StampaALIMOD67 						net.projectsrl.qhse.moduli.alimod67.core.FunctionStampaALIMOD67                     00
+MasterTableALIMOD67					net.projectsrl.qhse.moduli.alimod67.core.FunctionMasterTableALIMOD67				00
+
+InserimentoALIMOD5					net.projectsrl.qhse.moduli.alimod05.core.FunctionInserimentoALIMOD5                00
+InserimentoDettaglioALIMOD5			net.projectsrl.qhse.moduli.alimod05.core.FunctionInserimentoDettaglioALIMOD5       00
+RicercaALIMOD5				    	net.projectsrl.qhse.moduli.alimod05.core.FunctionRicercaALIMOD5                    00
+
+InserimentoALIMOD51					net.projectsrl.qhse.moduli.alimod51.core.FunctionInserimentoALIMOD51                00
+InserimentoDettaglioALIMOD51		net.projectsrl.qhse.moduli.alimod51.core.FunctionInserimentoDettaglioALIMOD51       00
+RicercaALIMOD51				    	net.projectsrl.qhse.moduli.alimod51.core.FunctionRicercaALIMOD51                    00
+
+InserimentoALIMOD52					net.projectsrl.qhse.moduli.alimod52.core.FunctionInserimentoALIMOD52                00
+InserimentoDettaglioALIMOD52		net.projectsrl.qhse.moduli.alimod52.core.FunctionInserimentoDettaglioALIMOD52       00
+RicercaALIMOD52				    	net.projectsrl.qhse.moduli.alimod52.core.FunctionRicercaALIMOD52                    00
+
+InserimentoLIMOD13					net.projectsrl.qhse.moduli.limod13.core.FunctionInserimentoLIMOD13                	00
+RicercaLIMOD13				    	net.projectsrl.qhse.moduli.limod13.core.FunctionRicercaLIMOD13                    	00
+
+ApprovalWorkFlow					net.projectsrl.qhse.moduli.core.FunctionApprovalWorkFlow                 			00
+PlainHtml							net.projectsrl.qhse.moduli.core.FunctionPlainHtml                 					00
+Html2Pdf							net.projectsrl.qhse.moduli.core.FunctionHtml2Pdf		                 			00
+UploadFile							net.projectsrl.qhse.moduli.core.FunctionUploadFile		                 			00
+
+StampaTest				    		net.projectsrl.alibow.core.FunctionStampaTest										00
+CreaFirma							net.projectsrl.alibow.core.FunctionCreaFirma		   								00
+
+ModuloInterferenze					net.projectsrl.pdlweb.interferenze.core.FunctionModuloInterferenze					00
+ProcessaTuttoImpianto				net.projectsrl.pdlweb.interferenze.core.FunctionProcessaTuttoImpianto               00
+StoricoInterferenze					net.projectsrl.pdlweb.interferenze.core.FunctionStoricoInterferenze                 00
+DownloadStoricoInterferenze			net.projectsrl.pdlweb.interferenze.core.FunctionDownloadStoricoInterferenze			00
+
+InserimentoLIMOD70					net.projectsrl.pdlweb.moduli.limod70.core.FunctionInserimentoLIMOD70                00
+InserimentoDettaglioLIMOD70			net.projectsrl.pdlweb.moduli.limod70.core.FunctionInserimentoDettaglioLIMOD70       00
+RicercaLIMOD70				    	net.projectsrl.pdlweb.moduli.limod70.core.FunctionRicercaLIMOD70                    00
+StampaLIMOD70 						net.projectsrl.pdlweb.moduli.limod70.core.FunctionStampaLIMOD70                     00
+
+
+InserimentoLIMOD64					net.projectsrl.pdlweb.moduli.limod64.core.FunctionInserimentoLIMOD64                00
+InserimentoDettaglioLIMOD64			net.projectsrl.pdlweb.moduli.limod64.core.FunctionInserimentoDettaglioLIMOD64       00
+RicercaLIMOD64				    	net.projectsrl.pdlweb.moduli.limod64.core.FunctionRicercaLIMOD64                    00
+StampaLIMOD64 						net.projectsrl.pdlweb.moduli.limod64.core.FunctionStampaLIMOD64                     00
+
+RispostaVerificaInterferenza		net.projectsrl.pdlweb.pdl.core.FunctionRispostaVerificaInterferenza					00
+LogEmail                 		net.projectsrl.bow.configuration.core.FunctionLogEmail					            00

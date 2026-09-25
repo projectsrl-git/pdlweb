@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	
+    <script type="text/javascript">
+    
+    	var flagRicerca=false;
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSEquipmentAll&columns=ID_EQUIPMENT,ID_EQUIPMENT,FL_DISATTIVO,ID_AZIENDA,ID_IMPIANTO,RAGSOC,DESCR_IMPIANTO,DESCR_AREA,DESCR_EQUIPMENT,FL_EIS&WHERECONDITION=";
+		var dtWhereCondition="<#if WHERECONDITION?exists>${WHERECONDITION}<#else> WHERE 1=0 </#if>";
+		
+		$(function(){
+			
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiPDL","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO","<#if ID_IMPIANTO?exists>${ID_IMPIANTO}</#if>"," WHERE 1=1 "]);
+			$("#ID_AREA").trigger("loadDataSet",["DSAreaLavoro","ID_AREA","DESCR_AREA","<#if ID_AREA?exists>${ID_AREA}</#if>"," WHERE 1=1 "]);
+			$("#ID_EQUIPMENT").trigger("loadDataSet",["DSEquipment","ID_EQUIPMENT","DESCR_EQUIPMENT","<#if ID_EQUIPMENT?exists>${ID_EQUIPMENT}</#if>","<#if ID_AREA?exists> WHERE ID_AREA=${ID_AREA} <#else> WHERE 1=0 </#if> "]);
+			$("#FL_DISATTIVO").trigger("loadDataSet",["OpzioneDisattivo","CODICE","DESCR","true;false",""]);
+			
+			$("#FL_DISATTIVO").change(function(){
+				selectedValue=$(this).val();
+			    if (selectedValue.length!=2){
+			    	$("#CHECKBOX_DISATTIVO").prop('checked',false);
+			    }else{
+			    	$("#CHECKBOX_DISATTIVO").prop('checked',true);
+			    }
+			});
+			
+			$("#CHECKBOX_DISATTIVO").click(function(){
+	            if($("#CHECKBOX_DISATTIVO").is(':checked') ){
+	                $("#FL_DISATTIVO > option").prop("selected","selected");
+	                $("#FL_DISATTIVO").trigger("change");
+	            }else{
+	                $("#FL_DISATTIVO > option").removeAttr("selected");
+	                 $("#FL_DISATTIVO").trigger("change");
+	             }
+	        });
+			
+			
+			$("#ID_AZIENDA").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_IMPIANTO").empty();
+				$("#ID_IMPIANTO").select2("destroy");
+				$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO",""," WHERE ID_AZIENDA="+id+" "]);
+				
+				$("#ID_AREA").val("").change();
+				$("#ID_EQUIPMENT").val("").change();
+			});		        
+			
+			$("#ID_IMPIANTO").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_AREA").empty();
+				$("#ID_AREA").select2("destroy");
+				$("#ID_AREA").trigger("loadDataSet",["DSAreaLavoro","ID_AREA","DESCR_AREA",""," WHERE ID_IMPIANTO="+id+" "]);
+				
+				$("#ID_EQUIPMENT").val("").change();
+			});	
+			
+			
+			$("#ID_AREA").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_EQUIPMENT").empty();
+				$("#ID_EQUIPMENT").select2("destroy");
+				$("#ID_EQUIPMENT").trigger("loadDataSet",["DSEquipment","ID_EQUIPMENT","DESCR_EQUIPMENT",""," WHERE ID_AREA="+id+" "]);
+			});	
+			
+			
+	        $('#dt').DataTable({
+				ajax: dtAjax+dtWhereCondition,
+				columnDefs: [
+					{
+						width:"1%",
+						targets:0,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="editRow" title="<#if PROFILO?contains('VPL')>${label_view}<#else>${label_edit}</#if>"><i class="fa <#if PROFILO?contains('VPL')>fa-search<#else>fa-pencil</#if> fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						visible: <#if PROFILO?contains('VPL')>false<#else>true</#if>,
+						width:"1%",
+						targets:1,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="deleteRow" title="${label_delete}"><i class="fa fa-trash-o fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						targets:2,
+						orderable: false,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data==='false') {
+									data = '<i class="fa fa-toggle-on" aria-hidden="true"></i>';
+								} else {
+									data = '<i class="fa fa-toggle-off" aria-hidden="true"></i>';
+								}
+							}
+
+							return data;
+						}
+					},
+					{
+						visible:false,
+						targets:3
+					},
+					{
+						visible:false,
+						targets:4
+					},
+					{
+						targets:9,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data=="false") {
+									data = '';
+								} else {
+									data = '<i class="fa fa-check" aria-hidden="true"></i>';
+								}
+							}
+
+							return data;
+						}	
+					}						
+				],
+                dom: '<"html5buttons"B>lTfgitp',
+                language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+                buttons: [
+                    {extend: 'csv'},
+                    {extend: 'excel', title: $(document).find("title").text()},
+                    {extend: 'pdf', name: 'pdf', title:"REPORT ", orientation: 'landscape'},
+                ],
+                "drawCallback": function( settings ) {
+                	$(".dataTables_filter").hide();    
+                	$(".html5buttons").hide();   
+    	    		
+                	var dataCount=$('#dt').DataTable().column( 0 ).data().length;
+    	    		if(dataCount==0 && flagRicerca) {
+    					$('.modal-title').html('Attenzione!');
+    					$('.modal-text').html('Nessun risultato ottenuto: controllare i filtri impostati per la ricerca...');
+    					$("#modalAlert").modal({backdrop: true});
+    					$('#modalAlert').collapse("show");	    			
+    	    		}
+    	    		
+                },                
+				aaSorting: []
+
+            });
+
+
+        	$('#free-text-search').keyup(function(){
+	        	$('#dt').DataTable().search($(this).val()).draw() ;
+	        })	        
+		
+			$("#formDelete").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});					
+        	
+        	
+			$("#formClone").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});		
+			
+			
+			$("#formSearch").validate();
+			
+			$("#formSearch").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();			
+	
+				if (!$("#formSearch").valid()) {
+					return false;
+				}		
+				
+				flagRicerca=true;
+				
+				dtWhereCondition="";
+
+	    		var idAzienda=$("#ID_AZIENDA").val();
+	    		if (idAzienda != null && idAzienda != "") {
+	    			dtWhereCondition+=" AND ID_AZIENDA = "+idAzienda+" ";
+	    		}
+	    		
+	    		var idImpianto=$("#ID_IMPIANTO").val();
+	    		if (idImpianto != null && idImpianto != "") {
+	    			dtWhereCondition+=" AND ID_IMPIANTO = "+idImpianto+" ";
+	    		}
+
+	    		var idArea=$("#ID_AREA").val();
+	    		if (idArea!=null && idArea != "") {
+	    			dtWhereCondition+=" AND ID_AREA = "+idArea+" ";
+	    		}
+
+	    		var idEquipment=$("#ID_EQUIPMENT").val();
+	    		if (idEquipment !=null && idEquipment != "") {
+	    			dtWhereCondition+=" AND ID_EQUIPMENT = "+idEquipment+" ";
+	    		}
+
+	    		var flDisattivo=tokenizeInConditionFromOptionSelected("FL_DISATTIVO","'");
+	    		if (flDisattivo != "") {
+	    			dtWhereCondition+=" AND FL_DISATTIVO IN ("+flDisattivo+") ";
+	    		}
+
+	    		$( "#dt" ).DataTable().ajax.url( dtAjax+dtWhereCondition ).load();
+				
+			});			
+			
+	        $('#dt tbody').on( 'click', '.editRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_EQUIPMENT_EDIT').val(data[0]);
+				$('#ID_AZIENDA_EDIT').val(data[3]);
+				$('#ID_IMPIANTO_EDIT').val(data[4]);
+				$('#FUNCTIONID_EDIT').val("InserimentoListaEquipment");
+				$("#forEdit").submit();
+	        } );
+	        
+	        
+	        $('#dt tbody').on( 'click', '.deleteRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#keyField').val("ID_EQUIPMENT");
+				$('#keyValue').val(data[0]);
+				$('#FUNCTIONID_DELETE').val("InserimentoListaEquipment");
+				$('.modal-title').html('${label_delete_title_message}');
+				$('.modal-text').html('${label_delete_text_message}');
+				$("#modalQuestionDialog").modal({backdrop: true});
+				$('#modalQuestionDialog').collapse("show");
+	        } );	
+	        
+
+	    	$( "#report" ).click(function() {
+	    		var dataCount=$('#dt').DataTable().column( 0 ).data().length;
+	    		if(dataCount>200) {
+					$('.modal-title').html('Attenzione!');
+					$('.modal-text').html('Il report che si desidera stampare supera le 200 righe. Si consiglia di restringere la ricerca');
+					$("#modalAlert").modal({backdrop: true});
+					$('#modalAlert').collapse("show");	    			
+	    		} else {
+		    		$('#dt').DataTable().button( 2 ).trigger();
+	    		}
+	    		
+	    	});
+	    	
+	    	$( "#excel" ).click(function() {
+	    		$('#dt').DataTable().button( 1 ).trigger();
+	    	});
+	    	
+	    	$( "#csv" ).click(function() {
+	    		$('#dt').DataTable().button( 0 ).trigger();
+	    	});
+	    	
+	    	
+
+		});	        
+		
+    </script> 
+
+</head>
+
+<body>
+
+	<form action="astro" method="post" id="formDelete" name="formDelete">
+		<input type="hidden" id="FUNCTIONID_DELETE" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="DELETE">
+		<input type="hidden" id="keyField" name="keyField">
+		<input type="hidden" id="keyValue" name="keyValue">
+	</form>
+	
+	<form action="astro" method="get" id="forEdit" name="forEdit">
+		<input type="hidden" id="FUNCTIONID_EDIT" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="UPDATE">
+		<input type="hidden" id="ID_EQUIPMENT_EDIT" name="ID_EQUIPMENT">
+		<input type="hidden" id="ID_IMPIANTO_EDIT" name="ID_IMPIANTO">
+		<input type="hidden" id="ID_AZIENDA_EDIT" name="ID_AZIENDA">
+	</form>		
+
+
+	<div class="modal inmodal fade" id="modalAlert" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalAlert').collapse('hide');">${label_ok}</button>
+				</div>
+			</div>
+		</div>
+	</div>		
+	
+		
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();" data-dismiss="modal" type="button">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+           
+			<div class="row">
+                <div class="col-sm-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                                   
+							<div class="row">
+								<div class="col-sm-12">							
+							
+									<form action="astro" method="get" id="formSearch" name="formSearch" class="form-horizontal">
+										<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="RicercaPDL">
+										
+		                                <div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">${label_sito}</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control">
+			                                    </select>
+											</div>
+											
+		                                	<label class="col-sm-2 control-label-left">Impianto:</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="ID_IMPIANTO" name="ID_IMPIANTO"  class="form-control">
+			                                    </select>
+											</div>
+		                                </div>
+		                                    
+		                                <div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">Area di lavoro:</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="ID_AREA" name="ID_AREA"  class="form-control">
+			                                    </select>
+											</div>
+											
+		                                	<label class="col-sm-2 control-label-left">Equipment:</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="ID_EQUIPMENT" name="ID_EQUIPMENT"  class="form-control">
+			                                    </select>
+											</div>
+		                                </div>
+		                                
+		                                <div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">Stato:</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="FL_DISATTIVO" name="FL_DISATTIVO"  class="form-control" multiple>
+			                                    </select>
+												<input type="checkbox" id="CHECKBOX_DISATTIVO">${label_select_all}
+											</div>
+		                                </div>
+		                                
+		                                    
+		                                <div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">Ricerca in linea:</label>
+		                                    <div class="col-sm-10">
+				                                <input type="text" id="free-text-search" name="free-text-search"  class="form-control" placeholder="digita il testo che vuoi cercare per aggiornare subito i risultati">
+											</div>
+		                                </div>
+		                                
+		                                
+										<div class="form-group">
+											<div class="col-sm-5">
+												<button class="btn btn-primary btn-sm" id="ricerca" type="submit" name="ricerca">${label_search}</button>
+												<button class="btn btn-primary btn-sm" type="button" id="report" name="report">PDF</button>
+												<button class="btn btn-primary btn-sm" type="button" id="excel" name="excel">XLS</button>
+												<button class="btn btn-primary btn-sm" type="button" id="csv" name="csv">CSV</button>
+											</div>
+											
+											<div class="col-sm-7">
+												<fieldset>${label_legenda}:
+													<i class="fa fa-pencil" aria-hidden="true"></i>${label_edit}
+													<i class="fa fa-trash-o" aria-hidden="true"></i>${label_delete}
+													<i class="fa fa-toggle-on" aria-hidden="true"></i>${label_utente_attivo}
+													<i class="fa fa-toggle-off" aria-hidden="true"></i>${label_utente_disattivato}
+												</fieldset>											
+											</div>
+											
+										</div>				
+									
+									</form>
+									
+									<div class="hr-line-dashed"></div>
+						
+
+			
+			                        <div class="table-responsive">
+										<table id="dt" class="table table-striped table-bordered table-hover" >
+											<thead>
+												<tr>
+													<th></th>
+													<th></th>
+													<th></th>
+													<th></th>
+													<th></th>
+													<th>Sito</th>
+													<th>Impianto</th>
+													<th>Area</th>
+													<th>Equipment</th>
+													<th>EIS</th>
+												</tr>
+											</thead>
+										
+										</table>
+			                        </div>
+
+                    			</div>
+					
+                			</div>
+						</div>
+            		</div>
+				</div>
+			</div>
+						
+			<#if INCLUDED_FOOTER_PDLWEB?exists><#include INCLUDED_FOOTER_PDLWEB></#if>
+		
+		</div>
+
+	</div>
+	
+
+</body>
+
+</html>

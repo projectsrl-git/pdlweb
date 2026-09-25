@@ -1,0 +1,31 @@
+						<div class="row">
+	                		<div class="col-sm-10">
+								<h4>
+								<ol class="breadcrumb">
+									<#assign i=0>
+									<#list SELECTED_MENU_ITEM.getPathDescriChain() as descriChain>
+									<#if i<SELECTED_MENU_ITEM.getItemLevel()>
+									<li>
+										<a href="${SELECTED_MENU_ITEM.getLinkChain()[i]}">${descriChain}</a>
+									</li>
+									<#else>
+									<li class="active">
+										<a href="${SELECTED_MENU_ITEM.getLinkChain()[i]}"><strong>${descriChain}</strong></a>
+									</li>
+									</#if>
+									<#assign i=i+1>
+									</#list>
+								</ol>
+								</h4>
+	                        </div>
+	                        <div class="col-sm-2">
+	                        	<div id="box-required-fields" class="boxed-text required-fields align-center">Campi obbligatori</div>
+	                        </div>                  
+                        </div>
+
+						
+						<div class="alert alert-success alert-message hidden-div">Salvataggio dati terminato con successo</div>
+						<div class="alert alert-info alert-message hidden-div"></div>
+						<div class="alert alert-warning alert-message hidden-div"></div>
+						<div class="alert alert-danger alert-message hidden-div"></div>
+						

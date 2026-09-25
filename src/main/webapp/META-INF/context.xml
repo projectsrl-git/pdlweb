@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Context>
+  <Resource 
+	auth="Container" 
+	driverClassName="org.postgresql.Driver" 
+	logAbandoned="true" 
+	maxActive="200" 
+	maxIdle="200" 
+	maxWait="3000" 
+	minIdle="20" 
+	password="Project1" 
+	username="postgres" 
+	removeAbandoned="true" 
+	removeAbandonedTimeout="180" 
+	type="javax.sql.DataSource" 
+	url="jdbc:postgresql://db-alibow-etc-host:5432/alibow"
+	global="jdbc/alibow"
+	name="jdbc/alibow"
+	/>
+	 
+</Context>

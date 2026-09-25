@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+    
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSLIMOD13Dettaglio&columns=ID_DETTAGLIO,ID_DETTAGLIO,ARGOMENTO,AZIONE_NOTA_COMMENTO,A_CURA_DI,ENTRO_IL&WHERECONDITION=";
+    	var dtWhereCondition="<#if ID_MODULO?exists && ID_MODULO!=''>WHERE ID_MODULO = ${ID_MODULO}<#else> WHERE 1=0 </#if>";
+    	var stato="<#if STATO?exists>${STATO}</#if>";
+    	var readOnly="<#if READONLY?exists>${READONLY}<#else>N</#if>";
+		
+		$(function(){
+			
+			$("#STATO").attr("disabled", true);
+			$("#inviaApprovatore").hide();
+			$("#ALTRO_EMAIL").attr("disabled", true);
+			
+			$("#inviaQP").hide();
+			
+			$("#ID_UTENTE").val(<#if ID_UTENTE?exists>${ID_UTENTE}</#if>);
+			
+			$("#CODICE_BL").trigger("loadDataSet",["DSBusinessLine","CODICE","DESCRIZIONE","<#if CODICE_BL?exists>${CODICE_BL}</#if>"," WHERE 1=1 "]);
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiQHSE","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_UTENTE_CON").trigger("loadDataSet",["DSUtentiAziendeProfili","ID_UTENTE","NOME_COGNOME","<#if ID_UTENTE_CON?exists>${ID_UTENTE_CON}</#if>","  WHERE CODICE_PROFILO='CON' "]);
+			$("#STATO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if STATO?exists>${STATO}</#if>"," WHERE DOMINIO='STA' "]);
+			$("#ORA").val("<#if ORA?exists>${ORA}</#if>");
+			$("#UT").val("<#if UT?exists>${UT}</#if>");
+			$("#PRODOTTO").val("<#if PRODOTTO?exists>${PRODOTTO}</#if>");
+			$("#AUDIT").val("<#if AUDIT?exists>${AUDIT}</#if>");
+			$("#AUTISTA").val("<#if AUTISTA?exists>${AUTISTA}</#if>");
+			$("#NOTE").val("<#if NOTE?exists>${NOTE}</#if>");
+			$("#OPERATORE_VERIFICATO").val("<#if OPERATORE_VERIFICATO?exists>${OPERATORE_VERIFICATO}</#if>");
+			$("#VERIFICATORE").val("<#if VERIFICATORE?exists>${VERIFICATORE}</#if>");
+			
+			
+			$('#FLG_1').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_1?exists>${FLG_1}</#if>",""]);
+			$('#FLG_2').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_2?exists>${FLG_2}</#if>",""]);
+			$('#FLG_3').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_3?exists>${FLG_3}</#if>",""]);
+			$('#FLG_4').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_4?exists>${FLG_4}</#if>",""]);
+			$('#FLG_5').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_5?exists>${FLG_5}</#if>",""]);
+			$('#FLG_6').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_6?exists>${FLG_6}</#if>",""]);
+			$('#FLG_7').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_7?exists>${FLG_7}</#if>",""]);
+			$('#FLG_8').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_8?exists>${FLG_8}</#if>",""]);
+			$('#FLG_9').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_9?exists>${FLG_9}</#if>",""]);
+			$('#FLG_10').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_10?exists>${FLG_10}</#if>",""]);
+			$('#FLG_11').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_11?exists>${FLG_11}</#if>",""]);
+			$('#FLG_12').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_12?exists>${FLG_12}</#if>",""]);
+			$('#FLG_13').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_13?exists>${FLG_13}</#if>",""]);
+			$('#FLG_14').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_14?exists>${FLG_14}</#if>",""]);
+			$('#FLG_15').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_15?exists>${FLG_15}</#if>",""]);
+			$('#FLG_16').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_16?exists>${FLG_16}</#if>",""]);
+			$('#FLG_17').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_17?exists>${FLG_17}</#if>",""]);
+			$('#FLG_18').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_18?exists>${FLG_18}</#if>",""]);
+			$('#FLG_19').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_19?exists>${FLG_19}</#if>",""]);
+			$('#FLG_20').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_20?exists>${FLG_20}</#if>",""]);
+			$('#FLG_21').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_21?exists>${FLG_21}</#if>",""]);
+			$('#FLG_22').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_22?exists>${FLG_22}</#if>",""]);
+			$('#FLG_23').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_23?exists>${FLG_23}</#if>",""]);
+			$('#FLG_24').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_24?exists>${FLG_24}</#if>",""]);
+			$('#FLG_25').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_25?exists>${FLG_25}</#if>",""]);
+			$('#FLG_26').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_26?exists>${FLG_26}</#if>",""]);
+			$('#FLG_27').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if FLG_27?exists>${FLG_27}</#if>",""]);
+
+			
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			$("#ID_MODULO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			$("#CODICE_MODULO").val("<#if CODICE_MODULO?exists>${CODICE_MODULO}</#if>");
+			$("#DT_MODULO").val("<#if DT_MODULO?exists>${DT_MODULO}</#if>").change();
+			$("#TITOLO").val("<#if TITOLO?exists>${TITOLO}</#if>").change();
+			$("#NR_MODULO").val("<#if NR_MODULO?exists>${NR_MODULO}</#if>");
+			$("#NR_MODULO").attr("disabled", true);
+			
+			$("#ID_MODULO_DETTAGLIO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			
+			if (stato=='APP' || stato=='AQP') {
+				$("#STATO_AZIONE").attr("disabled", false);
+			} else {
+				$("#STATO_AZIONE").attr("disabled",true );
+			}
+			
+			var operationType=$("#OPERATION_TYPE").val();
+			
+			if (operationType=="INSERT") {
+				$("#dettagli").hide();
+			}
+
+			if (readOnly=="Y") {
+				disableFieldsReadOnly();
+			} else {
+				if (stato=="WAI" || stato=='WQP') {
+					disableFieldsReadOnly();
+				} else if (stato=="WAI" || stato=='WQP') {
+					disableFieldsReadOnly();
+				} else if (stato=="APP" || stato=='AQP') {
+					disableFieldsStatusAPP();
+				} else if (stato=="DRA") {
+					disableFieldsStatusDRA();
+				}
+			}
+
+			$("#formInserimento").validate();
+			
+			$("#CODICE_BL").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_AZIENDA").empty();
+				$("#ID_AZIENDA").select2("destroy");
+				$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiQHSE","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE codice_bl='"+id+"' "]);
+			});	
+			
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				$("#salva-group").hide();
+				
+				var idModulo=$("#ID_MODULO").val();
+				if (idModulo!='') {
+					$("#OPERATION_TYPE").val("UPDATE");
+				}				
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					
+					$("#salva-group").show();
+					var result = eval('('+response+')');
+					
+		    		var operationType=$("#OPERATION_TYPE").val();
+		    		if (operationType != "" && operationType=="INSERT") {
+		    			var idModulo=result.id;
+		    			var nrModulo=result.nr;
+		    			if (idModulo != null && idModulo != "") {
+							$("#ID_MODULO").val(idModulo);
+							$("#NR_MODULO").val(nrModulo);
+							$("#ID_MODULO_DETTAGLIO").val(idModulo);
+			    			$("#inviaApprovatore").show();							
+						}
+		    		}
+		    		
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+				
+				
+			});
+					
+        	$( "#inviaApprovatore" ).click(function() {
+				$('.modal-title').html('Invia modulo');
+				$('.modal-text').html('Confermi invio modulo per approvazione?');
+				$("#modalQuestionDialogPublish").modal({backdrop: true});
+				$('#modalQuestionDialogPublish').collapse("show");
+        	});
+	        			
+			$("#formPublish").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+				
+		        var formName = $(this).attr('name');
+
+		        var id_modulo=$("#ID_MODULO").val();
+				$("#SQL_STATEMENT").val("update LIMOD13 set STATO='WAI' where id_modulo="+id_modulo+" ");
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+					disableFieldsReadOnly();
+				});
+			});					
+	        
+		});
+
+		function disableFieldsStatusDRA() {
+			var idModulo=$("#ID_MODULO").val();
+			if (idModulo!=null && idModulo!="") {
+				$("#inviaApprovatore").show();
+			} else {
+				$("#inviaApprovatore").hide();
+			}
+			
+		}
+
+
+		function disableFieldsStatusAPP() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#formAggiungiDettaglio :input:visible").attr("disabled", true);
+			$("#aggiungi").attr("disabled", false);
+			$("#STATO_AZIONE").attr("disabled", false);
+			$("#NOTE_AVANZAMENTO").attr("disabled", false);
+			$("#salva").hide();
+			$("#aggiungi").hide();
+			$("#inviaApprovatore").hide();
+			$("#inviaQP").hide();
+			$("#aggiungi").show();
+		}
+
+		function disableFieldsReadOnly() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#formAggiungiDettaglio :input:visible").attr("disabled", true);
+			$("#salva").hide();
+			$("#inviaApprovatore").hide();
+			$("#inviaQP").hide();
+			$("#aggiungi").hide();
+		}
+
+		
+    </script> 
+
+</head>
+
+<body>
+
+
+	<form action="astro" id="formPublish" name="formPublish" method="post">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="ExecuteSQL">
+		<input type="hidden" id="SQL_STATEMENT" name="SQL_STATEMENT">
+	</form>
+	
+	<form action="astro" method="post" id="formDelete" name="formDelete">
+		<input type="hidden" id="FUNCTIONID_DELETE" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="DELETE"> 
+		<input type="hidden" id="keyField" name="keyField">
+		<input type="hidden" id="keyValue" name="keyValue">
+	</form>
+
+
+	<div class="modal inmodal fade" id="modalQuestionDialogPublish"	tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm"	onclick="$('#modalQuestionDialogPublish').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialogPublish').collapse('toggle');$('#formPublish').submit();" data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1"
+		role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal"
+						class="btn btn-white btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();"
+						data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists>
+		<#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row">
+                <div class="col-sm-12">
+				
+                    <div class="ibox">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                        	
+							<div class="row">
+                        	<div class="col-sm-12">
+                        
+                            <form action="astro" method="post" id="formInserimento" name="formInserimento" class="form-horizontal">
+								<input type="hidden" name="FUNCTIONID" value="InserimentoLIMOD13"> 
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+								<input type="hidden" id="ID_MODULO" name="ID_MODULO">
+								<input type="hidden" id="CODICE_MODULO" name="CODICE_MODULO">
+								<input type="hidden" id="ID_UTENTE" name="ID_UTENTE">
+												
+								<div class="form-group">
+									<label class="col-sm-2 control-label-left">Business Line:</label>
+									<div class="col-sm-2">
+										<select class="form-control" id="CODICE_BL" name="CODICE_BL" required>
+										</select>
+									</div>
+
+                                	<label class="col-sm-1 control-label-left">Sito:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control" required>
+	                                    </select>
+									</div>
+									
+                                	<label class="col-sm-1 control-label-left">Redattore:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_UTENTE_CON" name="ID_UTENTE_CON"  class="form-control" required>
+	                                    </select>
+									</div>                                	
+                                </div>                                  
+											         
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Nr.Progressivo</label>
+                                    <div class="col-sm-2"><input type="text" class="form-control" id="NR_MODULO" name="NR_MODULO"></div>
+
+                                	<label class="col-sm-1 control-label-left">Data</label>
+                                    <div class="col-sm-3">
+					                <div class="input-group date">
+	                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_MODULO" id="DT_MODULO" required>
+	                                </div>
+                                    </div>
+                                    
+                                	<label class="col-sm-1 control-label-left">Stato:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="STATO" name="STATO"  class="form-control" required>
+	                                    </select>
+									</div>                                	
+                                </div>    	
+                               
+                                	
+                                <div class="form-group">
+									<label class="col-sm-2 control-label-left">Ora</label>
+									<div class="col-sm-2"><input type="text" class="form-control" id="ORA" name="ORA" required></div>
+								</div>						         
+											                                
+								<div class="form-group">
+									<label class="col-sm-2 control-label-left">U.T.</label>
+									<div class="col-sm-4"><input type="text" class="form-control" id="UT" name="UT" required></div>
+								
+                                	<label class="col-sm-2 control-label-left">Prodotto caricato</label>
+                                    <div class="col-sm-4"><input type="text" class="form-control" id="PRODOTTO" name="PRODOTTO" required></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Audit effettuato da</label>
+                                    <div class="col-sm-4"><input type="text" class="form-control" id="AUDIT" name="AUDIT" required></div>
+
+                                	<label class="col-sm-2 control-label-left">Autista auditato</label>
+                                    <div class="col-sm-4"><input type="text" class="form-control" id="AUTISTA" name="AUTISTA" required></div>
+                                </div>
+                                
+                                
+                                
+                                
+                                <div class="form-group">
+									<label class="col-sm-12"><h4><b>Checklist operazioni carico automezzi</b></h4></label>
+								</div>			
+									
+								<div class="form-group">
+									<div class="col-sm-12">
+										<div class="table-responsive">
+											<table class="table table-bordered">
+												<tbody>
+													 <thead>
+														  <tr>
+														     <th>N°</th>
+														     <th>Requisito verificato</th>
+														     <th>Conformità</th>
+														  </tr>
+													 </thead>
+													<tr>
+														<td>1</td>
+														<td>Il trasportatore ha chiesto l'autorizzazione al carico?</td>
+														<td><select class="form-control" id="FLG_1" name="FLG_1"></select></td>
+													</tr>
+													<tr>
+														<td>2</td>
+														<td>L'U.T. è stata posizionata correttamente nei pressi del punto di carico?</td>
+														<td><select class="form-control" id="FLG_2" name="FLG_2"></select></td>
+													</tr>
+													<tr>
+														<td>3</td>
+														<td>L'U.T. dispone di 2 estintori a polvere polivalente ABC con una capacità minima di 6 kg ciascuno?</td>
+														<td><select class="form-control" id="FLG_3" name="FLG_3"></select></td>
+													</tr>
+													<tr>
+														<td>4</td>
+														<td>Nella zona di travaso sono presenti macchie di olio e/o grasso?</td>
+														<td><select class="form-control" id="FLG_4" name="FLG_4"></select></td>
+													</tr>
+													<tr>
+														<td>5</td>
+														<td>L'U.T. presenta segni di perdite di olio e/o di carburante?</td>
+														<td><select class="form-control" id="FLG_5" name="FLG_5"></select></td>
+													</tr>
+													<tr>
+														<td>6</td>
+														<td>Il tubo flessibile e le relative flange sono conformi al liquido da caricare?</td>
+														<td><select class="form-control" id="FLG_6" name="FLG_6"></select></td>
+													</tr>
+													<tr>
+														<td>7</td>
+														<td>Sono evidenti perdite da pompa/flange/valvole del gruppo di carico/flessibile?</td>
+														<td><select class="form-control" id="FLG_7" name="FLG_7"></select></td>
+													</tr>
+													<tr>
+														<td>8</td>
+														<td>Sono evidenti perdite di liquido criogenico dalle valvole/flange dell'U.T.?</td>
+														<td><select class="form-control" id="FLG_8" name="FLG_8"></select></td>
+													</tr>
+													<tr>
+														<td>9</td>
+														<td>L'autista è nelle vicinanze dell'U.T.?</td>
+														<td><select class="form-control" id="FLG_9" name="FLG_9"></select></td>
+													</tr>
+													<tr>
+														<td>10</td>
+														<td>L'autista indossa i D.P.I. previsti?</td>
+														<td><select class="form-control" id="FLG_10" name="FLG_10"></select></td>
+													</tr>
+													<tr>
+														<td>11</td>
+														<td>Sull'U.T. il tipo di prodotto trasportato è indicato e corrisponde a quello caricato?</td>
+														<td><select class="form-control" id="FLG_11" name="FLG_11"></select></td>
+													</tr>
+													<tr>
+														<td>12</td>
+														<td>Il dispositivo antistrappo dell'U.T è funzionante?</td>
+														<td><select class="form-control" id="FLG_12" name="FLG_12"></select></td>
+													</tr>
+													<tr>
+														<td>13</td>
+														<td>I cunei per il bloccaggio delle ruote dell'U.T. sono utilizzati?</td>
+														<td><select class="form-control" id="FLG_13" name="FLG_13"></select></td>
+													</tr>
+													<tr>
+														<td>14</td>
+														<td>Il cavo per la messa a terra dell'U.T. è stato collegato?</td>
+														<td><select class="form-control" id="FLG_14" name="FLG_14"></select></td>
+													</tr>
+													<tr>
+														<td>15</td>
+														<td>Lo spurgo del troppo pieno dell'U.T. è aperto?</td>
+														<td><select class="form-control" id="FLG_15" name="FLG_15"></select></td>
+													</tr>
+													<tr>
+														<td>16</td>
+														<td>Le valvole di messa all'aria (ad eccezione di spurgo di troppo pieno) sono chiuse?</td>
+														<td><select class="form-control" id="FLG_16" name="FLG_16"></select></td>
+													</tr>
+													<tr>
+														<td>17</td>
+														<td>Durante il travaso è verificato il livello di riempimento dell'U.T.?</td>
+														<td><select class="form-control" id="FLG_17" name="FLG_17"></select></td>
+													</tr>
+													<tr>
+														<td>18</td>
+														<td>I dadi in ottone delle flange sono in buone condizioni?</td>
+														<td><select class="form-control" id="FLG_18" name="FLG_18"></select></td>
+													</tr>
+													<tr>
+														<td>19</td>
+														<td>L'U.T. è provvista di flange cieche da montare su tubazioni di carico e scarico?</td>
+														<td><select class="form-control" id="FLG_19" name="FLG_19"></select></td>
+													</tr>
+													<tr>
+														<td>20</td>
+														<td>L'autista dispone di bandoliera fluorescente e lampada tascabile non a fiamma?</td>
+														<td><select class="form-control" id="FLG_20" name="FLG_20"></select></td>
+													</tr>
+													<tr>
+														<td>21</td>
+														<td>L'U.T. dispone di coni o triangoli riflettenti da usare in caso di fermata di emergenza?</td>
+														<td><select class="form-control" id="FLG_21" name="FLG_21"></select></td>
+													</tr>
+													<tr>
+														<td>22</td>
+														<td>L'autista è a conoscenza delle procedure da adottare in caso di rottura del flessibile di carico?</td>
+														<td><select class="form-control" id="FLG_22" name="FLG_22"></select></td>
+													</tr>
+													<tr>
+														<td>23</td>
+														<td>Il sensore di retromarcia dell'U.T. è funzionante?</td>
+														<td><select class="form-control" id="FLG_23" name="FLG_23"></select></td>
+													</tr>
+													<tr>
+														<td>24</td>
+														<td>Durante la movimentazione, il carico e/o lo scarico è rispettato il divieto di fumare?</td>
+														<td><select class="form-control" id="FLG_24" name="FLG_24"></select></td>
+													</tr>
+													<tr>
+														<td>25</td>
+														<td>Durante le operazioni di carico/scarico è stato spento il motore dell'U.T.?</td>
+														<td><select class="form-control" id="FLG_25" name="FLG_25"></select></td>
+													</tr>
+													<tr>
+														<td>26</td>
+														<td>Il sistema temporizzato di tacitazione presenza autista nelle vicinanze dell'U.T. è correttamente utilizzato?</td>
+														<td><select class="form-control" id="FLG_26" name="FLG_26"></select></td>
+													</tr>
+													<tr>
+														<td>27</td>
+														<td>A riempimento dell'U.T. ultimato, l'autista ha verificato che i dispositivi di chiusura (valvole, flange, flessibili…) abbiano la corretta tenuta?</td>
+														<td><select class="form-control" id="FLG_27" name="FLG_27"></select></td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+															
+															
+                                
+                                
+                                
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Note</label>
+                                    <div class="col-sm-10">
+                                    <textarea class="form-control" id="NOTE" name="NOTE" rows="3"></textarea>
+									</div>
+                                </div> 
+                                
+                                <div class="form-group">
+	                                	<label class="col-sm-2 control-label-left">Operatore verificato</label>
+	                                    <div class="col-sm-4"><input type="text" class="form-control" id="OPERATORE_VERIFICATO" name="OPERATORE_VERIFICATO"></div>
+	
+	                                	<label class="col-sm-2 control-label-left">Verificatore</label>
+	                                    <div class="col-sm-4"><input type="text" class="form-control" id="VERIFICATORE" name="VERIFICATORE"></div>
+	                                </div>  
+                                
+                                
+								<div class="form-group" id="salva-group">
+									<div class="col-sm-12">
+										<button class="btn btn-white btn-sm" type="reset">${label_cancel}</button>
+										<button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+										<button class="btn btn-primary btn-sm" type="button" id="pubblica" name="pubblica">Invia Approvatore</button>
+									</div>
+								</div>                                
+                                
+                            </form>
+                            </div>
+                            </div>
+						</div>
+                            
+                        
+                    </div>
+                </div>
+            </div>		
+
+			
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+    
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSALIMOD05Dettaglio&columns=ID_DETTAGLIO,ID_DETTAGLIO,NR_DETTAGLIO,DESCRIZIONE,NOME_COGNOME_RES,CODICE_TIPO_AZIONE,DESCRIZIONE,DT_PREVISTA,DT_VERIFICA,ID_UTENTE_RES_1,ID_UTENTE_RES_2,FLG_AZIONE,DT_VERIFICA_EFFICACIA,ID_UTENTE_RES_3,ORIGINE_AP,ATTESTAZIONE,QUALITY_ASSURANCE&WHERECONDITION=";
+    	var dtWhereCondition="<#if ID_MODULO?exists && ID_MODULO!=''>WHERE ID_MODULO = ${ID_MODULO}<#else> WHERE 1=0 </#if>";
+    	var stato="<#if STATO?exists>${STATO}</#if>";
+    	var readOnly="<#if READONLY?exists>${READONLY}<#else>N</#if>";
+		
+		$(function(){
+			
+			$("#STATO").attr("disabled", true);
+			$("#inviaApprovatore").hide();
+			$("#ALTRO_EMAIL").attr("disabled", true);
+			
+			$("#inviaQP").hide();
+			
+			$("#ID_UTENTE").val(<#if ID_UTENTE?exists>${ID_UTENTE}</#if>);
+			
+			$("#CODICE_BL").trigger("loadDataSet",["DSBusinessLine","CODICE","DESCRIZIONE","<#if CODICE_BL?exists>${CODICE_BL}</#if>"," WHERE 1=1 "]);
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiQHSE","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_UTENTE_CON").trigger("loadDataSet",["DSUtentiAziendeProfili","ID_UTENTE","NOME_COGNOME","<#if ID_UTENTE_CON?exists>${ID_UTENTE_CON}</#if>","  WHERE CODICE_PROFILO='CON' "]);
+			$("#STATO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if STATO?exists>${STATO}</#if>"," WHERE DOMINIO='STA' "]);
+			$("#SEZ1_ID_UTENTE_RES").trigger("loadDataSet",["DSUtenti","ID_UTENTE","NOME_COGNOME","<#if SEZ1_ID_UTENTE_RES?exists>${SEZ1_ID_UTENTE_RES}</#if>"," WHERE 1=1 "]);
+			$("#SEZ2_ID_UTENTE_RES_1").trigger("loadDataSet",["DSUtentiAziendeProfili","ID_UTENTE","NOME_COGNOME","<#if SEZ2_ID_UTENTE_RES_1?exists>${SEZ2_ID_UTENTE_RES_1}</#if>"," WHERE CODICE_PROFILO='CON' "]);
+			$("#SEZ2_ID_UTENTE_RES_2").trigger("loadDataSet",["DSUtentiAziendeProfili","ID_UTENTE","NOME_COGNOME","<#if SEZ2_ID_UTENTE_RES_2?exists>${SEZ2_ID_UTENTE_RES_2}</#if>"," WHERE CODICE_PROFILO='CON' "]);
+			$("#SEZ2_ID_UTENTE_RES_3").trigger("loadDataSet",["DSUtentiAziendeProfili","ID_UTENTE","NOME_COGNOME","<#if SEZ2_ID_UTENTE_RES_3?exists>${SEZ2_ID_UTENTE_RES_3}</#if>"," WHERE CODICE_PROFILO='CON' "]);
+			$("#SEZ3_ID_UTENTE_RES").trigger("loadDataSet",["DSUtentiAziendeProfili","ID_UTENTE","NOME_COGNOME","<#if SEZ3_ID_UTENTE_RES?exists>${SEZ3_ID_UTENTE_RES}</#if>"," WHERE CODICE_PROFILO='CON' "]);
+			$("#ID_UTENTE_RES_1").trigger("loadDataSet",["DSUtentiAziendeProfili","ID_UTENTE","NOME_COGNOME","<#if ID_UTENTE_RES_1?exists>${ID_UTENTE_RES_1}</#if>"," WHERE CODICE_PROFILO='CON' "]);
+			$("#ID_UTENTE_RES_2").trigger("loadDataSet",["DSUtentiAziendeProfili","ID_UTENTE","NOME_COGNOME","<#if ID_UTENTE_RES_2?exists>${ID_UTENTE_RES_2}</#if>"," WHERE CODICE_PROFILO='CON' "]);
+			$("#ID_UTENTE_RES_3").trigger("loadDataSet",["DSUtentiAziendeProfili","ID_UTENTE","NOME_COGNOME","<#if ID_UTENTE_RES_3?exists>${ID_UTENTE_RES_3}</#if>"," WHERE CODICE_PROFILO='CON' "]);
+			$('#FLG_TRATTAMENTO_NC').prop('checked','<#if FLG_TRATTAMENTO_NC?exists && FLG_TRATTAMENTO_NC!=''>${FLG_TRATTAMENTO_NC}<#else>false</#if>'==='true')
+			$('#FLG_AZIONE').prop('checked','<#if FLG_AZIONE?exists && FLG_AZIONE!=''>${FLG_AZIONE}<#else>false</#if>'==='true')
+			$("#SEZ1_FL_GMP").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if SEZ1_FL_GMP?exists>${SEZ1_FL_GMP}</#if>"," WHERE DOMINIO='GMP' "]);
+			
+			
+			$("#SEZ1_NORMA_LEGGE_DOC").val("<#if SEZ1_NORMA_LEGGE_DOC?exists>${SEZ1_NORMA_LEGGE_DOC}</#if>");                                    
+			$("#SEZ1_CAPITOLO").val("<#if SEZ1_CAPITOLO?exists>${SEZ1_CAPITOLO}</#if>");                                           
+			$("#SEZ1_FORNITORE_CLIENTE").val("<#if SEZ1_FORNITORE_CLIENTE?exists>${SEZ1_FORNITORE_CLIENTE}</#if>");                                  
+			$("#SEZ1_TIPO_SERV_PROD").val("<#if SEZ1_TIPO_SERV_PROD?exists>${SEZ1_TIPO_SERV_PROD}</#if>");                                     
+			$("#SEZ1_DESCRIZIONE_NC").val("<#if SEZ1_DESCRIZIONE_NC?exists>${SEZ1_DESCRIZIONE_NC}</#if>");                                     
+			$("#SEZ1_FL_GMP").val("<#if SEZ1_FL_GMP?exists>${SEZ1_FL_GMP}</#if>");                                      
+			$("#SEZ1_EVIDENZE").val("<#if SEZ1_EVIDENZE?exists>${SEZ1_EVIDENZE}</#if>");                                           
+			$("#SEZ1_OSSERVAZIONI").val("<#if SEZ1_OSSERVAZIONI?exists>${SEZ1_OSSERVAZIONI}</#if>");                                       
+			$("#SEZ1_VERIFICATORE_NC").val("<#if SEZ1_VERIFICATORE_NC?exists>${SEZ1_VERIFICATORE_NC}</#if>");                                    
+			$("#SEZ1_DT_NC").val("<#if SEZ1_DT_NC?exists>${SEZ1_DT_NC}</#if>");                                       
+			$("#SEZ1_ID_UTENTE_RES").val("<#if SEZ1_ID_UTENTE_RES?exists>${SEZ1_ID_UTENTE_RES}</#if>");                               
+			$("#SEZ2_TRATTAMENTO_NC").val("<#if SEZ2_TRATTAMENTO_NC?exists>${SEZ2_TRATTAMENTO_NC}</#if>");                                     
+			$("#SEZ2_DT_PREVISTA_NC").val("<#if SEZ2_DT_PREVISTA_NC?exists>${SEZ2_DT_PREVISTA_NC}</#if>");                              
+			$("#SEZ2_DT_VERIFICA_NC").val("<#if SEZ2_DT_VERIFICA_NC?exists>${SEZ2_DT_VERIFICA_NC}</#if>");                              
+			$("#SEZ2_ID_UTENTE_RES_1").val("<#if SEZ2_ID_UTENTE_RES_1?exists>${SEZ2_ID_UTENTE_RES_1}</#if>");                             
+			$("#SEZ2_ID_UTENTE_RES_2").val("<#if SEZ2_ID_UTENTE_RES_2?exists>${SEZ2_ID_UTENTE_RES_2}</#if>");                             
+			$("#FLG_TRATTAMENTO_NC").val("<#if FLG_TRATTAMENTO_NC?exists>${FLG_TRATTAMENTO_NC}</#if>");                               
+			$("#SEZ2_DT_VERIFICA_TRATT_NC").val("<#if SEZ2_DT_VERIFICA_TRATT_NC?exists>${SEZ2_DT_VERIFICA_TRATT_NC}</#if>");                        
+			$("#SEZ2_ID_UTENTE_RES_3").val("<#if SEZ2_ID_UTENTE_RES_3?exists>${SEZ2_ID_UTENTE_RES_3}</#if>");                             
+			$("#SEZ3_CAUSA_NC").val("<#if SEZ3_CAUSA_NC?exists>${SEZ3_CAUSA_NC}</#if>");                                           
+			$("#SEZ3_DT_CAUSA_NC").val("<#if SEZ3_DT_CAUSA_NC?exists>${SEZ3_DT_CAUSA_NC}</#if>");                                 
+			$("#SEZ3_ID_UTENTE_RES").val("<#if SEZ3_ID_UTENTE_RES?exists>${SEZ3_ID_UTENTE_RES}</#if>");                               
+
+			
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			$("#ID_MODULO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			$("#CODICE_MODULO").val("<#if CODICE_MODULO?exists>${CODICE_MODULO}</#if>");
+			$("#DT_MODULO").val("<#if DT_MODULO?exists>${DT_MODULO}</#if>").change();
+			$("#TITOLO").val("<#if TITOLO?exists>${TITOLO}</#if>").change();
+			$("#NR_MODULO").val("<#if NR_MODULO?exists>${NR_MODULO}</#if>");
+			$("#NR_MODULO").attr("disabled", true);
+			
+			$("#ID_MODULO_DETTAGLIO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			$("#CODICE_TIPO_AZIONE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE",""," WHERE DOMINIO='ACT' "]);
+			$("#STATO_AZIONE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","OPE"," WHERE DOMINIO='SAZ' "]);
+			
+			if (stato=='APP' || stato=='AQP') {
+				$("#STATO_AZIONE").attr("disabled", false);
+			} else {
+				$("#STATO_AZIONE").attr("disabled",true );
+			}
+			
+			$("#CODICE_CLASSIFICAZIONE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE",""," WHERE DOMINIO='CLA' "]);
+			$("#ID_UTENTE_RES").trigger("loadDataSet",["DSUtentiAziendeProfili","ID_UTENTE","NOME_COGNOME",""," WHERE (CODICE_PROFILO='CON' OR CODICE_PROFILO='APP') "]);
+			$("#ID_UTENTE_ASS").trigger("loadDataSet",["DSUtenti","ID_UTENTE","NOME_COGNOME",""," WHERE 1=1 "]);
+			
+			var operationType=$("#OPERATION_TYPE").val();
+			
+			if (operationType=="INSERT") {
+				$("#dettagli").hide();
+			}
+
+			if (readOnly=="Y") {
+				disableFieldsReadOnly();
+			} else {
+				if (stato=="WAI" || stato=='WQP') {
+					disableFieldsReadOnly();
+				} else if (stato=="WAI" || stato=='WQP') {
+					disableFieldsReadOnly();
+				} else if (stato=="APP" || stato=='AQP') {
+					disableFieldsStatusAPP();
+				} else if (stato=="DRA") {
+					disableFieldsStatusDRA();
+				}
+			}
+
+			$("#formInserimento").validate();
+			$("#formAggiungiDettaglio").validate();
+			
+			$("#CODICE_BL").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_AZIENDA").empty();
+				$("#ID_AZIENDA").select2("destroy");
+				$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiQHSE","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE codice_bl='"+id+"' "]);
+			});	
+			
+			
+			$( "#ASSEGNATARIO" ).change(function() {
+				if ($(this).val()!=null && $(this).val()!="") {
+					$("#ALTRO_EMAIL").attr("disabled", false);
+				} else {
+					$("#ALTRO_EMAIL").attr("disabled", true);
+				}
+			});
+			
+			
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				$("#salva-group").hide();
+				
+				$("#FLG_TRATTAMENTO_NC").val($("#FLG_TRATTAMENTO_NC").is(':checked'));
+				
+				var idModulo=$("#ID_MODULO").val();
+				if (idModulo!='') {
+					$("#OPERATION_TYPE").val("UPDATE");
+				}				
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					
+					$("#salva-group").show();
+					var result = eval('('+response+')');
+					
+		    		var operationType=$("#OPERATION_TYPE").val();
+		    		if (operationType != "" && operationType=="INSERT") {
+		    			var idModulo=result.id;
+		    			var nrModulo=result.nr;
+		    			if (idModulo != null && idModulo != "") {
+							$("#ID_MODULO").val(idModulo);
+							$("#NR_MODULO").val(nrModulo);
+							$("#ID_MODULO_DETTAGLIO").val(idModulo);
+							$("#dettagli").show();
+			    			$("#inviaApprovatore").show();							
+						}
+		    		}
+		    		
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+				
+				
+			});
+					
+			
+			$("#formAggiungiDettaglio").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formAggiungiDettaglio").valid()) {
+					return false;
+				}		
+				
+				if ($("#ID_DETTAGLIO").val()=="") {
+					$("#OPERATION_TYPE_DETTAGLIO").val("INSERT");
+				} else {
+					$("#OPERATION_TYPE_DETTAGLIO").val("UPDATE");
+				}
+				
+				$("#formAggiungiDettaglio :input:visible").attr("disabled", false);
+				$("#aggiungi").text('Aggiungi'); 
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) {
+					var result = eval('('+response+')');
+					
+					if (result.result) {
+						
+						<#if STATO?exists && (STATO='APP' || STATO='AQP')>			
+						disableFieldsStatusAPP();
+						</#if>				
+						
+						// reset dettaglio
+						
+						$('#ID_DETTAGLIO').val("");
+						$('#CODICE_TIPO_AZIONE').val("").change();
+						$('#DESCRIZIONE').val("");
+						$('#DT_PREVISTA').val("");
+						$('#DT_VERIFICA').val("");
+						$('#ID_UTENTE_RES_1').val("");
+						$('#ID_UTENTE_RES_2').val("");
+						$('#DT_VERIFICA_EFFICACIA').val("");
+						$('#ID_UTENTE_RES_3').val("");
+						$('#ORIGINE_AP').val("");
+						$('#ATTESTAZIONE').val("");
+						$('#QUALITY_ASSURANCE').val("");
+						
+						// reset dettaglio
+						
+			    		var id=$("#ID_MODULO").val();
+			    		
+			    		dtWhereCondition=" WHERE 1=0 ";
+			    		if (id != "") {
+			    			dtWhereCondition=" WHERE ID_MODULO = "+id;
+			    		}
+										
+						$( "#dt" ).DataTable().ajax.url( dtAjax+dtWhereCondition ).load();
+						
+					}					
+				});
+				
+			});			
+			
+			
+	        $('#dt').DataTable({
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	  
+	            "ajax": dtAjax+dtWhereCondition,				
+				columnDefs: [
+					{
+						width:"1%",
+						targets:0,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="editRow" title="${label_edit}"><i class="fa fa-pencil fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						visible: <#if (READONLY?exists && READONLY='Y') || (STATO?exists && STATO!='DRA')>false<#else>true</#if>,
+						targets:1,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="deleteRow" title="${label_delete}"><i class="fa fa-trash-o fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						targets:2,
+						visible: false
+					},
+					{
+						targets:3,
+						visible: false
+					},
+					{
+						targets:4,
+						visible: false
+					},
+					{
+						targets:5,
+						visible: false
+					}
+					
+				],
+				
+	            dom: '<"html5buttons"B>lTgitp',
+	            language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+	
+	            buttons: [
+	            ],
+				aaSorting: []
+	
+	        });
+	        
+	        
+	        $('#dt tbody').on( 'click', '.editRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_DETTAGLIO').val(data[0]);
+				
+				
+				$("#CODICE_TIPO_AZIONE").val(data[5]).change();    
+				$("#DESCRIZIONE").val(data[6]);                       			                         
+				$("#DT_PREVISTA").val(data[7]);                                    
+				$("#DT_VERIFICA").val(data[8]);                                       
+				$("#ID_UTENTE_RES_1").val(data[9]).change();;                                  
+				$("#ID_UTENTE_RES_2").val(data[10]).change();;                                        
+				$("#FLG_AZIONE").val(data[11]).change();                                
+				$("#DT_VERIFICA_EFFICACIA").val(data[12]);                             
+				$("#ID_UTENTE_RES_3").val(data[13]).change();;                                  
+				$("#ORIGINE_AP").val(data[14]);                                           
+				$("#ATTESTAZIONE").val(data[15]);                                               
+				$("#QUALITY_ASSURANCE").val(data[16]);  
+				$("#CODICE_TIPO_AZIONE").focus();
+
+
+				
+				$("#aggiungi").text('Salva'); 
+	        } );
+	        
+	        
+	        $('#dt tbody').on( 'click', '.deleteRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#keyField').val("ID_DETTAGLIO");
+				$('#keyValue').val(data[0]);
+				$('#FUNCTIONID_DELETE').val("InserimentoDettaglioALIMOD5");
+				$('.modal-title').html('${label_delete_title_message}');
+				$('.modal-text').html('${label_delete_text_message}');
+				$("#modalQuestionDialog").modal({backdrop: true});
+				$('#modalQuestionDialog').collapse("show");
+	        } );	        
+	        
+	        
+			$("#formDelete").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( "#dt-impurezze" ).DataTable().ajax.reload();
+					$( "#dt-prodotti" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});
+			
+			
+        	$( "#inviaApprovatore" ).click(function() {
+				$('.modal-title').html('Invia modulo');
+				$('.modal-text').html('Confermi invio modulo per approvazione?');
+				$("#modalQuestionDialogPublish").modal({backdrop: true});
+				$('#modalQuestionDialogPublish').collapse("show");
+        	});
+	        			
+			$("#formPublish").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+				
+		        var formName = $(this).attr('name');
+
+		        var id_modulo=$("#ID_MODULO").val();
+				$("#SQL_STATEMENT").val("update ALIMOD05 set STATO='WAI' where id_modulo="+id_modulo+" ");
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+					disableFieldsReadOnly();
+					$("#STATO").val("WAI").change();
+				});
+			});					
+	        
+		});
+
+		function disableFieldsStatusDRA() {
+			var idModulo=$("#ID_MODULO").val();
+			if (idModulo!=null && idModulo!="") {
+				$("#inviaApprovatore").show();
+			} else {
+				$("#inviaApprovatore").hide();
+			}
+			
+		}
+
+
+		function disableFieldsStatusAPP() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#formAggiungiDettaglio :input:visible").attr("disabled", true);
+			$("#aggiungi").attr("disabled", false);
+			$("#STATO_AZIONE").attr("disabled", false);
+			$("#NOTE_AVANZAMENTO").attr("disabled", false);
+			$("#salva").hide();
+			$("#aggiungi").hide();
+			$("#inviaApprovatore").hide();
+			$("#inviaQP").hide();
+			$("#aggiungi").show();
+		}
+
+		function disableFieldsReadOnly() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#formAggiungiDettaglio :input:visible").attr("disabled", true);
+			$("#salva").hide();
+			$("#inviaApprovatore").hide();
+			$("#inviaQP").hide();
+			$("#aggiungi").hide();
+		}
+
+		
+    </script> 
+
+</head>
+
+<body>
+
+
+	<form action="astro" id="formPublish" name="formPublish" method="post">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="ExecuteSQL">
+		<input type="hidden" id="SQL_STATEMENT" name="SQL_STATEMENT">
+	</form>
+	
+	<form action="astro" method="post" id="formDelete" name="formDelete">
+		<input type="hidden" id="FUNCTIONID_DELETE" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="DELETE"> 
+		<input type="hidden" id="keyField" name="keyField">
+		<input type="hidden" id="keyValue" name="keyValue">
+	</form>
+
+
+	<div class="modal inmodal fade" id="modalQuestionDialogPublish"	tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm"	onclick="$('#modalQuestionDialogPublish').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialogPublish').collapse('toggle');$('#formPublish').submit();" data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1"
+		role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal"
+						class="btn btn-white btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();"
+						data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists>
+		<#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row">
+                <div class="col-sm-12">
+				
+                    <div class="ibox">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                        	
+							<div class="row">
+                        	<div class="col-sm-12">
+                        
+                            <form action="astro" method="post" id="formInserimento" name="formInserimento" class="form-horizontal">
+								<input type="hidden" name="FUNCTIONID" value="InserimentoALIMOD5"> 
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+								<input type="hidden" id="ID_MODULO" name="ID_MODULO">
+								<input type="hidden" id="CODICE_MODULO" name="CODICE_MODULO">
+								<input type="hidden" id="ID_UTENTE" name="ID_UTENTE">
+												
+								<div class="form-group">
+									<label class="col-sm-2 control-label-left">Business Line:</label>
+									<div class="col-sm-2">
+										<select class="form-control" id="CODICE_BL" name="CODICE_BL" required>
+										</select>
+									</div>
+
+                                	<label class="col-sm-1 control-label-left">Sito:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control" required>
+	                                    </select>
+									</div>
+									
+                                	<label class="col-sm-1 control-label-left">Redattore:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_UTENTE_CON" name="ID_UTENTE_CON"  class="form-control" required>
+	                                    </select>
+									</div>                                	
+                                </div>                                  
+											         
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Nr.Modulo</label>
+                                    <div class="col-sm-2"><input type="text" class="form-control" id="NR_MODULO" name="NR_MODULO"></div>
+
+                                	<label class="col-sm-1 control-label-left">Data</label>
+                                    <div class="col-sm-3">
+					                <div class="input-group date">
+	                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_MODULO" id="DT_MODULO" required>
+	                                </div>
+                                    </div>
+                                    
+                                	<label class="col-sm-1 control-label-left">Stato:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="STATO" name="STATO"  class="form-control" required>
+	                                    </select>
+									</div>                                	
+                                </div>    											         
+											                                
+								<div class="form-group">
+									<label class="col-sm-2 control-label-left">Norma / Legge / Documento</label>
+									<div class="col-sm-4">
+										<input type="text" class="form-control" id="SEZ1_NORMA_LEGGE_DOC" name="SEZ1_NORMA_LEGGE_DOC">
+									</div>
+
+                                	<label class="col-sm-2 control-label-left">Capitolo N.</label>
+                                    <div class="col-sm-4">
+										<input type="text" class="form-control" id="SEZ1_CAPITOLO" name="SEZ1_CAPITOLO">
+									</div>
+                                </div> 
+                                
+                                
+                                <div class="form-group">
+									<label class="col-sm-2 control-label-left">Fornitore / Cliente</label>
+									<div class="col-sm-4">
+										<input type="text" class="form-control" id="SEZ1_FORNITORE_CLIENTE" name="SEZ1_FORNITORE_CLIENTE">
+									</div>
+
+                                	<label class="col-sm-2 control-label-left">Tipologia servizio / prodotto</label>
+                                    <div class="col-sm-4">
+										<input type="text" class="form-control" id="SEZ1_TIPO_SERV_PROD" name="SEZ1_TIPO_SERV_PROD">
+									</div>
+                                </div>          
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Descrizione della non conformità (NC)</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" id="SEZ1_DESCRIZIONE_NC" name="SEZ1_DESCRIZIONE_NC"></div>
+                                </div>
+                                
+                                <div class="form-group">
+									<label class="col-sm-2 control-label-left">Classificazione GMP:</label>
+									<div class="col-sm-10">
+										<select class="form-control" id="SEZ1_FL_GMP" name="SEZ1_FL_GMP">
+										</select>
+									</div>
+								</div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Evidenze</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" id="SEZ1_EVIDENZE" name="SEZ1_EVIDENZE"></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Eventuali osservazioni</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" id="SEZ1_OSSERVAZIONI" name="SEZ1_OSSERVAZIONI"></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Verificatore o rilevatore NC</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" id="SEZ1_VERIFICATORE_NC" name="SEZ1_VERIFICATORE_NC"></div>
+                                </div>
+                                
+                                <div class="form-group">
+									<label class="col-sm-2 control-label-left">Data</label>
+									<div class="col-sm-4">
+										 <div class="input-group date">
+		                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="SEZ1_DT_NC" id="SEZ1_DT_NC">
+		                                </div>
+									</div>
+
+                                	<label class="col-sm-2 control-label-left">Responsabile gestione NC</label>
+                                    <div class="col-sm-4">
+										<select id="SEZ1_ID_UTENTE_RES" name="SEZ1_ID_UTENTE_RES"  class="form-control">
+	                                    </select>
+									</div>
+                                </div> 
+                                
+                                
+                                
+                                
+                                
+                                
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+									<label class="col-sm-12"><h4><b>Trattamento della non conformità</b></h4></label>
+								</div>	
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Trattamento della non conformità (correzione)</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" id="SEZ2_TRATTAMENTO_NC" name="SEZ2_TRATTAMENTO_NC"></div>
+                                </div>
+                                
+                                <div class="form-group">
+									<label class="col-sm-2 control-label-left">Data prevista per il completamento</label>
+									<div class="col-sm-4">
+										 <div class="input-group date">
+		                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="SEZ2_DT_PREVISTA_NC" id="SEZ2_DT_PREVISTA_NC">
+		                                </div>
+									</div>
+
+                                	<label class="col-sm-2 control-label-left">Responsabile</label>
+                                    <div class="col-sm-4">
+										<select id="SEZ2_ID_UTENTE_RES_1" name="SEZ2_ID_UTENTE_RES_1"  class="form-control">
+	                                    </select>
+									</div>
+                                </div> 
+                                
+                                <div class="form-group">
+									<label class="col-sm-2 control-label-left">Data verifica del completamento</label>
+									<div class="col-sm-4">
+										 <div class="input-group date">
+		                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="SEZ2_DT_VERIFICA_NC" id="SEZ2_DT_VERIFICA_NC">
+		                                </div>
+									</div>
+
+                                	<label class="col-sm-2 control-label-left">Responsabile</label>
+                                    <div class="col-sm-4">
+										<select id="SEZ2_ID_UTENTE_RES_2" name="SEZ2_ID_UTENTE_RES_2"  class="form-control">
+	                                    </select>
+									</div>
+                                </div> 
+                                
+                                <div class="form-group">
+									<label class="col-sm-2 control-label-left">Il trattamento ha corretto la non conformità</label>
+									<div class="col-sm-4">
+										<input id="FLG_TRATTAMENTO_NC" name="FLG_TRATTAMENTO_NC" type="checkbox">
+									</div>
+								</div>
+                                
+                                <div class="form-group">
+									<label class="col-sm-2 control-label-left">Data verifica dell'efficacia</label>
+									<div class="col-sm-4">
+										 <div class="input-group date">
+		                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="SEZ2_DT_VERIFICA_TRATT_NC" id="SEZ2_DT_VERIFICA_TRATT_NC">
+		                                </div>
+									</div>
+
+                                	<label class="col-sm-2 control-label-left">Responsabile</label>
+                                    <div class="col-sm-4">
+										<select id="SEZ2_ID_UTENTE_RES_3" name="SEZ2_ID_UTENTE_RES_3"  class="form-control">
+	                                    </select>
+									</div>
+                                </div> 
+                                
+                                
+                                
+                                
+                                
+                                <div class="hr-line-dashed"></div>
+                                <div class="form-group">
+									<label class="col-sm-12"><h4><b>Causa/e della non conformità</b></h4></label>
+								</div>	
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Causa/e della non conformità</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" id="SEZ3_CAUSA_NC" name="SEZ3_CAUSA_NC"></div>
+                                </div>
+                                
+                                <div class="form-group">
+									<label class="col-sm-2 control-label-left">Data analisi della causa</label>
+									<div class="col-sm-4">
+										 <div class="input-group date">
+		                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="SEZ3_DT_CAUSA_NC" id="SEZ3_DT_CAUSA_NC">
+		                                </div>
+									</div>
+
+                                	<label class="col-sm-2 control-label-left">Responsabile</label>
+                                    <div class="col-sm-4">
+										<select id="SEZ3_ID_UTENTE_RES" name="SEZ3_ID_UTENTE_RES"  class="form-control">
+	                                    </select>
+									</div>
+                                </div> 
+                                
+								<div class="form-group" id="salva-group">
+									<div class="col-sm-12">
+										<button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+										<button class="btn btn-primary btn-sm" type="button" id="inviaApprovatore" name="inviaApprovatore">Invia Approvatore</button>
+										<button class="btn btn-primary btn-sm" type="button" id="inviaQP" name="inviaQP">Invia a QP</button>
+									</div>
+								</div>                                
+                                
+                            </form>
+                            </div>
+                            </div>
+						</div>
+                            
+                        <div class="ibox-content">
+                        
+							<div class="row" id="dettagli">
+							
+								<div class="col-sm-12">
+                                
+								<form action="astro" method="post" id="formAggiungiDettaglio" name="formAggiungiDettaglio" class="form-horizontal">
+									
+									<input type="hidden" name="FUNCTIONID" value="InserimentoDettaglioALIMOD5">
+									<input type="hidden" id="OPERATION_TYPE_DETTAGLIO" name="OPERATION_TYPE">
+									<input type="hidden" id="ID_MODULO_DETTAGLIO" name="ID_MODULO">
+									<input type="hidden" id="ID_DETTAGLIO" name="ID_DETTAGLIO">
+                                
+	                                <div class="form-group">
+				                        <div class="col-sm-12"><h3>Dettagli Verifica</h3></div>
+	                                </div>
+
+	                                <div class="form-group">
+	                                	<div class="row">
+		                                	<label class="col-sm-2 control-label-left">Tipo azione</label>
+		                                    <div class="col-sm-4">
+			                                    <select class="form-control" id="CODICE_TIPO_AZIONE" name="CODICE_TIPO_AZIONE">
+			                                    </select>
+											</div>
+										</div>
+	                                </div>           
+	                                
+	                                <div class="form-group">
+	                                	<div class="row">
+	                                		<label class="col-sm-2 control-label-left">Descrizione</label>
+	                                    	<div class="col-sm-10"><input type="text" class="form-control" id="DESCRIZIONE" name="DESCRIZIONE"></div>
+	                                    </div>
+	                                </div>
+                                                       
+                      
+	                                <div class="form-group">
+	                                	<div class="row">
+											<label class="col-sm-2 control-label-left">Data prevista per il completamento</label>
+											<div class="col-sm-4">
+												 <div class="input-group date">
+				                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_PREVISTA" id="DT_PREVISTA">
+				                                </div>
+											</div>
+		
+		                                	<label class="col-sm-2 control-label-left">Responsabile</label>
+		                                    <div class="col-sm-4">
+												<select id="ID_UTENTE_RES_1" name="ID_UTENTE_RES_1"  class="form-control">
+			                                    </select>
+											</div>
+										</div>
+	                                </div> 
+	                                
+	                                
+	                                <div class="form-group">
+	                                	<div class="row">
+											<label class="col-sm-2 control-label-left">Data verifica del completamento</label>
+											<div class="col-sm-4">
+												 <div class="input-group date">
+				                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_VERIFICA" id="DT_VERIFICA">
+				                                </div>
+											</div>
+		
+		                                	<label class="col-sm-2 control-label-left">Responsabile</label>
+		                                    <div class="col-sm-4">
+												<select id="ID_UTENTE_RES_2" name="ID_UTENTE_RES_2"  class="form-control">
+			                                    </select>
+											</div>
+										</div>
+	                                </div>    
+	                                
+	                                
+	                                <div class="form-group">
+	                                	<div class="row">
+											<label class="col-sm-2 control-label-left">Data verifica dell'efficacia</label>
+											<div class="col-sm-4">
+												 <div class="input-group date">
+				                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_VERIFICA_EFFICACIA" id="DT_VERIFICA_EFFICACIA">
+				                                </div>
+											</div>
+		
+		                                	<label class="col-sm-2 control-label-left">Responsabile</label>
+		                                    <div class="col-sm-4">
+												<select id="ID_UTENTE_RES_3" name="ID_UTENTE_RES_3"  class="form-control">
+			                                    </select>
+											</div>
+										</div>
+	                                </div>    
+	                                
+	                                <div class="form-group">
+	                                	<div class="row">
+											<label class="col-sm-2 control-label-left">L'azione ha eliminato la/e causa/e?</label>
+											<div class="col-sm-4">
+												<input id="SEZ2_FL_TRATTAMENTO_NC" name="SEZ2_FL_TRATTAMENTO_NC" type="checkbox">
+											</div>
+										</div>
+									</div>
+	                                
+	                                <div class="form-group">
+	                                	<div class="row">
+											<label class="col-sm-2 control-label-left">Attestazione</label>
+											<div class="col-sm-4">
+												<input type="text" class="form-control" id="ATTESTAZIONE" name="ATTESTAZIONE">
+											</div>
+		
+		                                	<label class="col-sm-2 control-label-left">Quality assurance</label>
+		                                    <div class="col-sm-4">
+												<input type="text" class="form-control" id="QUALITY_ASSURANCE" name="QUALITY_ASSURANCE">
+											</div>
+										</div>
+	                                </div>
+
+	                                <div class="form-group">
+	                                    <div class="col-sm-2">
+											<button class="btn btn-primary btn-sm" type="submit" id="aggiungi" name="aggiungi">${label_add}</button>
+	                                    </div>
+									</div>
+								
+								</form>
+								
+								
+	                            <div class="row">
+	                        	<div class="col-sm-12">
+					
+			                        <div class="table-responsive">
+										<table id="dt" class="table table-bordered">
+			                                <thead>
+			                                <tr>
+												<th></th>
+												<th></th>
+											<th></th>
+											<th></th>
+											<th></th>
+											<th></th>
+												<th># Azione</th>
+												<th>Descrizione</th>
+												<th>Responsabile</th>
+			                                </tr>
+			                                </thead>
+			                            </table>											
+			                        </div>
+
+	                            </div>
+	                            </div>
+                            								
+                                </div>
+                            </div>
+                                
+                        </div>
+                    </div>
+                </div>
+            </div>		
+
+			
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

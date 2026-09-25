@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	
+    <script type="text/javascript">
+    
+		
+		$(function(){
+			
+			$('#ID_FAMIGLIA').val("<#if ID_FAMIGLIA?exists>${ID_FAMIGLIA}</#if>");
+			$('#ID_PRODOTTI_GAS').val("<#if ID_PRODOTTI_GAS?exists>${ID_PRODOTTI_GAS}</#if>");
+			$('#ID_PRODOTTI_GAS_STAMPA').val("<#if ID_PRODOTTI_GAS?exists>${ID_PRODOTTI_GAS}</#if>");
+			$('#CODICE_PRODOTTO').val("<#if CODICE_PRODOTTO?exists>${CODICE_PRODOTTO}</#if>");
+			$('#CODICE_ALLESTIMENTO').val("<#if CODICE_ALLESTIMENTO?exists>${CODICE_ALLESTIMENTO}</#if>");
+			$('#DESCR_ALLESTIMENTO').val("<#if DESCR_ALLESTIMENTO?exists>${DESCR_ALLESTIMENTO}</#if>");
+
+			$("#NOME_COMMERCIALE").html("<#if NOME_COMMERCIALE?exists>${NOME_COMMERCIALE}</#if>");
+            $("#PRESSIONE_CARICA").html("<#if PRESSIONE_CARICA?exists>${PRESSIONE_CARICA}</#if>");
+            $("#SCHEDA_SICUREZZA").html("<#if SCHEDA_SICUREZZA?exists>${SCHEDA_SICUREZZA}</#if>");
+            $("#COLORE_CORPO").html("<#if COLORE_CORPO?exists>${COLORE_CORPO}</#if>");
+            $("#COLORE_OGIVA").html("<#if COLORE_OGIVA?exists>${COLORE_OGIVA}</#if>");
+			$("#LISTA_SITI_ABILITATI").trigger("loadDataSet",["DSSiti","CODICE","DESCRIZIONE","<#if SITI_ABILITATI?exists>${SITI_ABILITATI}</#if>"," WHERE 1=1 "]);
+        	$('#LISTA_SITI_ABILITATI').prop("disabled", true); 
+
+        	
+        	var dtAjax="";
+        	var dtWhereCondition="";
+        	var dtImpurezzeAjax="";
+        	var dtProdottiAjax="";
+        	var dtWhereConditionProdotti="";
+        	var dtAllestimento="";
+        	var dtWhereConditionSpecificheAllestimento="";
+
+        	if ($('#ID_FAMIGLIA').val()!="" && $('#ID_PRODOTTI_GAS').val()!="" && $('#CODICE_ALLESTIMENTO').val()!="") {
+        		
+    			dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSComponenti&columns=DESCR_COMPONENTE,COMPOSIZIONE_PERC,DESCR_STRUMENTO_ANALISI,DESCR_FREQUENZA_ANALISI&WHERECONDITION=";
+    			dtWhereCondition=" ID_FAMIGLIA ="+$("#ID_FAMIGLIA").val();
+    			
+    			dtImpurezzeAjax="astro?FUNCTIONID=AJAXArray&dataset=DSImpurezzeGarantite&columns=DESCR_IMPUREZZA,SOGLIA_ANALISI,DA_PROCESSO,DESCR_STRUMENTO_ANALISI,DESCR_FREQUENZA_ANALISI&WHERECONDITION=";
+    	        
+    			dtProdottiAjax="astro?FUNCTIONID=AJAXArray&dataset=DSProdottiGas&columns=DESCR_FAMIGLIA_ALLESTIMENTO,CODICE_PRODOTTO,DESCR_ALLESTIMENTO,DESCRIZIONE_PRODOTTO,DESCR_ETICHETTA_ADR,CODICE_SAP_ETICHETTA&WHERECONDITION=";
+    			dtWhereConditionProdotti=" ID_PRODOTTI_GAS= "+$('#ID_PRODOTTI_GAS').val();
+    	        
+    			var createTitleAllestimento="<h5>"+$("#DESCR_ALLESTIMENTO").val()+"</h5>";					
+    			$(createTitleAllestimento).appendTo(".ibox-title:last"); 
+    	        
+    		   	dtAllestimento="astro?FUNCTIONID=AJAXArray&dataset=DSSpecificheAllestimenti&columns=CARATTERISTICA,DESCRIZIONE,FL_MATERIALE,CODICE_SAP";
+    			dtWhereConditionSpecificheAllestimento="&ID_FAMIGLIA="+$("#ID_FAMIGLIA").val()+"&WHERECONDITION= CODICE_ALLESTIMENTO='"+$("#CODICE_ALLESTIMENTO").val()+"'";
+    			
+			} else if ($('#CODICE_PRODOTTO').val()!=""){
+				$( ".alert-danger" ).text( "Nessun risultato trovato per il codice prodotto impostato" ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+			}
+        		
+			
+	        $('#dt').DataTable({
+	            "paging":   false,
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	  
+				"searching": false,
+                "language": {url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'},
+	            "ajax": dtAjax+dtWhereCondition
+	        });
+	        
+	        $('#dt-impurezze').DataTable({
+	            "paging":   false,
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	  
+				"searching": false,
+                "language": {url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'},
+	            "ajax": dtImpurezzeAjax+dtWhereCondition
+	        });
+	        
+	        
+	        $('#dt-prodotti').DataTable({
+	            "paging":   false,
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	  
+				"searching": false,
+                "language": {url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'},
+	            "ajax": dtProdottiAjax+dtWhereConditionProdotti
+	        });	    
+
+	        $('#dt-allestimento').DataTable({
+	            "paging":   false,
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	  
+				"searching": false,
+                "language": {url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'},
+	            "ajax": dtAllestimento+dtWhereConditionSpecificheAllestimento,
+				columnDefs: [
+					{
+						targets:2,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data=='false') {
+									data = '';
+								} else {
+									data = '<i class="fa fa-check" aria-hidden="true"></i>';
+								}
+							}
+
+							return data;
+						}
+					}
+				]
+	        });		 
+	        
+			$("#stampa").click(function() {
+				
+				$("#formStampaSchedaProdotto").submit();
+				
+			});		
+	        
+			$("#download").click(function() {
+				
+				$("#formDownloadStampaSchedaProdotto").submit();
+				
+			});		
+			
+		});		
+
+    </script> 
+
+</head>
+
+<body>
+
+	<form action="astro" method="post" id="formStampaSchedaProdotto" name="formStampaSchedaProdotto">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="StampSchedaProdotto">	
+		<input type="hidden" id="ID_PRODOTTI_GAS_STAMPA" name="ID_PRODOTTI_GAS">
+	</form>
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+           
+			<div class="row">
+			
+                <div class="col-sm-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+	                        
+	                        
+							<div class="row">
+								<div class="col-sm-12">							
+							
+									<form action="astro" method="get" id="formSchedaProdotto" name="formSchedaProdotto" class="form-horizontal">
+										<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="SchedaProdotto">
+										<input type="hidden" id="ID_FAMIGLIA" name="ID_FAMIGLIA">
+										<input type="hidden" id="ID_PRODOTTI_GAS" name="ID_PRODOTTI_GAS">
+										<input type="hidden" id="CODICE_ALLESTIMENTO" name="CODICE_ALLESTIMENTO">
+										<input type="hidden" id="DESCR_ALLESTIMENTO" name="DESCR_ALLESTIMENTO">
+					
+										<div class="form-group">
+											<label class="col-sm-2 control-label-left">${label_codice_prodotto}</label>
+											<div class="col-sm-10">
+												<input type="text" class="form-control" id="CODICE_PRODOTTO" name="CODICE_PRODOTTO">
+											</div>
+										</div>
+										
+										<div class="form-group" id="salva-group">
+											<div class="col-sm-12">
+												<button class="btn btn-white btn-sm" type="reset">${label_cancel}</button>
+												<button class="btn btn-primary btn-sm" type="submit" id="ricerca" name="ricerca">${label_search}</button>
+												<button class="btn btn-primary btn-sm" type="button" id="stampa" name="stampa">${label_stampa_scheda_prodotto}</button>
+											</div>
+										</div>				
+									
+									</form>
+								</div>
+				            </div>
+                        
+							<div class="hr-line-dashed"></div>
+
+	                        
+							<div class="row">
+								<div class="col-sm-12">
+									
+									<div class="form-group">
+										<label class="col-sm-2 control-label-left">${label_commercial_name}</label>
+										<div class="col-sm-10">
+											<p id="NOME_COMMERCIALE" class="form-control-static"></p>
+										</div>
+									</div>
+								
+								</div>								
+							</div>
+							
+							<div class="row">
+								<div class="col-sm-12">
+									
+									<div class="ibox float-e-margins">
+										<div class="ibox-title">
+											<h5>${label_composizione}</h5>
+										</div>
+										<div class="ibox-content">
+										
+											<div class="table-responsive">
+												<table id="dt" class="table table-striped table-bordered table-hover">
+													<thead>
+														<tr>
+															<th>${label_componente}</th>
+															<th>${label_composizione_percent}</th>
+															<th>${label_strumento_analisi}</th>
+															<th>${label_frequenza_analisi}</th>
+														</tr>
+													</thead>
+												</table>
+											</div>		
+																			
+										</div>										
+									</div>
+								
+								</div>								
+							</div>
+							
+							<div class="row">
+								<div class="col-sm-12">
+									
+									<div class="ibox float-e-margins">
+										<div class="ibox-title">
+											<h5>${label_impurezze_garantite}</h5>
+										</div>
+										<div class="ibox-content">
+										
+											<div class="table-responsive">
+												<table id="dt-impurezze" class="table table-striped table-bordered table-hover">
+													<thead>
+														<tr>
+															<th>${label_componente}</th>
+															<th>${label_soglia_analisi}</th>
+															<th>${label_da_processo}</th>
+															<th>${label_strumento_analisi}</th>
+															<th>${label_frequenza_analisi}</th>
+														</tr>
+													</thead>
+												</table>
+											</div>		
+																			
+										</div>										
+									</div>
+								
+								</div>								
+							</div>							
+							
+							<div class="row">
+								<div class="col-sm-12">
+									
+									<div class="ibox float-e-margins">
+										<div class="ibox-title">
+											<h5>${label_dati_tecnici}</h5>
+										</div>
+										<div class="ibox-content">
+										
+											<div class="form-group">
+											  	<div class="row">
+													<label class="col-sm-2">Pressione di carica</label>
+													<div class="col-sm-10">
+														<p id="PRESSIONE_CARICA" class="form-control-static"></p>
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+											  	<div class="row">
+													<label class="col-sm-2">Scheda di sicurezza</label>
+													<div class="col-sm-10">
+														<p id="SCHEDA_SICUREZZA" class="form-control-static"></p>
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+											  	<div class="row">
+													<label class="col-sm-2">Colore corpo bombola</label>
+													<div class="col-sm-10">
+														<p id="COLORE_CORPO" class="form-control-static"></p>
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+											  	<div class="row">
+													<label class="col-sm-2">Colore ogiva</label>
+													<div class="col-sm-10">
+														<p id="COLORE_OGIVA" class="form-control-static"></p>
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+											  	<div class="row">
+													<label class="col-sm-2">Siti abilitati alla produzione</label>
+													<div class="col-sm-10">
+														<select class="form-control hidden-dropdown" id="LISTA_SITI_ABILITATI" name="LISTA_SITI_ABILITATI" multiple="multiple">
+														</select>
+													</div>
+												</div>
+											</div>	
+																			
+										</div>										
+									</div>
+								
+								</div>								
+							</div>							
+								
+							<div class="row">
+								<div class="col-sm-12">
+									
+									<div class="ibox float-e-margins">
+										<div class="ibox-title">
+											<h5>Dati Prodotto</h5>
+										</div>
+										<div class="ibox-content">
+										
+											<div class="table-responsive">
+												<table id="dt-prodotti" class="table table-striped table-bordered table-hover">
+													<thead>
+														<tr>
+															<th>${label_famiglia_allestimento}</th>
+															<th>${label_codice_prodotto}</th>
+															<th>${label_tipologia_allestimento}</th>
+															<th>${label_descrizione_prodotto}</th>
+															<th>${label_etichetta_adr}</th>
+															<th>${label_codice_sap_etichetta}</th>
+														</tr>
+													</thead>
+												</table>
+											</div>		
+																			
+										</div>										
+									</div>
+								
+								</div>								
+							</div>	
+							
+							<div class="row">
+								<div class="col-sm-12">
+									
+									<div class="ibox float-e-margins">
+										<div class="ibox-title">
+										</div>
+										<div class="ibox-content">
+										
+											<div class="table-responsive">
+												<table id="dt-allestimento" class="table table-striped table-bordered table-hover">
+													<thead>
+														<tr>
+															<th>${label_caratteristica}</th>
+															<th>${label_description}</th>
+															<th>${label_flag_materiale}</th>
+															<th>${label_codice_sap}</th>
+														</tr>
+													</thead>
+												</table>
+											</div>		
+																			
+										</div>										
+									</div>
+								
+								</div>								
+							</div>																
+
+							
+                    	</div>
+					
+                	</div>
+				</div>
+            </div>				            
+				            
+			
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+	</div>
+	
+
+</body>
+
+</html>

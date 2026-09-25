@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+	
+		$(function(){
+
+			$("#LISTA_AZIENDE").trigger("loadDataSet",["DataSetAziende","ID_AZIENDA","RAGSOC","<#if AZIENDE_MULTIPLE?exists>${AZIENDE_MULTIPLE}</#if>"," WHERE 1=1 "]);
+			$("#LISTA_PROFILI").trigger("loadDataSet",["DSProfiliAbilitatiAzienda","ID_PROFILO","DESCRIZIONE","<#if PROFILO_MULTIPLO?exists>${PROFILO_MULTIPLO}</#if>"]);
+			
+			$("#ID_UTENTE").val("<#if ID_UTENTE?exists>${ID_UTENTE}</#if>");
+			$("#USERNAME").val("<#if USERNAME?exists>${USERNAME}</#if>");
+			$("#NOME").val("<#if NOME?exists>${NOME}</#if>");
+			$("#COGNOME").val("<#if COGNOME?exists>${COGNOME}</#if>");
+			$("#EMAIL").val("<#if EMAIL?exists>${EMAIL}</#if>");
+			
+			
+			$("#LISTA_AZIENDE").change(function(){
+				var allOption=0;
+				$("#LISTA_AZIENDE > option").each(function() {
+					allOption=allOption+1;
+				});
+				selectedValue=$(this).val();
+			    if (allOption!=selectedValue.length){
+			    	$("#CHECKBOX_LISTA_AZIENDE").prop('checked',false);
+			    }else{
+			    	$("#CHECKBOX_LISTA_AZIENDE").prop('checked',true);
+			    }
+			});
+			
+
+	        $("#CHECKBOX_LISTA_AZIENDE").click(function(){
+	            if($("#CHECKBOX_LISTA_AZIENDE").is(':checked') ){
+	                $("#LISTA_AZIENDE > option").prop("selected","selected");
+	                $("#LISTA_AZIENDE").trigger("change");
+	            }else{
+	                $("#LISTA_AZIENDE > option").removeAttr("selected");
+	                 $("#LISTA_AZIENDE").trigger("change");
+	             }
+	        });
+			
+			
+			var flagDisattivato="<#if FL_DISATTIVO?exists>${FL_DISATTIVO}</#if>";
+			$('#CHECK_DISATTIVATO').prop('checked',flagDisattivato==="true");
+			
+			$("#formInserimentoUtenti").validate();
+
+			$("#formInserimentoUtenti").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimentoUtenti").valid()) {
+					return false;
+				}
+				
+				document.getElementById("salva").style.display="none";
+				
+				$("#FL_DISATTIVO").val($("#CHECK_DISATTIVATO").is(':checked'));
+				
+				/* tokenize AZIENDE*/
+				tokenizeOptionSelected("LISTA_AZIENDE","AZIENDE_MULTIPLE");
+				
+				/* tokenize PROFILI*/
+				tokenizeOptionSelected("LISTA_PROFILI","PROFILO_MULTIPLO");
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					document.getElementById("salva").style.display="block";
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+
+			});
+
+		});
+		
+    </script> 
+
+</head>
+
+<body>
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row wrapper border-bottom page-heading">
+                <div class="col-lg-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- titolo form-->
+						<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+
+							<form action="astro" class="form-horizontal" method="post" id="formInserimentoUtenti" name="formInserimentoUtenti">
+								
+								<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoUtenti">
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE" value="<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>">
+								<input type="hidden" id="ID_UTENTE" name="ID_UTENTE">
+								<input type="hidden" id="AZIENDE_MULTIPLE" name="AZIENDE_MULTIPLE">
+								<input type="hidden" id="PROFILO_MULTIPLO" name="PROFILO_MULTIPLO">
+
+								<input type="hidden" id="FL_DISATTIVO" name="FL_DISATTIVO">
+								
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_username}</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" name="USERNAME" id="USERNAME" required></div>
+                                </div>
+								
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_nome}</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" name="NOME" id="NOME" required></div>
+                                </div>
+								
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_cognome}</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" name="COGNOME" id="COGNOME" required></div>
+                                </div>
+								
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_email}</label>
+                                    <div class="col-sm-10"><input type="email" placeholder="${label_placeholder_email}" class="form-control" name="EMAIL" id="EMAIL" required></div>
+                                </div>
+								
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_utente_disattivato}</label>
+                                    <div class="col-sm-10">
+                                        <div class="i-checks"><label> <input name="CHECK_DISATTIVATO" id="CHECK_DISATTIVATO" type="checkbox" value=""><i></i></label></div>
+                                    </div>
+                                </div>
+								
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_sito}</label>
+                                    <div class="col-sm-10">
+										<select id="LISTA_AZIENDE" name="LISTA_AZIENDE" class="form-control" multiple >
+										</select>
+										<input type="checkbox" id="CHECKBOX_LISTA_AZIENDE">${label_select_all}
+                                    </div>
+                                </div>
+								
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_profile}</label>
+                                    <div class="col-sm-10">
+										<select id="LISTA_PROFILI" name="LISTA_PROFILI" class="form-control" multiple required>
+										</select>
+                                    </div>
+                                </div>
+                                
+                                <div class="hr-line-dashed"></div>
+								
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+                                        <button class="btn btn-primary btn-sm" id="salva" type="submit">${label_save}</button>
+                                    </div>
+                                </div>
+								
+                            </form>
+
+                        </div>
+						
+                    </div>
+                </div>
+            </div>
+			
+			<#if INCLUDED_FOOTER_PDLWEB?exists><#include INCLUDED_FOOTER_PDLWEB></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

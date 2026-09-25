@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+
+	<!-- SIMONE HIGHCHARTS -->
+	<script src="https://code.highcharts.com/highcharts.js"></script>
+	<script src="https://code.highcharts.com/highcharts-3d.js"></script>
+	<script src="https://code.highcharts.com/modules/exporting.js"></script>
+	
+	
+    <script type="text/javascript">
+    $(document).keydown(function(e) {
+	    if (e.keyCode == 27){
+	    	e.preventDefault();
+	    	return false;
+	    }
+	});
+    
+    
+	    $(document).ready(function () {
+	    	
+	    	
+	  
+		/* 	//SIMONE - NUOVO GRAFICO A TORTA con Highcharts - INIZIO
+			
+				var dataset="DSCountPDLTest";
+		      	var valueField="STATO";
+		      	var textField="TOTALE";
+		      	var whereCondition="<#if WHERECONDITION_AZIENDE?exists>${WHERECONDITION_AZIENDE}</#if>";
+		      	
+		      	var aperti="";
+		      	var attivi="";
+		      	var sospesi="";
+		      	var scaduti="";
+		      	
+		      	
+		      	$.ajax({
+					url: "astro?FUNCTIONID=JSONDataSet&dataset="+dataset+"&columns="+valueField+","+textField+"&WHERECONDITION= WHERE ID_AZIENDA "+whereCondition,
+					dataType: 'json',
+					type: 'GET',
+					success: function (data) {
+						
+						$.each(data.rows,function(i,data) {
+							var value=eval("data."+valueField);
+
+							if (value=='OPE'){
+								aperti=eval("data."+textField);
+							}
+							if (value=='ACT'){
+								attivi=eval("data."+textField);			
+							}
+							if (value=='SUS'){
+								sospesi=eval("data."+textField);
+							}
+							if (value=='EXP'){
+								scaduti=eval("data."+textField);
+							}
+						}); 
+						
+						
+						
+						
+						//$("#pie").empty();
+						
+						if (aperti=="" && attivi=="" && sospesi==""){
+							$( "#pie" ).html( "<p>Non sono disponibili dati da visualizzare per la voce selezionata</p>" );
+						}
+						document.getElementById("pie").style.display="block";
+						
+
+						Highcharts.chart('pie', {
+							chart: {
+								type: 'pie',
+								options3d: {
+									enabled: true,
+									alpha: 45
+								}
+							},
+							colors: ['#4169E1','#008800', '#FFA500'],
+							title: {
+								text: '<h5>Situazione globale al <#if DATA_OGGI?exists>${DATA_OGGI}</#if></h5>',
+								style: {
+						            color: '#36659e',
+						            fontFamily: 'open sans'
+						        }
+							},
+							plotOptions: {
+								pie: {
+									innerSize: 100,
+									depth: 45
+								}
+							},
+							legend: {
+								shadow: false,
+								itemStyle: {
+					                color: '#36659e'
+								 }
+							},
+							series: [{
+								name: 'Permessi di lavoro',
+								data: [
+									['Aperti', aperti],
+ 				                    ['Attivi', attivi],
+ 				                    ['Sospesi', sospesi],
+									['Scaduti', scaduti]
+								],
+						        showInLegend: true,
+						        dataLabels: {
+					                enabled: true,
+					                style: {
+					                    color:'#36659e'
+					                }
+					            }
+							}],
+							credits: {
+								enabled: false
+							}
+						});			
+						
+						
+					}
+		      	
+				}); */
+		      	
+		    // nuovi contatori - inizio
+		    
+		    var dataset="DSCountPDLTest";
+		      	var valueField="STATO";
+		      	var textField="TOTALE";
+		      	var whereCondition="<#if WHERECONDITION_AZIENDE?exists>${WHERECONDITION_AZIENDE}</#if>";
+		      	var whereConditionLink=" AND ID_AZIENDA IS NOT NULL";
+		      	
+		      	var aperti="0";
+		      	var attivi="0";
+		      	var sospesi="0";
+		      	var scaduti="0";
+		      	var chiusi="0";
+		      	document.querySelector('#div_aperti').innerHTML = aperti;
+		      	document.querySelector('#div_attivi').innerHTML = attivi;
+		      	document.querySelector('#div_sospesi').innerHTML = sospesi;
+		      	document.querySelector('#div_scaduti').innerHTML = scaduti;
+		      	document.querySelector('#div_chiusi').innerHTML = chiusi;
+		      	
+		      	$.ajax({
+					url: "astro?FUNCTIONID=JSONDataSet&dataset="+dataset+"&columns="+valueField+","+textField+"&WHERECONDITION= WHERE ID_AZIENDA "+whereCondition,
+					dataType: 'json',
+					type: 'GET',
+					success: function (data) {
+						
+						$.each(data.rows,function(i,data) {
+							var value=eval("data."+valueField);
+
+							if (value=='OPE'){
+								aperti=eval("data."+textField);
+								//document.querySelector('#div_aperti').innerHTML = aperti;
+								document.querySelector('#div_aperti').innerHTML = '<a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION=++AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27'+value+'%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Sito%3A+-+Anno%3A+2024+-+Stato%3A++Chiuso+-+Fermata%3A+Si%2C+No&STATO_RICERCA=CLO&FERMATA_RICERCA=true%3Bfalse&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO='+value+'&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca=">'+aperti+'</a>';
+							}
+							if (value=='ACT'){
+								attivi=eval("data."+textField);	
+								//document.querySelector('#div_attivi').innerHTML = attivi;
+								document.querySelector('#div_attivi').innerHTML = '<a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION=++AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27'+value+'%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Sito%3A+-+Anno%3A+2024+-+Stato%3A++Chiuso+-+Fermata%3A+Si%2C+No&STATO_RICERCA=CLO&FERMATA_RICERCA=true%3Bfalse&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO='+value+'&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca=">'+attivi+'</a>';
+							}
+							if (value=='SUS'){
+								sospesi=eval("data."+textField);
+								//document.querySelector('#div_sospesi').innerHTML = sospesi;
+								document.querySelector('#div_sospesi').innerHTML = '<a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION=++AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27'+value+'%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Sito%3A+-+Anno%3A+2024+-+Stato%3A++Chiuso+-+Fermata%3A+Si%2C+No&STATO_RICERCA=CLO&FERMATA_RICERCA=true%3Bfalse&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO='+value+'&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca=">'+sospesi+'</a>';
+							}
+							if (value=='EXP'){
+								scaduti=eval("data."+textField);
+								//document.querySelector('#div_scaduti').innerHTML = scaduti;
+								document.querySelector('#div_scaduti').innerHTML = '<a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION=++AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27'+value+'%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Sito%3A+-+Anno%3A+2024+-+Stato%3A++Chiuso+-+Fermata%3A+Si%2C+No&STATO_RICERCA=CLO&FERMATA_RICERCA=true%3Bfalse&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO='+value+'&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca=">'+scaduti+'</a>';
+							}
+							
+							if (value=='CLO'){
+								chiusi=eval("data."+textField);
+								//document.querySelector('#div_chiusi').innerHTML = chiusi;
+								document.querySelector('#div_chiusi').innerHTML = '<a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION=++AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27'+value+'%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Sito%3A+-+Anno%3A+2024+-+Stato%3A++Chiuso+-+Fermata%3A+Si%2C+No&STATO_RICERCA=CLO&FERMATA_RICERCA=true%3Bfalse&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO='+value+'&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca=">'+chiusi+'</a>';
+								
+							}
+						}); 
+						
+						
+						if (aperti=="" && attivi=="" && sospesi=="" && scaduti=="" && chiusi==""){
+							$( "#counter" ).html( "<p>Non sono disponibili dati da visualizzare per la voce selezionata</p>" );
+						}
+						document.getElementById("counter").style.display="block";
+												
+					}
+		      	
+				});
+		    
+		    // nuovi contatori - fine
+			
+			// grafico ISTOGRAMMI - inizio
+		      	var datasetGrafico="DSGraficoHomeTest";
+		      	var dataGrafico="DT_GIORNO_ITA";
+		      	var textFieldOPE="TOT_OPE";
+		      	var textFieldACT="TOT_ACT";
+		      	var textFieldSUS="TOT_SUS";
+		      	var textFieldEXP="TOT_EXP";
+		      	var whereConditionGrafico="";
+		      	
+		      	var arrayX =[];
+		      	arrayX.push("x");
+		      	
+		      	var arrayOPE =[];
+		      	arrayOPE.push("aperti");
+		      	
+		      	var arrayACT =[];
+		      	arrayACT.push("attivi");
+		      	
+		      	var arraySUS =[];
+		      	arraySUS.push("sospesi");
+		      	
+		      	var arrayEXP =[];
+		      	arrayEXP.push("scaduti");
+		      	
+		      	
+		      	$.ajax({
+					url: "astro?FUNCTIONID=JSONDataSet&dataset="+datasetGrafico+"&columns="+dataGrafico+","+textFieldOPE+","+textFieldACT+","+textFieldSUS+","+textFieldEXP+"&WHERECONDITION="+whereConditionGrafico,
+					dataType: 'json',
+					type: 'GET',
+					success: function (data) {
+						
+						$.each(data.rows,function(i,data) {
+							var value=eval("data."+dataGrafico);
+							arrayX.push(value);
+							
+							
+							var valueOPE=eval("data."+textFieldOPE);
+							arrayOPE.push(valueOPE);
+							
+							
+							var valueACT=eval("data."+textFieldACT);
+							arrayACT.push(valueACT);
+							
+							
+							var valueSUS=eval("data."+textFieldSUS);
+							arraySUS.push(valueSUS);
+							
+							var valueEXP=eval("data."+textFieldEXP);
+							arrayEXP.push(valueEXP);
+							
+							
+						});
+
+						
+						$("#lineChart").empty();
+						
+						if (aperti=="" && attivi=="" && sospesi=="" && scaduti==""){
+							$( "#lineChart" ).html( "<p>Non sono disponibili dati da visualizzare per la voce selezionata</p>" );
+						}
+						
+						
+						document.getElementById("lineChart").style.display="block";
+						
+
+						Highcharts.chart('lineChart', {
+							chart: {
+								type: 'column'
+							},
+							title: {
+								text: 'Andamento degli ultimi 15 giorni',
+								style: {
+						            color: '#36659e',
+						            fontFamily: 'open sans'
+						        }
+							},
+							xAxis: {
+								categories: arrayX,
+								labels: {
+						            style: {
+						                color: '#36659e'
+						            }
+						        }
+							},
+							yAxis: [{
+								min: 0,
+								title: {
+									text: 'Permessi di lavoro',
+									 style: {
+							                color: '#36659e'
+							            }
+								},
+								labels: {
+						            style: {
+						                color: '#36659e'
+						            }
+						        }
+							}],
+							tooltip: {
+								shared: true
+							},
+							plotOptions: {
+								column: {
+									grouping: false,
+									shadow: false,
+									borderWidth: 0
+								}
+							},
+							legend: {
+								shadow: false,
+								itemStyle: {
+					                color: '#36659e'
+								 }
+							},
+							series: [{
+								name: 'Aperti',
+								color: 'rgba(65, 105, 225,1)', //royalblue rgba code
+								data: arrayOPE,
+								pointPadding: 0.3,
+								pointPlacement: -0.2
+							}, {
+								name: 'Attivi',
+								color: 'rgba(0, 136, 0,.8)', //green rgba code
+								data: arrayACT,
+								pointPadding: 0.4,
+								pointPlacement: -0.2
+							}, {
+								name: 'Sospesi',
+								color: 'rgba(255, 165, 0,.6)', //orange rgba code
+								data: arraySUS,
+								pointPadding: 0.1,
+								pointPlacement: -0.2
+							}, {
+								name: 'Scaduti',
+								color: 'rgba(255, 0, 255,.4)', //fucsia rgba code
+								data: arrayEXP,
+								pointPadding: 0.2,
+								pointPlacement: -0.2
+							}],
+							credits: {
+								enabled: false
+							}
+						});
+						
+						
+					}
+				});
+
+		      	
+		      	// grafico ISTOGRAMMI - fine
+		    
+	    });
+    
+	
+		$(function(){
+			
+			<#if PROFILO?contains('CPT')>
+				<#if CODICE_TURNO_SELEZIONATO?exists>
+				<#else>
+					$("#modalSelectWorkshift").modal({backdrop: 'static'});
+					$('#modalSelectWorkshift').collapse("show");
+				</#if>
+			</#if>
+			
+			
+			
+			$('#struttura-tree').jstree({ 'core' : {
+			    'data' : [<#if jsonTree?exists>${jsonTree}</#if>]
+			} });
+			
+			
+			
+			
+		    $('#struttura-tree').on("changed.jstree", function (e, data) {
+		    	var struttura=data.node.id.split("_");
+		    	var percorso=data.node.text
+		    	
+		    	
+		    	if (struttura[0]==("sito")) {
+		    		campo="ID_AZIENDA";
+		    	}
+		    	
+				if (struttura[0]==("impianto")) {
+					campo="ID_IMPIANTO";		    		
+				}
+						    	
+				if (struttura[0]==("area")) {
+					campo="ID_AREA";
+				}
+				
+				if (struttura[0]==("id")) {
+					campo="ID_EQUIPMENT";
+				}
+				
+				
+		    	
+		    	
+		      	if (struttura[0]==("iid")) {
+					$("#ID_AZIENDA").val(struttura[1]);
+					$("#ID_IMPIANTO").val(struttura[2]);
+					$("#ID_AREA").val(struttura[3]);
+					$("#ID_EQUIPMENT").val(struttura[4]);
+					$("#FUNCTIONID").val("InserimentoPDL");
+					$("#formInsert").submit();
+		      	} else if (struttura[0]==("sid")) {
+					$("#ID_AZIENDA").val(struttura[1]);
+					$("#ID_IMPIANTO").val(struttura[2]);
+					$("#ID_AREA").val(struttura[3]);
+					$("#ID_EQUIPMENT").val(struttura[4]);
+					$("#FUNCTIONID").val("RicercaPDL");
+					$("#formInsert").submit();
+		      	}
+		      	
+		      	
+		      	
+		      	
+		      	
+		      	
+		      	
+		      	
+		      	
+		      	
+		      	
+		      	
+
+		      	// grafico ISTOGRAMMI - inizio
+		      	var datasetGrafico="DSGraficoHomeTest";
+		      	var dataGrafico="DT_GIORNO_ITA";
+		      	var textFieldOPE="TOT_OPE";
+		      	var textFieldACT="TOT_ACT";
+		      	var textFieldSUS="TOT_SUS";
+		      	var textFieldEXP="TOT_EXP";
+		      	var whereConditionGrafico=" AND "+campo+"="+struttura[1];
+		      	
+		      	var arrayX =[];
+		      	arrayX.push("x");
+		      	
+		      	var arrayOPE =[];
+		      	arrayOPE.push("aperti");
+		      	
+		      	var arrayACT =[];
+		      	arrayACT.push("attivi");
+		      	
+		      	var arraySUS =[];
+		      	arraySUS.push("sospesi");
+
+		      	var arrayEXP =[];
+		      	arrayEXP.push("scaduti");
+		      	
+		      	
+		      	$.ajax({
+					url: "astro?FUNCTIONID=JSONDataSet&dataset="+datasetGrafico+"&columns="+dataGrafico+","+textFieldOPE+","+textFieldACT+","+textFieldSUS+","+textFieldEXP+"&WHERECONDITION="+whereConditionGrafico,
+					dataType: 'json',
+					type: 'GET',
+					success: function (data) {
+						
+						$.each(data.rows,function(i,data) {
+							var value=eval("data."+dataGrafico);
+							arrayX.push(value);
+							
+							
+							var valueOPE=eval("data."+textFieldOPE);
+							arrayOPE.push(valueOPE);
+							
+							
+							var valueACT=eval("data."+textFieldACT);
+							arrayACT.push(valueACT);
+							
+							
+							var valueSUS=eval("data."+textFieldSUS);
+							arraySUS.push(valueSUS);
+							
+							var valueEXP=eval("data."+textFieldEXP);
+							arrayEXP.push(valueEXP);
+							
+							
+						});
+
+						
+						$("#lineChart").empty();
+						
+						if (aperti=="" && attivi=="" && sospesi==""){
+							$( "#lineChart-empty" ).html( "<p>Non sono disponibili dati da visualizzare per la voce selezionata</p>" );
+							document.getElementById("lineChart-empty").style.display="block";
+							document.getElementById("lineChart").style.display="none";
+						}else{
+							document.getElementById("lineChart-empty").style.display="none";
+							document.getElementById("lineChart").style.display="block";
+						}
+						
+						
+
+						Highcharts.chart('lineChart', {
+							chart: {
+								type: 'column'
+							},
+							title: {
+								text: 'Andamento degli ultimi 15 giorni : ' +percorso,
+								style: {
+						            color: '#36659e',
+						            fontFamily: 'open sans'
+						        }
+							},
+							xAxis: {
+								categories: arrayX
+							},
+							yAxis: [{
+								min: 0,
+								title: {
+									text: 'Permessi di lavoro'
+								}
+							}],
+							legend: {
+								shadow: false,
+								itemStyle: {
+					                color: '#36659e'
+								 }
+							},
+							tooltip: {
+								shared: true
+							},
+							plotOptions: {
+								column: {
+									grouping: false,
+									shadow: false,
+									borderWidth: 0
+								}
+							},
+							legend: {
+								shadow: false,
+								itemStyle: {
+					                color: '#36659e'
+								 }
+							},
+							series: [{
+								name: 'Aperti',
+								color: 'rgba(65, 105, 225,1)', //royalblue rgba code
+								data: arrayOPE,
+								pointPadding: 0.3,
+								pointPlacement: -0.2
+							}, {
+								name: 'Attivi',
+								color: 'rgba(0,136,0,.8)', //green rgba code
+								data: arrayACT,
+								pointPadding: 0.4,
+								pointPlacement: -0.2
+							}, {
+								name: 'Sospesi',
+								color: 'rgba(255,165,0,.6)', //orange rgba code
+								data: arraySUS,
+								pointPadding: 0.1,
+								pointPlacement: -0.2
+							}, {
+								name: 'Scaduti',
+								color: 'rgba(255,0,255,.4)', //fucsia rgba code
+								data: arrayEXP,
+								pointPadding: 0.2,
+								pointPlacement: -0.2
+							}],
+							credits: {
+								enabled: false
+							}
+						});
+						
+						
+					}
+				});
+
+		      	
+		      	// grafico ISTOGRAMMI - fine
+		      	
+		      	
+		      	
+		      	
+		      	
+		      	/* // GRAFICO TORTA - inizio
+		      	
+		      	
+		      	var dataset="DSCountPDLTest";
+		      	var valueField="STATO";
+		      	var textField="TOTALE";
+		      	var whereCondition=" WHERE "+campo+"="+struttura[1];
+		      	
+		      	var aperti="";
+		      	var attivi="";
+		      	var sospesi="";
+		      	var scaduti="";
+		      	
+		      	
+		      	$.ajax({
+					url: "astro?FUNCTIONID=JSONDataSet&dataset="+dataset+"&columns="+valueField+","+textField+"&WHERECONDITION="+whereCondition,
+					dataType: 'json',
+					type: 'GET',
+					success: function (data) {
+						
+						$.each(data.rows,function(i,data) {
+							var value=eval("data."+valueField);
+
+							if (value=='OPE'){
+								aperti=eval("data."+textField);
+							}
+							if (value=='ACT'){
+								attivi=eval("data."+textField);			
+							}
+							if (value=='SUS'){
+								sospesi=eval("data."+textField);
+							}
+							if (value=='EXP'){
+								scaduti=eval("data."+textField);
+							}
+						}); 
+						
+						
+						
+						
+						$("#pie").empty();
+						
+						if (aperti=="" && attivi=="" && sospesi==""){
+							$( "#pie-empty" ).html( "<p>Non sono disponibili dati da visualizzare per la voce selezionata</p>" );
+							document.getElementById("pie-empty").style.display="block";
+							document.getElementById("pie").style.display="none";
+						}else{
+							document.getElementById("pie-empty").style.display="none";
+							document.getElementById("pie").style.display="block";
+						}
+						
+						
+
+						Highcharts.chart('pie', {
+							chart: {
+								type: 'pie',
+								options3d: {
+									enabled: true,
+									alpha: 45
+								}
+							},
+							colors: ['#4169E1','#008800', '#FFA500'],
+							title: {
+								text: '<h5>Situazione globale al <#if DATA_OGGI?exists>${DATA_OGGI}</#if> : '+percorso+'</h5>',
+								style: {
+						            color: '#36659e',
+						            fontFamily: 'open sans'
+						        }
+							},
+							plotOptions: {
+								pie: {
+									innerSize: 100,
+									depth: 45
+								}
+							},
+							series: [{
+								name: 'Permessi di lavoro',
+								data: [
+									['Aperti', aperti],
+ 				                    ['Attivi', attivi],
+ 				                    ['Sospesi', sospesi],
+									['Scaduti', scaduti]
+								],
+						        showInLegend: true,
+						        dataLabels: {
+					                enabled: true,
+					                style: {
+					                    color:'#36659e'
+					                }
+					            }
+							}],
+							credits: {
+								enabled: false
+							}
+						});			
+						
+						
+					}
+		      	
+				});
+		      	
+		      	// GRAFICO TORTA - fine */
+		      	
+		      	
+		      	
+		      	
+		      	
+		      	
+		      	
+		      	// CONTATORI - inizio
+		      	
+		      	
+		      	var dataset="DSCountPDLTest";
+		      	var valueField="STATO";
+		      	var textField="TOTALE";
+		      	var whereCondition=" WHERE "+campo+"="+struttura[1];
+		      	var whereConditionLink="+AND+"+campo+"+%3D+"+struttura[1];
+		      	
+		      	var aperti="0";
+		      	var attivi="0";
+		      	var sospesi="0";
+		      	var scaduti="0";
+		      	var chiusi="0";
+		      	document.querySelector('#div_aperti').innerHTML = aperti;
+		      	document.querySelector('#div_attivi').innerHTML = attivi;
+		      	document.querySelector('#div_sospesi').innerHTML = sospesi;
+		      	document.querySelector('#div_scaduti').innerHTML = scaduti;
+		      	document.querySelector('#div_chiusi').innerHTML = chiusi;
+		      	
+		      	
+		      	$.ajax({
+					url: "astro?FUNCTIONID=JSONDataSet&dataset="+dataset+"&columns="+valueField+","+textField+"&WHERECONDITION="+whereCondition,
+					dataType: 'json',
+					type: 'GET',
+					success: function (data) {
+						
+						$.each(data.rows,function(i,data) {
+							var value=eval("data."+valueField);
+
+							if (value=='OPE'){
+								aperti=eval("data."+textField);
+								//document.querySelector('#div_aperti').innerHTML = aperti;
+								document.querySelector('#div_aperti').innerHTML = '<a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION='+whereConditionLink+'++AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27'+value+'%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Sito%3A+-+Anno%3A+2024+-+Stato%3A++Chiuso+-+Fermata%3A+Si%2C+No&STATO_RICERCA=CLO&FERMATA_RICERCA=true%3Bfalse&ID_AZIENDA='+struttura[1]+'&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO='+value+'&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca=">'+aperti+'</a>';
+							}
+							if (value=='ACT'){
+								attivi=eval("data."+textField);
+								//document.querySelector('#div_attivi').innerHTML = attivi;
+								document.querySelector('#div_attivi').innerHTML = '<a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION='+whereConditionLink+'++AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27'+value+'%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Sito%3A+-+Anno%3A+2024+-+Stato%3A++Chiuso+-+Fermata%3A+Si%2C+No&STATO_RICERCA=CLO&FERMATA_RICERCA=true%3Bfalse&ID_AZIENDA='+struttura[1]+'&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO='+value+'&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca=">'+attivi+'</a>';
+							}
+							if (value=='SUS'){
+								sospesi=eval("data."+textField);
+								//document.querySelector('#div_sospesi').innerHTML = sospesi;
+								document.querySelector('#div_sospesi').innerHTML = '<a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION='+whereConditionLink+'++AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27'+value+'%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Sito%3A+-+Anno%3A+2024+-+Stato%3A++Chiuso+-+Fermata%3A+Si%2C+No&STATO_RICERCA=CLO&FERMATA_RICERCA=true%3Bfalse&ID_AZIENDA='+struttura[1]+'&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO='+value+'&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca=">'+sospesi+'</a>';
+							}
+							if (value=='EXP'){
+								scaduti=eval("data."+textField);
+								//document.querySelector('#div_scaduti').innerHTML = scaduti;
+								document.querySelector('#div_scaduti').innerHTML = '<a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION='+whereConditionLink+'++AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27'+value+'%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Sito%3A+-+Anno%3A+2024+-+Stato%3A++Chiuso+-+Fermata%3A+Si%2C+No&STATO_RICERCA=CLO&FERMATA_RICERCA=true%3Bfalse&ID_AZIENDA='+struttura[1]+'&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO='+value+'&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca=">'+scaduti+'</a>';
+							}
+							if (value=='CLO'){
+								chiusi=eval("data."+textField);
+								//document.querySelector('#div_chiusi').innerHTML = chiusi;
+								document.querySelector('#div_chiusi').innerHTML = '<a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION='+whereConditionLink+'++AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27'+value+'%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Sito%3A+-+Anno%3A+2024+-+Stato%3A++Chiuso+-+Fermata%3A+Si%2C+No&STATO_RICERCA=CLO&FERMATA_RICERCA=true%3Bfalse&ID_AZIENDA='+struttura[1]+'&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO='+value+'&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca=">'+chiusi+'</a>';
+							}
+							
+						}); 
+						
+						
+						
+						
+						
+						
+						if (aperti=="" && attivi=="" && sospesi=="" && scaduti=="" && chiusi==""){
+							$( "#counter-empty" ).html( "<p>Non sono disponibili dati da visualizzare per la voce selezionata</p>" );
+							document.getElementById("counter-empty").style.display="block";
+							document.getElementById("counter").style.display="none";
+						}else{
+							document.getElementById("counter-empty").style.display="none";
+							document.getElementById("counter").style.display="block";
+						}
+						
+												
+						
+					}
+		      	
+				});
+		      	
+		      	// CONTATORI - fine
+		      	
+		      	
+		      	
+
+
+		    });	 		
+		    
+		    
+		    
+		    
+		    
+		    $("#formSelezionaTurnoCT").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+				
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});				
+			
+			
+			
+			
+		
+
+            function gd(year, month, day) {
+                return new Date(year, month - 1, day).getTime();
+            }
+
+            var previousPoint = null, previousLabel = null;
+
+            
+            
+		});
+	
+	</script>
+	
+</head>
+
+<body class="pace-done"><div class="pace  pace-inactive"><div class="pace-progress" data-progress-text="100%" data-progress="99" style="transform: translate3d(100%, 0px, 0px);">
+  <div class="pace-progress-inner"></div>
+</div>
+<div class="pace-activity"></div></div>
+
+	<form action="astro" method="get" id="formInsert" name="formInsert">
+		<input type="hidden" name="FUNCTIONID" id="FUNCTIONID">
+		<input type="hidden" name="ID_AZIENDA" id="ID_AZIENDA">
+		<input type="hidden" name="ID_IMPIANTO" id="ID_IMPIANTO">
+		<input type="hidden" name="ID_AREA" id="ID_AREA">
+		<input type="hidden" name="ID_EQUIPMENT" id="ID_EQUIPMENT">
+		<input type="hidden" name="OPERATION_TYPE" value="INSERT">
+	</form>		
+	
+	<div class="modal inmodal fade" id="modalSelectWorkshift"  role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title">Seleziona turno di lavoro</span>
+				</div>
+				<div class="modal-body">
+
+					<form action="astro" method="post" id="formSelezionaTurnoCT" name="formSelezionaTurnoCT">
+						<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="SelezionaTurnoCT">
+	
+
+						<div class="form-group">
+							<div class="row">
+						
+							    <div class="col-sm-12">
+							        <div><label> <input type="radio" checked="cheched" value="001" id="CODICE_TURNO1" name="CODICE_TURNO"> PRIMO TURNO (6-14)</label></div>
+							        <div><label> <input type="radio" value="002" id="CODICE_TURNO2" name="CODICE_TURNO"> SECONDO TURNO (14-22)</label></div>
+							        <div><label> <input type="radio" value="003" id="CODICE_TURNO3" name="CODICE_TURNO"> TERZO TURNO (22-6)</label></div>
+							        <div><label> <input type="radio" value="004" id="CODICE_TURNO4" name="CODICE_TURNO"> QUARTO TURNO (6-18)</label></div>
+							        <div><label> <input type="radio" value="005" id="CODICE_TURNO5" name="CODICE_TURNO"> QUINTO TURNO (18-6)</label></div>
+							    </div>
+						    </div>
+						</div>
+										
+					</form>	
+
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary btn-sm" onclick="$('#modalSelectWorkshift').collapse('toggle');$('#formSelezionaTurnoCT').submit();" data-dismiss="modal" type="submit">Seleziona</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+			
+			<div class="row">
+			
+		        <div class="col-lg-5">
+	            
+	            	<div class="ibox">
+	            
+		                <div class="ibox-title">
+		                    <h5>Struttura sito</h5>
+		                </div>
+
+                        <div class="ibox-content">
+		
+
+							  <div id="struttura-tree" class="treePDL">
+							    
+							  </div>
+	                	
+	                	</div>
+			            
+			    	</div>
+				</div>
+				
+	        
+	            <div class="col-lg-7">
+	            	<div class="ibox">
+	            	
+	            		<div class="ibox-title" id="titolo-torta">
+		                    <h5>Situazione globale al <#if DATA_OGGI?exists>${DATA_OGGI}</#if></h5> 
+		                </div>
+	
+		                <!-- luca<div class="ibox-content float-e-margins">
+		                	 <div id="pie-empty"></div>
+							 <div id="pie" class="c3" style="max-height: 100%; position: relative;"></div>	
+	                    </div> -->
+	                    
+	                    <div class="ibox-content">
+	                    
+	                    	<div id="counter-empty"></div>
+		                    <div id="counter">
+		                    	<div class="row">
+				                    <div class="col-lg-2">
+				                        <div class="ibox ">
+				                            <div class="ibox-title">
+				                                <h5>Aperti</h5>
+				                            </div>
+				                            <div class="ibox-content">
+				                                <a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION=+AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27OPE%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Anno%3A+2024+-+Stato%3A++Aperto+-+Fermata%3A+Si%2C+No&STATO_RICERCA=OPE&FERMATA_RICERCA=true%3Bfalse&ID_AZIENDA=&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO=OPE&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca="><h1 class="no-margins" id="div_aperti"></h1></a>
+				                            </div>
+				                        </div>
+				                    </div>
+				                    <div class="col-lg-2">
+				                        <div class="ibox ">
+				                            <div class="ibox-title">
+				                                <h5>Attivi</h5>
+				                            </div>
+				                            <div class="ibox-content">
+				                                <a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION=+AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27ACT%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Anno%3A+2024+-+Stato%3A++Attivo+-+Fermata%3A+Si%2C+No&STATO_RICERCA=ACT&FERMATA_RICERCA=true%3Bfalse&ID_AZIENDA=&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO=ACT&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca="><h1 class="no-margins"id="div_attivi"></h1></a>
+				                            </div>
+				                        </div>
+				                    </div>
+				                    <div class="col-lg-2">
+				                        <div class="ibox ">
+				                            <div class="ibox-title">
+				                                <h5>Sospesi</h5>
+				                            </div>
+				                            <div class="ibox-content">
+				                                <a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION=+AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27SUS%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Anno%3A+2024+-+Stato%3A++Sospeso+-+Fermata%3A+Si%2C+No&STATO_RICERCA=SUS&FERMATA_RICERCA=true%3Bfalse&ID_AZIENDA=&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO=SUS&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca="><h1 class="no-margins" id="div_sospesi"></h1></a>
+				                            </div>
+				                        </div>
+				                    </div>
+				                    
+				                    <div class="col-lg-3">
+				                        <div class="ibox ">
+				                            <div class="ibox-title">
+				                                <h5>Scaduti</h5>
+				                            </div>
+				                            <div class="ibox-content">
+				                                <a href="astro?FUNCTIONID=ReportPDL&WHERECONDITION=+AND+SUBSTRING%28DT_PDL%2C1%2C4%29+%3D+%272024%27++AND+STATO+IN+%28%27EXP%27%29++AND+FLG_TA+IN+%28%27true%27%2C%27false%27%29++AND+NOT+CANCELLATO&FILTRI_STAMPA=+-+Anno%3A+2024+-+Stato%3A++Scaduto+-+Fermata%3A+Si%2C+No&STATO_RICERCA=EXP&FERMATA_RICERCA=true%3Bfalse&ID_AZIENDA=&ID_IMPIANTO=&ID_AREA=&ID_EQUIPMENT=&RESPONSABILE_CENTRALE_DELEGATO=&ODL=&IMPRESA_TESTO=&ANNO=2024&STATO=EXP&DATA_DAL=&FERMATA=true&FERMATA=false&DATA_AL=&free-text-search=&ricerca="><h1 class="no-margins" id="div_scaduti"></h1></a>
+				                            </div>
+				                        </div>
+				                    </div>
+				                    
+				                     <div class="col-lg-3">
+				                        <div class="ibox ">
+				                            <div class="ibox-title">
+				                                <h5>Chiusi</h5>
+				                            </div>
+				                            <div class="ibox-content">
+				                                <h1 class="no-margins" id="div_chiusi"></h1>
+				                                <!-- <small>dal</small>  -->
+				                            </div>
+				                        </div>
+				                    </div>
+				                    
+	                    		</div> <!-- chiude row -->
+	        				</div> 
+        
+        				</div>
+	            	</div>
+	            </div>
+	            
+	            
+   	            <div class="row">
+					<div class="col-lg-12">                  
+		            	<div class="ibox">
+		            		<!--<div class="ibox-title" id="titolo-grafico">
+			                     <h5>Andamento degli ultimi 30 giorni</h5> 
+			                </div> -->
+		
+			                <div class="ibox-content float-e-margins">
+			                	 <div id="lineChart-empty"></div>
+								 <div id="lineChart" class="c3" style="max-height: 100%; position: relative;"></div>	          
+		                    </div>
+		            	</div> 
+	            	</div>                   
+	            </div>
+	            
+	            
+	            
+			</div>
+			   
+           		
+				<div class="hr-line-dashed"></div>
+
+			<#if INCLUDED_FOOTER_PDLWEB?exists><#include INCLUDED_FOOTER_PDLWEB></#if>
+		
+		</div>
+
+
+</body>
+
+</html>

@@ -1,0 +1,84 @@
+- colorare celle obbligatorie
+
+Utenti: abbinare BL e sito (selezione multipla)
+- dove è uno è automatico
+
+tipo pda: abbinato all'azione, quindi nel dettaglio
+
+
+BL: 
+ALI - Air Liquide Italia Industria
+LI large industry
+IM industrial merchant
+EL electronics
+
+
+x- tipo: correttiva / miglioramento
+
+x- Classificazione: sicurezza/qualità/ambiente
+
+x- togliere %avanzamento (calcolarla eventualmente in base al nr. di azioni completate)
+
+x- Risorse >>> diventa Costo azione
+
+x- Risorse gg/uu >> effort gg/uu
+
+x- riferimento: non obbligatorio >> diventa Riferimento/Origine
+
+x- data apertura: togliere
+
+x- data scadenza va sopra dopo assegnatario
+
+- assegnatario: opzionale ??? da definire
+
+x- stato: aperta / completata / verificata
+
+
+x- euro e effort obbligatori
+
+x- riferimeno e descrizione diventano campo note (più righe)
+
+x- togliere sotto azione
+
+- ricerca evidenziare che si tratta di bozza
+
+- lista di distribuzione in automatico con assegnatari/responsabili/approvatori, che puà essere aumentata con una lista di email
+
+
+- life cycle: redattore  >>> approvatore  + mail di avvisatura all'approvatore >>> avviso ai responabili con il piano approvato
+
+- salva bozza - salva e richiedi approvazione
+
+- nell'approvazione possibilità di scrivere nota
+
+- approvatore può approvare tutto o la singola azione
+
+
+- raggruppamento:
+
+======================= ALIMOD 20 ========================================
+
+- tutti i moduli con stesso titolo (trattino) "ALI-MOD 20"
+- ricerche per i moduli con i campi di testata
+
+ordine campi
+=============================
+
+- tipo - class - stato
+- descrizione
+- rif 
+- data scadenza - resp - assegnatario
+- data chi - costo - effort
+
+
+- su azioni aggiungere campo NOTA
+- se stato = chiusa >>> obbligatoria data scadenza
+
+- quando salvo modifica ad una azione il tasto aggiungi diventa (SALVA)
+
+- una volta inviato non posso più modificare nulla se non lo stato dell'azione o la "NOTA"
+
+
+
+
+

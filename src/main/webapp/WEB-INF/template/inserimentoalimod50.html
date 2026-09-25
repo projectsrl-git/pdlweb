@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<script src="js/pjwebapp_insert_form.jquery.js?201803012"></script>
+    <script src="js/plugins/dropzone/dropzone.js"></script>
+
+    <link href="css/plugins/dropzone/basic.css" rel="stylesheet">
+    <link href="css/plugins/dropzone/dropzone.css" rel="stylesheet">
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+
+    <script type="text/javascript">
+    
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSALIMOD50Dettaglio&columns=ID_DETTAGLIO,ID_DETTAGLIO,CODICE_TIPO_AZIONE,STATO_AZIONE,RIFERIMENTO_ORIGINE,DESCRIZIONE,FL_CONFORME,NOTE&WHERECONDITION=";
+    	var dtWhereCondition="<#if ID_MODULO?exists && ID_MODULO!=''>WHERE ID_MODULO = ${ID_MODULO}<#else> WHERE 1=0 </#if>";
+    	var stato="<#if STATO?exists>${STATO}</#if>";
+    	var readOnly="<#if READONLY?exists>${READONLY}<#else>N</#if>";
+    	
+    	
+    	function inviaApprovazione(){
+			$("#WORKFLOW_ACTION").val("APPROVE");
+	        $("#formInserimento").submit();
+    	}
+    	
+    	
+    	function creaPadFirma(){
+    		
+    		<#if FILE_FIRMA1?exists>
+    		<#else>
+			var signaturePadFirma1 = new SignaturePad(document.getElementById('signature-pad-firma1'), {
+    			  backgroundColor: 'rgb(255,255,255)',
+    			  penColor: 'rgb(0, 0, 0)'
+    		});
+    			
+    		var cancelButton1 = document.getElementById('clear1');
+    			cancelButton1.addEventListener('click', function (event) {
+    			signaturePadFirma1.clear();
+			});
+    		  	</#if>
+
+    	}
+    	
+		
+		$(function(){
+			
+			$("#WORKFLOW_ACTION").val("");
+			$("#STATO").attr("disabled", true);
+			$("#inviaApprovatore").hide();
+			$("#ALTRO_EMAIL").attr("disabled", true);
+			
+			$("#ID_UTENTE").val(<#if ID_UTENTE?exists>${ID_UTENTE}</#if>);
+			
+			creaPadFirma();
+			
+			$("#CODICE_BL").trigger("loadDataSet",["DSBusinessLine","CODICE","DESCRIZIONE","<#if CODICE_BL?exists>${CODICE_BL}</#if>"," WHERE 1=1 "]);
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiQHSE","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_UTENTE_CON").trigger("loadDataSet",["DSUtentiAziendeProfili","ID_UTENTE","NOME_COGNOME","<#if ID_UTENTE_CON?exists>${ID_UTENTE_CON}</#if>","  WHERE CODICE_PROFILO='CON' "]);
+			$("#STATO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if STATO?exists>${STATO}</#if>"," WHERE DOMINIO='STA' "]);
+			$("#CODICE_TIPO_VERIFICA").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_TIPO_VERIFICA?exists>${CODICE_TIPO_VERIFICA}</#if>"," WHERE DOMINIO='VER' "]);
+			
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			$("#ID_MODULO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			$("#CODICE_MODULO").val("<#if CODICE_MODULO?exists>${CODICE_MODULO}</#if>");
+			$("#DT_MODULO").val("<#if DT_MODULO?exists>${DT_MODULO}</#if>").change();
+			$("#TITOLO").val("<#if TITOLO?exists>${TITOLO}</#if>").change();
+			$("#NR_MODULO").val("<#if NR_MODULO?exists>${NR_MODULO}</#if>");
+			$("#NR_MODULO").attr("disabled", true);
+			
+			$("#ID_MODULO_DETTAGLIO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			$("#FL_CONFORME").trigger("loadDataSet",["OpzioneSiNoNa","CODICE","DESCR"]);
+			
+			if (stato=='APP' || stato=='AQP') {
+				$("#STATO_AZIONE").attr("disabled", false);
+			} else {
+				$("#STATO_AZIONE").attr("disabled",true );
+			}
+			
+			var operationType=$("#OPERATION_TYPE").val();
+			
+			if (operationType=="INSERT") {
+				$("#dettagli").hide();
+			}
+
+			if (readOnly=="Y") {
+				disableFieldsReadOnly();
+			} else {
+				if (stato=="WAI" || stato=='WQP') {
+					disableFieldsReadOnly();
+				} else if (stato=="WAI" || stato=='WQP') {
+					disableFieldsReadOnly();
+				} else if (stato=="APP" || stato=='AQP') {
+					disableFieldsStatusAPP();
+				} else if (stato=="DRA") {
+					disableFieldsStatusDRA();
+				}
+			}
+
+			$("#formInserimento").validate();
+			$("#formAggiungiDettaglio").validate();
+			
+			$("#CODICE_BL").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_AZIENDA").empty();
+				$("#ID_AZIENDA").select2("destroy");
+				$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiQHSE","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE codice_bl='"+id+"' "]);
+			});	
+			
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					$("#WORKFLOW_ACTION").val("");
+					return false;
+				}
+				
+				$("#salva-group").hide();
+				
+				var idModulo=$("#ID_MODULO").val();
+				if (idModulo!='') {
+					$("#OPERATION_TYPE").val("UPDATE");
+				}				
+				
+				var firma1 = ''+document.getElementById('signature-pad-firma1').toDataURL('image/png');
+				$("#FIRMA1").val(firma1);	
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					
+					$("#salva-group").show();
+					var result = eval('('+response+')');
+					
+					if (result.result) {
+			    		var operationType=$("#OPERATION_TYPE").val();
+			    		if (operationType != "" && operationType=="INSERT") {
+			    			var idModulo=result.id;
+			    			var nrModulo=result.nr;
+			    			if (idModulo != null && idModulo != "") {
+								$("#ID_MODULO").val(idModulo);
+								$("#NR_MODULO").val(nrModulo);
+								$("#ID_MODULO_DETTAGLIO").val(idModulo);
+								$("#dettagli").show();
+				    			$("#inviaApprovatore").show();							
+	 						}
+			    		}
+			    		
+						$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+
+						resetUnsaved();
+
+						
+						stato=result.stato;
+						$("#STATO").val(stato).change();
+						
+						if (profilo.indexOf("ADM")==-1 && profilo.indexOf("QHS")==-1 ) {
+							if (stato=="WAI") {
+								disableFieldsReadOnly();
+							} else if (stato=="WAI") {
+								disableFieldsReadOnly();
+							} else if (stato=="APP") {
+								disableFieldsStatusAPP();
+							} else if (stato=="DRA") {
+								disableFieldsStatusDRA();
+							}
+						}						
+					}
+				});
+				
+				
+			});
+					
+			
+			$("#formAggiungiDettaglio").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formAggiungiDettaglio").valid()) {
+					return false;
+				}		
+				
+				if ($("#ID_DETTAGLIO").val()=="") {
+					$("#OPERATION_TYPE_DETTAGLIO").val("INSERT");
+				} else {
+					$("#OPERATION_TYPE_DETTAGLIO").val("UPDATE");
+				}
+				
+				$("#formAggiungiDettaglio :input:visible").attr("disabled", false);
+				$("#aggiungi").text('Aggiungi'); 
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) {
+					var result = eval('('+response+')');
+					
+					if (result.result) {
+						
+						<#if STATO?exists && (STATO='APP' || STATO='AQP')>			
+						disableFieldsStatusAPP();
+						</#if>				
+						
+						// reset dettaglio
+						$('#ID_DETTAGLIO').val("");
+						$('#RIFERIMENTO_ORIGINE').val("");
+						$('#DESCRIZIONE').val("");
+						$('#NOTE').val("");
+						$('#FL_CONFORME').val("").change();;
+						// reset dettaglio
+						
+			    		var id=$("#ID_MODULO").val();
+			    		
+			    		dtWhereCondition=" WHERE 1=0 ";
+			    		if (id != "") {
+			    			dtWhereCondition=" WHERE ID_MODULO = "+id;
+			    		}
+										
+						$( "#dt" ).DataTable().ajax.url( dtAjax+dtWhereCondition ).load();
+						
+					}					
+				});
+				
+			});			
+			
+			
+	        $('#dt').DataTable({
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	  
+	            "ajax": dtAjax+dtWhereCondition,				
+				columnDefs: [
+					{
+						width:"1%",
+						targets:0,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="editRow" title="${label_edit}"><i class="fa fa-pencil fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						visible: <#if (READONLY?exists && READONLY='Y') || (STATO?exists && STATO!='DRA')>false<#else>true</#if>,
+						targets:1,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="deleteRow" title="${label_delete}"><i class="fa fa-trash-o fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						visible: false,
+						targets:3,
+						orderable: false
+					}
+				],
+				
+	            dom: '<"html5buttons"B>lTgitp',
+	            language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+	
+	            buttons: [
+	            ],
+				aaSorting: []
+	
+	        });
+	        
+	        
+	        $('#dt tbody').on( 'click', '.editRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_DETTAGLIO').val(data[0]);
+				$('#RIFERIMENTO_ORIGINE').val(data[4]);
+				$('#DESCRIZIONE').val(data[5]);
+				$('#FL_CONFORME').val(data[6]).change();
+				$('#NOTE').val(data[7]);
+				$("#aggiungi").text('Salva'); 
+	        } );
+	        
+	        
+	        $('#dt tbody').on( 'click', '.deleteRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#keyField').val("ID_DETTAGLIO");
+				$('#keyValue').val(data[0]);
+				$('#FUNCTIONID_DELETE').val("InserimentoDettaglioALIMOD50");
+				$('.modal-title').html('${label_delete_title_message}');
+				$('.modal-text').html('${label_delete_text_message}');
+				$("#modalQuestionDialog").modal({backdrop: true});
+				$('#modalQuestionDialog').collapse("show");
+	        } );	        
+	        
+	        
+			$("#formDelete").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( "#dt-impurezze" ).DataTable().ajax.reload();
+					$( "#dt-prodotti" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});
+			
+			
+        	$( "#inviaApprovatore" ).click(function() {
+				$('.modal-title').html('Invia modulo');
+				$('.modal-text').html('Confermi invio modulo per approvazione?');
+				$("#modalQuestionDialogPublish").modal({backdrop: true});
+				$('#modalQuestionDialogPublish').collapse("show");
+        	});
+	        			
+			$("#formPublish").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+				
+		        var formName = $(this).attr('name');
+
+		        var id_modulo=$("#ID_MODULO").val();
+				$("#SQL_STATEMENT").val("update ALIMOD50 set STATO='WAI' where id_modulo="+id_modulo+" ");
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+					disableFieldsReadOnly();
+					$("#STATO").val("WAI").change();
+				});
+			});					
+	        
+		});
+
+		function disableFieldsStatusDRA() {
+			var idModulo=$("#ID_MODULO").val();
+			if (idModulo!=null && idModulo!="") {
+				$("#inviaApprovatore").show();
+			} else {
+				$("#inviaApprovatore").hide();
+			}
+			
+		}
+
+
+		function disableFieldsStatusAPP() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#formAggiungiDettaglio :input:visible").attr("disabled", true);
+			$("#aggiungi").attr("disabled", false);
+			$("#STATO_AZIONE").attr("disabled", false);
+			$("#NOTE_AVANZAMENTO").attr("disabled", false);
+			$("#salva").hide();
+			$("#aggiungi").hide();
+			$("#inviaApprovatore").hide();
+			$("#aggiungi").show();
+		}
+
+		function disableFieldsReadOnly() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#formAggiungiDettaglio :input:visible").attr("disabled", true);
+			$("#salva").hide();
+			$("#inviaApprovatore").hide();
+			$("#aggiungi").hide();
+		}
+
+		
+		function initDropzone() {
+			
+			var myDropzone = Dropzone.forElement("#myDropzone");
+				
+			var listaFile=$("#LISTA_ALLEGATI").val();
+			if (listaFile !="") {
+				var myStringArray = listaFile.split(";");
+				var arrayLength = myStringArray.length;
+				for (var i = 0; i < arrayLength; i++) {
+
+					// Create the mock file:
+					var mockFile = { name: myStringArray[i] };
+
+					// Call the default addedfile event handler
+					myDropzone.emit("addedfile", mockFile);
+
+					// And optionally show the thumbnail of the file:
+					if (myStringArray[i].toLowerCase().indexOf(".jpg")!=-1) {
+						myDropzone.emit("thumbnail", mockFile, "upload/"+mockFile.name);
+					}
+
+					// Make sure that there is no progress bar, etc...
+					myDropzone.emit("complete", mockFile);
+				}
+				
+			}
+ 	
+		}		
+		
+    </script> 
+
+</head>
+
+<body onload="initDropzone();">
+
+
+	<form action="astro" id="formPublish" name="formPublish" method="post">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="ExecuteSQL">
+		<input type="hidden" id="SQL_STATEMENT" name="SQL_STATEMENT">
+	</form>
+	
+	<form action="astro" method="post" id="formDelete" name="formDelete">
+		<input type="hidden" id="FUNCTIONID_DELETE" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="DELETE"> 
+		<input type="hidden" id="keyField" name="keyField">
+		<input type="hidden" id="keyValue" name="keyValue">
+	</form>
+
+
+	<div class="modal inmodal fade" id="modalQuestionDialogPublish"	tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm"	onclick="$('#modalQuestionDialogPublish').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialogPublish').collapse('toggle');inviaApprovazione();" data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1"
+		role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal"
+						class="btn btn-white btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();"
+						data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists>
+		<#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row">
+                <div class="col-sm-12">
+				
+                    <div class="ibox">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                        	
+							<div class="row">
+                        	<div class="col-sm-12">
+                        
+                            <form action="astro" method="post" id="formInserimento" name="formInserimento" class="form-horizontal">
+								<input type="hidden" name="FUNCTIONID" value="InserimentoALIMOD50"> 
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+								<input type="hidden" id="ID_MODULO" name="ID_MODULO">
+								<input type="hidden" id="CODICE_MODULO" name="CODICE_MODULO">
+								<input type="hidden" id="ID_UTENTE" name="ID_UTENTE">
+								<input type="hidden" id="FIRMA1" name="FIRMA1">
+								<input type="hidden" id="WORKFLOW_ACTION" name="WORKFLOW_ACTION">
+												
+								<div class="form-group">
+									<label class="col-sm-2 control-label-left">Business Line:</label>
+									<div class="col-sm-2">
+										<select class="form-control" id="CODICE_BL" name="CODICE_BL" required>
+										</select>
+									</div>
+
+                                	<label class="col-sm-1 control-label-left">Sito:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control" required>
+	                                    </select>
+									</div>
+									
+                                	<label class="col-sm-1 control-label-left">Redattore:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_UTENTE_CON" name="ID_UTENTE_CON"  class="form-control" required>
+	                                    </select>
+									</div>                                	
+                                </div>                                  
+											         
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Nr.Modulo</label>
+                                    <div class="col-sm-2"><input type="text" class="form-control" id="NR_MODULO" name="NR_MODULO"></div>
+
+                                	<label class="col-sm-1 control-label-left">Data</label>
+                                    <div class="col-sm-3">
+					                <div class="input-group date">
+	                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_MODULO" id="DT_MODULO" required>
+	                                </div>
+                                    </div>
+                                    
+                                	<label class="col-sm-1 control-label-left">Stato:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="STATO" name="STATO"  class="form-control" required>
+	                                    </select>
+									</div>                                	
+                                </div>    											         
+											                                
+								<div class="form-group">
+									<label class="col-sm-2 control-label-left">Tipo Verifica HSE:</label>
+									<div class="col-sm-10">
+										<select class="form-control" id="CODICE_TIPO_VERIFICA" name="CODICE_TIPO_VERIFICA" required>
+										</select>
+									</div>
+								</div>
+
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Descrizione Verifica HSE:</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" id="TITOLO" name="TITOLO" required></div>
+                                </div>
+                                
+								<div class="form-group" id="salva-group">
+									<div class="col-sm-12">
+										<button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+										<button class="btn btn-primary btn-sm" type="button" id="inviaApprovatore" name="inviaApprovatore">Invia Approvatore</button>
+									</div>
+								</div>                                
+                                
+                            </form>
+                            </div>
+                            </div>
+						</div>
+                            
+                        <div class="ibox-content">
+                        
+							<div class="row" id="dettagli">
+							
+								<div class="col-sm-12">
+                                
+								<form action="astro" method="post" id="formAggiungiDettaglio" name="formAggiungiDettaglio" class="form-horizontal">
+									
+									<input type="hidden" name="FUNCTIONID" value="InserimentoDettaglioALIMOD50">
+									<input type="hidden" id="OPERATION_TYPE_DETTAGLIO" name="OPERATION_TYPE">
+									<input type="hidden" id="ID_MODULO_DETTAGLIO" name="ID_MODULO">
+									<input type="hidden" id="ID_DETTAGLIO" name="ID_DETTAGLIO">
+									
+									
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Firma Redattore:</label>
+                                    <div class="col-sm-10">
+										<div class="wrapper">
+											<#if FILE_FIRMA1?exists>
+											<img src="${FILE_FIRMA1}">
+											<#else>
+										  	<canvas id="signature-pad-firma1" class="signature-pad" width=400 height=200></canvas>
+										  	</#if>
+										</div>
+                                    </div>
+								</div>
+
+								<#if FILE_FIRMA1?exists>
+								<#else>
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+										<button class="btn btn-primary btn-sm" type="button" id="clear1">Pulisci Firma</button>
+                                    </div>
+								</div>
+							  	</#if>
+									
+                                
+	                                <div class="form-group">
+				                        <div class="col-sm-12"><h3>Dettagli Verifica</h3></div>
+	                                </div>
+
+	                                <div class="form-group">
+	                                	<label class="col-sm-2 control-label-left">Riferimento/Origine:</label>
+	                                    <div class="col-sm-10">
+	                                    <input type="text" class="form-control" name="RIFERIMENTO_ORIGINE" id="RIFERIMENTO_ORIGINE">
+										</div>
+	                                </div>                                  
+                      
+	                                <div class="form-group">
+	                                	<label class="col-sm-2 control-label-left">Aspetto Esaminato:</label>
+	                                    <div class="col-sm-7">
+	                                    <input type="text" class="form-control" name="DESCRIZIONE" id="DESCRIZIONE" required>
+										</div>
+	                                
+										<label class="col-sm-1 control-label-left">Conforme:</label>
+										<div class="col-sm-2">
+											<select class="form-control" id="FL_CONFORME" name="FL_CONFORME">
+											</select>
+										</div>
+									</div>
+								
+	                                <div class="form-group">
+	                                	<label class="col-sm-2 control-label-left">Situazione Rilevata/Commenti:</label>
+										<div class="col-sm-10">
+										<textarea class="form-control" id="NOTE" name="NOTE" rows="3"></textarea>
+										</div>
+	                                </div>
+
+	                                <div class="form-group">
+	                                    <div class="col-sm-2">
+											<button class="btn btn-primary btn-sm" type="submit" id="aggiungi" name="aggiungi">${label_add}</button>
+	                                    </div>
+									</div>
+								
+								</form>
+								
+								
+	                            <div class="row">
+	                        	<div class="col-sm-12">
+					
+			                        <div class="table-responsive">
+										<table id="dt" class="table table-bordered">
+			                                <thead>
+			                                <tr>
+												<th></th>
+												<th></th>	
+												<th></th>
+												<th></th>
+												<th>Riferimento / Origine</th>
+												<th>Aspetto Esaminato</th>
+												<th>Conforme</th>
+												<th>Situazione Rilevata/Commenti</th>
+			                                </tr>
+			                                </thead>
+			                            </table>											
+			                        </div>
+
+	                            </div>
+	                            </div>
+                            								
+                                </div>
+                            </div>
+                                
+                        </div>
+                    </div>
+                    
+                    <div class="ibox">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+	                    <h4>Allegati</h4>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                        
+     					
+						<form id="myDropzone" action="astro?FUNCTIONID=UploadFile" method="post"  class="dropzone">
+							<input type="hidden" id="LISTA_ALLEGATI" name="LISTA_ALLEGATI" value="<#if LISTA_ALLEGATI?exists>${LISTA_ALLEGATI}</#if>">
+						    <input name="MODULO" id="MODULO_UPLOAD" type="hidden" value="ALIMOD50" />
+						    <input name="ID_MODULO" id="ID_MODULO_UPLOAD" type="hidden" value="${ID_MODULO}" />   						
+							<div class="dz-default dz-message"></div>
+						</form>
+      					
+						<script>
+						  // myDropzone is the configuration for the element that has an id attribute
+						  // with the value my-dropzone (or myDropzone)
+						  Dropzone.options.myDropzone = {
+						    init: function() {
+						      this.on("addedfile", function(file) {
+						        var _this = this;						    	  
+						    	  
+				        	    var a = document.createElement('a');
+				        	    a.setAttribute('href',"upload/" + file.name);
+				        	    a.setAttribute('target',"_blank");
+				        	    a.innerHTML = "<br>download";
+				        	    file.previewTemplate.appendChild(a);
+				        	    
+				        	    a = document.createElement('a');
+				                // Listen to the click event
+				                a.addEventListener("click", function(e) {
+				                  // Make sure the button click doesn't submit the form:
+				                  e.preventDefault();
+				                  e.stopPropagation();
+
+				                  // Remove the file preview.
+				                  _this.removeFile(file);
+				                  // If you want to the delete the file on the server as well,
+				                  // you can do the AJAX request here.
+				                });
+				                
+				        	    a.innerHTML = "<br>remove";
+				        	    file.previewTemplate.appendChild(a);
+				        	    
+						      });
+						    }
+						  };
+						</script>      					
+
+                        
+						</div>						
+					</div>						
+                    
+                    
+                </div>
+            </div>		
+
+			
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

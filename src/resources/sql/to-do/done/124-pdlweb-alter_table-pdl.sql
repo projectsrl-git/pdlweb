@@ -1,0 +1,4 @@
+﻿ALTER TABLE PDL ADD column CANCELLATO boolean default false not null;
+
+ALTER TABLE PDL ADD column ID_UTENTE_CANCELLAZIONE integer;
+ALTER TABLE PDL ADD column TS_CANCELLAZIONE timestamp;

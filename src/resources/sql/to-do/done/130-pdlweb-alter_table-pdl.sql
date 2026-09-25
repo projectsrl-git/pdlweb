@@ -1,0 +1,1 @@
+﻿ALTER TABLE PDL ADD column FLG_MODULO_INGLESE boolean default false not null;

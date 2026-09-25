@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	
+   <script type="text/javascript">
+    
+	    $(document).ready(function () {
+	    });
+    
+	</script>
+	
+	<style>
+		#filling-station {
+		    position: absolute; 
+		    width: 122px; 
+		    height: 67px;
+		    top: 85px; 
+		    margin-left: 5px;
+		    bottom: 0; 
+		    background: red; 
+		    color:white;
+		}
+		
+		#extra-shr {
+		    position: absolute; 
+		    width: 113px; 
+		    height: 64px;
+		    top: 87px; 
+		    margin-left: 310px;
+		    bottom: 0; 
+		    background: red; 
+		    color:white;
+		}
+		
+		#casella-vuota {
+		    position: absolute; 
+		    width: 113px; 
+		    height: 64px;
+		    top: 87px; 
+		    margin-left: 434px;
+		    bottom: 0; 
+		    background: red; 
+		    color:white;
+		}
+		
+		#tutto-impianto {
+		    position: absolute; 
+		    width: 113px; 
+		    height: 64px;
+		    top: 87px; 
+		    margin-left: 557px;
+		    bottom: 0; 
+		    background: red; 
+		    color:white;
+		}
+		
+		#cabina-gas-naturale {
+		    position: absolute; 
+		    width: 122px; 
+		    height: 67px;
+		    top: 85px; 
+		    margin-left: 853px;
+		    bottom: 0; 
+		    background: red; 
+		    color:white;
+		}
+		
+		
+		#cabina-elettrica {
+		    position: absolute; 
+		    width: 101px; 
+		    height: 55px;
+		    top: 170px; 
+		    margin-left: 3px;
+		    bottom: 0; 
+		    background: red; 
+		    color:white;
+		}
+		
+		#cabina-strumenti {
+		    position: absolute; 
+		    width: 101px; 
+		    height: 56px;
+		    top: 242px; 
+		    margin-left: 3px;
+		    bottom: 0; 
+		    background: red; 
+		    color:white;
+		}
+		
+		#aria-strumenti {
+		    position: absolute; 
+		    width: 101px; 
+		    height: 56px;
+		    top: 314px; 
+		    margin-left: 3px;
+		    bottom: 0; 
+		    background: red; 
+		    color:white;
+		}
+		
+		#skid-h2o-mare {
+		    position: absolute; 
+		    width: 101px; 
+		    height: 56px;
+		    top: 386px; 
+		    margin-left: 3px;
+		    bottom: 0; 
+		    background: red; 
+		    color:white;
+		}
+		
+		#limite-batteria {
+		    position: absolute; 
+		    width: 101px; 
+		    height: 56px;
+		    top: 458px; 
+		    margin-left: 3px;
+		    bottom: 0; 
+		    background: red; 
+		    color:white;
+		}
+		
+		#rack-lato-monte {
+		    position: absolute; 
+		    width: 101px; 
+		    height: 56px;
+		    top: 530px; 
+		    margin-left: 3px;
+		    bottom: 0; 
+		    background: red; 
+		    color:white;
+		}
+		
+		#skid-azoto {
+		    position: absolute; 
+		    width: 101px; 
+		    height: 56px;
+		    top: 602px; 
+		    margin-left: 3px;
+		    bottom: 0; 
+		    background: red; 
+		    color:white;
+		}
+		
+ 	</style>
+	
+</head>
+
+<body>
+	
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+			
+			<div class="row">
+			
+		        <div class="col-lg-12">
+	            
+	            	<div class="ibox">
+	            
+		                <div class="ibox-title">
+		                    <h5>Schema impianto per verifica eventuali interferenze</h5>
+		                </div>
+
+                        
+                        <div class="ibox-content float-e-margins">
+							<div class="imgwrapper">
+								
+									<!--  <img src="img/planimetria.default.png" class="img-responsive">  -->
+									<img src="img/${fileImgPlanimetria}" class="img-responsive">
+									<div id="filling-station"></div>
+									<div id="extra-shr"></div>
+									<div id="casella-vuota"></div>
+									<div id="tutto-impianto"></div>
+									<div id="cabina-gas-naturale"></div>
+									
+									<div id="cabina-elettrica"></div>
+									<div id="cabina-strumenti"></div>
+									<div id="aria-strumenti"></div>
+									<div id="skid-h2o-mare"></div>
+									<div id="limite-batteria"></div>
+									<div id="rack-lato-monte"></div>
+									<div id="skid-azoto"></div>
+							</div>		                
+	                    </div>
+
+			            
+			    	</div>
+				</div>
+			</div>
+			   
+           		
+				<div class="hr-line-dashed"></div>
+
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+
+</body>
+
+</html>

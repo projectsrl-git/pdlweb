@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+    <#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+    
+    <script type="text/javascript">
+	
+		$(function(){
+			
+			$("#ID_AZIENDA").trigger("loadDataSet",["DataSetAziende","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_DIREZIONE").trigger("loadDataSet",["DSDirezioni","ID_DIREZIONE","NOME_DIREZIONE","<#if ID_DIREZIONE?exists>${ID_DIREZIONE}</#if>","<#if ID_AZIENDA?exists> WHERE DI.ID_AZIENDA=${ID_AZIENDA} </#if> "]);
+			$("#ID_RISORSA").trigger("loadDataSet",["DSStaffDirezioniCombo","ID_RISORSA","NOMINATIVO","<#if ID_RISORSA?exists>${ID_RISORSA}</#if>",""]);
+			
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+
+			$('#ID_AZIENDA').on("select2:selecting", function(e) { 
+				var idAzienda= e.params.args.data.id;
+				$("#ID_RISORSA").empty();
+				$("#ID_RISORSA").select2("destroy");
+				$("#ID_RISORSA").trigger("loadDataSet",["DSStaffDirezioniCombo","ID_RISORSA","NOMINATIVO","<#if ID_RISORSA?exists>${ID_RISORSA}</#if>"," WHERE RA.ID_AZIENDA="+idAzienda+" "]);
+				
+				
+				$("#ID_DIREZIONE").empty();
+				$("#ID_DIREZIONE").select2("destroy");
+				$("#ID_DIREZIONE").trigger("loadDataSet",["DSStaffDirezioniCombo","ID_DIREZIONE","NOME_DIREZIONE","<#if ID_DIREZIONE?exists>${ID_DIREZIONE}</#if>"," WHERE DI.ID_AZIENDA="+idAzienda+" "]);
+				
+			});
+
+			$('#ID_DIREZIONE').on("select2:selecting", function(e) { 
+				var idDirezione= e.params.args.data.id;
+				$("#ID_RISORSA").empty();
+				$("#ID_RISORSA").select2("destroy");
+				$("#ID_RISORSA").trigger("loadDataSet",["DSStaffDirezioniCombo","ID_RISORSA","NOMINATIVO","<#if ID_RISORSA?exists>${ID_RISORSA}</#if>"," WHERE SD.ID_DIREZIONE="+idDirezione+" "]);
+			});
+			
+						
+			
+			$("#CLIENTE").val("<#if CLIENTE?exists>${CLIENTE}</#if>");
+			$("#INCARICO").val("<#if INCARICO?exists>${INCARICO}</#if>");
+			$("#DATA_DAL").val("<#if DATA_DAL?exists>${DATA_DAL}</#if>");
+			$("#DATA_AL").val("<#if DATA_AL?exists>${DATA_AL}</#if>");
+			$("#Inserimento").validate();
+
+			/* Controllo su date consecutive - inizio */
+			$.validator.addMethod("paymentDate", function(value, element) {
+			    return this.optional(element) || validatePaymentDate(value, element);
+			}, "Le date sono obbligatorie, devono essere in formato data, e devono essere consecutive");
+			
+			$.validator.addClassRules({
+			    paymentDateField: {
+			        required: true,
+			        //date: true,
+			        paymentDate: true
+			    }
+			});
+			
+			
+			
+			function validatePaymentDate(value, element) {
+			    var paymentDates = $('.paymentDateField');
+			    var dateArray = new Array();
+			    var arrayIndex = 0;
+			    var currentElementIndex = 0;
+			    var isValid = true;
+			    
+			
+			    $(paymentDates).each(function() {
+			        var currentElementVal = $(this).val();
+					
+			        dateArray[arrayIndex] = currentElementVal;
+			
+			        if (currentElementVal == $(element).val()) {
+			            currentElementIndex = arrayIndex;
+			            return false;
+			        }
+			
+			        arrayIndex++;
+			    });
+			
+			    for (var x = 0; x <= arrayIndex; x++) {
+			        console.log('array val: ' + dateArray[x]);
+			        console.log('dateVal: ' + value);
+			        
+			        
+			        d= dateArray[x];
+			        d_temp=d.split("/");
+			 		dateArray[x]=d_temp[1]+"/"+d_temp[0]+"/"+d_temp[2];
+			 		
+			 		
+			 		f= value;
+			        f_temp=f.split("/");
+			 		value=f_temp[1]+"/"+f_temp[0]+"/"+f_temp[2];
+			 				 			        
+			        
+			        
+			        if (x > currentElementIndex) {
+			            isValid = new Date(dateArray[x]) > new Date(value);
+			        }
+			
+			        if (x < currentElementIndex) {
+			            isValid = new Date(dateArray[x]) < new Date(value);
+			        }
+			    }
+			
+			    return isValid;
+			}
+
+			
+			
+			/* Controllo su date consecutive - fine */
+			
+			
+			
+			
+			
+			
+			
+			
+			 
+
+
+			$("#Inserimento").submit(function(event) {
+				document.getElementById("salva").style.display="none";
+				/* stop form from submitting normally */
+				event.preventDefault();			
+			
+				if (!$("#Inserimento").valid()) {
+					document.getElementById("salva").style.display="block";
+					return false;
+				}
+				
+				
+				var idRichiesta=$("#ID_MODTRASFERTA").val();
+				if (idRichiesta!='') {
+					$("#OPERATION_TYPE").val("UPDATE");
+				} else {
+					$("#OPERATION_TYPE").val("INSERT");
+				}
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					if (result.result) {
+						$("#ID_MODTRASFERTA").val(result.idRichiesta);
+						$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+					} else {
+						$( ".alert-danger" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+					}
+				});
+
+			});			
+		});		
+		
+    </script> 
+    
+</head>
+
+<body>
+
+     <div id="wrapper">
+
+    	<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+        <div id="page-wrapper" class="gray-bg">
+        	<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+        	
+        	<div class="wrapper wrapper-content animated fadeInRight">
+            	<div class="row">
+            		<div class="col-lg-12">
+
+	                	<div class="ibox float-e-margins">
+		            	    <#include "include/included_box_title.include">
+		            	
+	
+						<div class="ibox-content">
+							<form action="astro" method="post" id="Inserimento">
+			            		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoModuliTrasferte" />
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE" value="<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>">
+								<input type="hidden" id="ID_MODTRASFERTA" name="ID_MODTRASFERTA" value="<#if ID_MODTRASFERTA?exists>${ID_MODTRASFERTA}</#if>" />
+								<input type="hidden" id="ID_MODTRASFERTA_ORIGINE" name="ID_MODTRASFERTA_ORIGINE" value="<#if ID_MODTRASFERTA_ORIGINE?exists>${ID_MODTRASFERTA_ORIGINE}</#if>" />
+								
+								<input type="hidden" id="NOMINATIVO" name="NOMINATIVO" value="<#if NOMINATIVO?exists>${NOMINATIVO}</#if>" />
+								<input type="hidden" id="DATA_NASCITA" name="DATA_NASCITA" value="<#if DATA_NASCITA?exists>${DATA_NASCITA}</#if>" />
+								<input type="hidden" id="CITTA_NASCITA" name="CITTA_NASCITA" value="<#if CITTA_NASCITA?exists>${CITTA_NASCITA}</#if>" />
+								<input type="hidden" id="PROV_NASCITA" name="PROV_NASCITA" value="<#if PROV_NASCITA?exists>${PROV_NASCITA}</#if>" />
+								<input type="hidden" id="INDIR_RESIDENZA" name="INDIR_RESIDENZA" value="<#if INDIR_RESIDENZA?exists>${INDIR_RESIDENZA}</#if>" />
+								<input type="hidden" id="CITTA_RESIDENZA" name="CITTA_RESIDENZA" value="<#if CITTA_RESIDENZA?exists>${CITTA_RESIDENZA}</#if>" />
+								<input type="hidden" id="CAP_RESIDENZA" name="CAP_RESIDENZA" value="<#if CAP_RESIDENZA?exists>${CAP_RESIDENZA}</#if>" />
+								<input type="hidden" id="COD_FISCALE" name="COD_FISCALE" value="<#if COD_FISCALE?exists>${COD_FISCALE}</#if>" />
+								<input type="hidden" id="MATRICOLA_DIPENDENTE" name="MATRICOLA_DIPENDENTE" value="<#if MATRICOLA_DIPENDENTE?exists>${MATRICOLA_DIPENDENTE}</#if>" />
+								
+								<div class="row">
+									<div class="form-group"><label class="col-sm-2 control-label">${label_company}</label>
+	                                    <div class="col-sm-10">
+											<select id="ID_AZIENDA" name="ID_AZIENDA" class="form-control" required>
+											</select>
+	                                    </div>
+	                                </div>
+                                </div>
+
+								<br>
+										
+			                	<div class="row">
+									<div class="form-group"><label class="col-sm-2 control-label">${label_direzione}</label>
+	                                    <div class="col-sm-10">
+											<select id="ID_DIREZIONE" name="ID_DIREZIONE" class="form-control" required>
+											</select>
+	                                    </div>
+	                                </div>
+                                </div>
+
+								<br>
+
+			                	<div class="row">
+									<div class="form-group"><label class="col-sm-2 control-label">${label_nominative}</label>
+	                                    <div class="col-sm-10">
+											<select id="ID_RISORSA" name="ID_RISORSA" class="form-control" required></select>
+	                                    </div>
+	                                </div>
+                                </div>
+				                <br>
+				                
+				                
+						        <div class="row">
+		                            <div class="col-md-3">
+				                		<label class="font-normal">${label_customer}</label>
+			                	        <input type="text" class="form-control" name="CLIENTE" id="CLIENTE" value="<#if CLIENTE?exists>${CLIENTE}</#if>" required>                              
+						            </div>
+						             
+						            <div class="col-md-3">
+				                		<label class="font-normal">${label_order}</label>
+			                	        <input type="text" class="form-control" name="COMMESSA" id="COMMESSA" value="<#if COMMESSA?exists>${COMMESSA}</#if>">                              
+						            </div>
+						            
+						            <div class="col-md-3">
+				                		<label class="font-normal">${label_site}</label>
+			                	        <input type="text" class="form-control" name="LUOGO" id="LUOGO" value="<#if LUOGO?exists>${LUOGO}</#if>">                              
+						            </div>
+						            
+						            <div class="col-md-3">
+				                		<label class="font-normal">${label_type_trip}</label>
+						                <div class="input-group">
+							               <select name="TIPO" id="TIPO" data-placeholder="Scegli un'opzione..." class="form-control m-b" style="width:350px;" tabindex="4">
+							                	<option value="">Seleziona</option>
+								                <option value="C" <#if TIPO?exists><#if TIPO='C'>selected</#if></#if>>Comunale</option>
+								    			<option value="N" <#if TIPO?exists><#if TIPO='N'>selected</#if></#if>>Nazionale</option>
+								    			<option value="E" <#if TIPO?exists><#if TIPO='E'>selected</#if></#if>>Estera</option>
+							                </select>
+						                </div>
+						            </div>	
+				                </div>             <!-- chiude row -->
+				                
+			                	
+			                	<div class="row">
+						            <div class="col-md-3">
+						            	<div class="form-group">
+					                		<label class="font-normal">${label_date_from}</label>
+							                <div class="input-group date">
+			                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" name="DATA_DAL" id="DATA_DAL" value="<#if DATA_DAL?exists>${DATA_DAL}</#if>" required>
+			                                </div>
+			                            </div>
+						            </div>		
+						            
+						            <div class="col-md-3">
+						            	<div class="form-group">
+					                		<label class="font-normal">${label_date_to}</label>
+							                <div class="input-group date">
+			                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" name="DATA_AL" id="DATA_AL" value="<#if DATA_AL?exists>${DATA_AL}</#if>" required>
+			                                </div>
+		                                </div>
+						            </div>		
+				                
+				                	<div class="col-md-2">
+				                		<label class="font-normal">${label_hours_from}</label>
+						                <div class="input-group clockpicker" data-autoclose="true">
+			                                <input type="text" class="Time1 form-control" name="ORE_DAL" id="ORE_DAL" onchange="javascript:calculate()" value="<#if ORE_DAL?exists>${ORE_DAL}</#if>" >
+			                                <span class="input-group-addon">
+			                                    <span class="fa fa-clock-o"></span>
+			                                </span>
+		                            	</div>
+						            </div>
+						             
+						            <div class="col-md-2">
+				                		<label class="font-normal">${label_hours_to}</label>
+						                <div class="input-group clockpicker" data-autoclose="true">
+			                                <input type="text" class="Time2 form-control" name="ORE_AL" id="ORE_AL" onchange="javascript:calculate()" value="<#if ORE_AL?exists>${ORE_AL}</#if>" >
+			                                <span class="input-group-addon">
+			                                    <span class="fa fa-clock-o"></span>
+			                                </span>
+		                            	</div>
+						            </div>	
+						            
+						            <div class="col-md-2">
+				                		<label class="font-normal">${label_hours}</label>
+		                                <div><input type="text" class="Hours form-control" name="ORE" id="ORE" value="<#if ORE?exists>${ORE}</#if>"></div>
+						            </div>	
+				                </div>             <!-- chiude row -->
+				                
+				                
+				                <div class="row">
+		                            <div class="col-md-3">
+				                		<label class="font-normal">${label_quality}</label>
+			                	        <input type="text" class="form-control" name="QUALITA" id="QUALITA" value="<#if QUALITA?exists>${QUALITA}</#if>">                              
+						            </div>
+						             
+						            <div class="col-md-3">
+				                		<label class="font-normal">${label_job}</label>
+			                	        <input type="text" class="form-control" name="INCARICO" id="INCARICO" value="<#if INCARICO?exists>${INCARICO}</#if>" required>                              
+						            </div>
+						            
+						            <div class="col-md-6">
+				                		<label class="font-normal">${label_reason}</label>
+			                	        <input type="text" class="form-control" name="MOTIVAZIONE" id="MOTIVAZIONE" value="<#if MOTIVAZIONE?exists>${MOTIVAZIONE}</#if>">                              
+						            </div>
+				                </div>             <!-- chiude row -->
+				                
+				                <div class="hr-line-dashed"></div>
+				                
+				                <div class="row">
+		                            <div class="col-md-3">
+				                		<label class="font-normal">${label_transport} - ${label_model}</label>
+			                	        <input type="text" class="form-control" name="MODELLO" id="MODELLO" value="<#if MODELLO?exists>${MODELLO}</#if>">                              
+						            </div>
+						             
+						            <div class="col-md-3">
+				                		<label class="font-normal">${label_transport} - ${label_brand}</label>
+			                	        <input type="text" class="form-control" name="MARCA" id="MARCA" value="<#if MARCA?exists>${MARCA}</#if>">                              
+						            </div>
+						        </div>
+				                
+				                
+				                <div class="row">
+					        	   	<div class="hr-separator"></div>
+		                            <div class="form-group">
+		                                <div class="col-sm-12">
+			                                <button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+		                                </div>
+		                            </div>
+				                </div>
+			                
+				            </form> 							
+			                
+			                
+		                </div>   <!-- chiude box content -->
+            		</div>       <!-- chiude ibox float-e-margins -->     
+	            </div>	<!-- col-lg-12 -->
+            </div>	<!-- chiude row -->
+            
+            
+           
+
+            
+            
+        	</div>	<!-- chiude wrapper wrapper-content animated fadeInRight -->
+        
+        
+        	<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+        	
+        </div>
+	</div>
+
+    
+
+    <script>
+        $(document).ready(function(){
+            
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green'
+            });
+            
+            $('.clockpicker').clockpicker();
+        });
+    </script>
+    
+
+	<script type="text/javascript">
+
+		
+		 function calculate() {
+	         var time1 = $(".Time1").val().split(':'), time2 = $(".Time2").val().split(':');
+	         var hours1 = parseInt(time1[0], 10), 
+	             hours2 = parseInt(time2[0], 10),
+	             mins1 = parseInt(time1[1], 10),
+	             mins2 = parseInt(time2[1], 10);
+	         var hours = hours2 - hours1, mins = 0;
+	         if(hours < 0) hours = 24 + hours;
+	         if(mins2 >= mins1) {
+	             mins = mins2 - mins1;
+	         }
+	         else {
+	             mins = (mins2 + 60) - mins1;
+	             hours--;
+	         }
+	         mins = mins / 60; // take percentage in 60
+	         hours += mins;
+	         hours = hours.toFixed(2);
+	         $(".Hours").val(hours);
+	     }
+	     
+    </script> 
+
+</body>
+
+</html>

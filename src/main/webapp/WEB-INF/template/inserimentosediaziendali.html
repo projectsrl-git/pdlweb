@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+    
+	<script type="text/javascript">
+	
+		$(function(){
+			
+			$("#LISTA_AZIENDE").trigger("loadDataSet",["DataSetAziende","CODICE","RAGSOC","<#if AZIENDA_TENDINA?exists>${AZIENDA_TENDINA}</#if>"," WHERE 1=1 "]);
+			
+			$("#RAGSOC").val("<#if RAGSOC?exists>${RAGSOC}</#if>");
+			$("#Inserimento").validate();
+
+			$("#Inserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+			
+				if (!$("#Inserimento").valid()) {
+					return false;
+				}
+								
+				tokenizeOptionSelected("LISTA_AZIENDE","CODICE_PARENT");
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+
+			});
+
+		});
+		
+    </script> 
+    
+</head>
+
+<body>
+
+     <div id="wrapper">
+
+    	<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+        <div id="page-wrapper" class="gray-bg">
+        	<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+        	
+        	<div class="wrapper wrapper-content animated fadeInRight">
+            	<div class="row">
+            		<div class="col-lg-12">
+
+	                	<div class="ibox float-e-margins">
+		            	    <#include "include/included_box_title.include">
+		            	
+			            <div class="ibox-content">
+			            	<form action="astro" method="post" id="Inserimento">
+			            		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoSediAziendali" />
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE" value="<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>">
+								<input type="hidden" id="MSG_CHANGES" name="MSG_CHANGES" value="" />
+								<input type="hidden" id="NOME_CAMPO_DA_CONTROLLARE" name="NOME_CAMPO_DA_CONTROLLARE" value="<#if NOME_CAMPO_DA_CONTROLLARE?exists>${NOME_CAMPO_DA_CONTROLLARE}</#if>" />
+								<input type="hidden" id="VALORE_CAMPO_DA_CONTROLLARE" name="VALORE_CAMPO_DA_CONTROLLARE" value="<#if VALORE_CAMPO_DA_CONTROLLARE?exists>${VALORE_CAMPO_DA_CONTROLLARE}</#if>" />
+								<input type="hidden" id="DATASET" name="DATASET" value="<#if DATASET?exists>${DATASET}</#if>" />
+								<input type="hidden" id="ESISTE" name="ESISTE" value="<#if ESISTE?exists>${ESISTE}</#if>" />
+								<input type="hidden" id="ID_UNIVOCO" name="ID_UNIVOCO" value="<#if ID_UNIVOCO?exists>${ID_UNIVOCO}</#if>" />
+								<input type="hidden" id="ID_UNIVOCO_NOME" name="ID_UNIVOCO_NOME" value="<#if ID_UNIVOCO_NOME?exists>${ID_UNIVOCO_NOME}</#if>" />
+								<input type="hidden" id="CODICE" name="CODICE" value="<#if CODICE?exists>${CODICE}</#if>" />
+								
+								<input type="hidden" id="CODICE_PARENT" name="CODICE_PARENT">
+								
+								
+								<div class="row">
+								<div class="form-group"><label class="col-sm-2 control-label">${label_company}</label>
+                                    <div class="col-sm-10">
+										<select id="LISTA_AZIENDE" name="LISTA_AZIENDE" class="form-control" required>
+										</select>
+                                    </div>
+                                </div>
+                                </div>
+                                
+			                	<br>
+				                
+			                	
+			                	<div class="row">
+						            <div class="col-md-3">
+				                		<label class="font-normal">Sede di (${label_city})</label>
+	                                	<div><input type="text" class="form-control" name="RAGSOC" id="RAGSOC" value="<#if RAGSOC?exists>${RAGSOC}</#if>" required></div>
+						            </div>
+						            <div class="col-md-3">
+				                		<label class="font-normal">${label_cadastral_code}</label>
+	                                	<div><input type="text" class="form-control" name="COD_CATASTO" id="COD_CATASTO" value="<#if COD_CATASTO?exists>${COD_CATASTO}</#if>"></div>
+						            </div>			
+				                </div>             <!-- chiude row -->
+				                
+				                
+				                <div class="row">
+				                	<div class="col-md-3">
+				                		<label class="font-normal">${label_address}</label>
+	                                	<div><input type="text" class="form-control" name="INDIRIZZO" id="INDIRIZZO" value="<#if INDIRIZZO?exists>${INDIRIZZO}</#if>"></div>
+						            </div>
+						            <div class="col-md-3">
+				                		<label class="font-normal">${label_city}</label>
+	                                	<div><input type="text" class="form-control" name="CITTA" id="CITTA" value="<#if CITTA?exists>${CITTA}</#if>"></div>
+						            </div>
+						            <div class="col-md-2">
+				                		<label class="font-normal">${label_province}</label>
+	                                	<div><input type="text" class="form-control" name="PROVINCIA" id="PROVINCIA" value="<#if PROVINCIA?exists>${PROVINCIA}</#if>"></div>
+						            </div>
+						            <div class="col-md-2">
+				                		<label class="font-normal">${label_zip_code}</label>
+	                                	<div><input type="text" class="form-control" name="CAP" id="CAP" value="<#if CAP?exists>${CAP}</#if>"></div>
+						            </div>
+						            <div class="col-md-2">
+				                		<label class="font-normal">${label_phone}</label>
+	                                	<div><input type="text" class="form-control" name="TELEFONO" id="TELEFONO" value="<#if TELEFONO?exists>${TELEFONO}</#if>"></div>
+						            </div>
+				                </div>             <!-- chiude row -->
+				                
+				                
+				                <div class="row">
+				                 	<div class="col-md-12"><br/>
+						            	<label class="font-normal">${label_office_classification}</label><br/>
+		                                <div class="checkbox-inline i-checks"><label> <input type="checkbox" name="DIP" id="DIP" value="S" <#if DIP?exists && DIP="S">checked</#if> > <i></i> Sede legale </label></div>
+		                                <div class="checkbox-inline i-checks"><label> <input type="checkbox" name="RESP" id="RESP" value="S" <#if RESP?exists && RESP="S">checked</#if>> <i></i> Sede operativa </label></div>
+						            </div>
+		                        </div>   
+		                        
+		                        <div class="row">
+					        	   	<div class="hr-separator"></div>
+		                            <div class="form-group">
+		                                <div class="col-sm-12">
+		                                    <button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+		                                </div>
+		                            </div>
+				                </div>     
+				            </form>    
+				                
+				            
+			                
+			                <#if SALVATO?exists && SALVATO!=""><div class="alert alert-success" id="messagebox">${SALVATO}</div></#if>
+			                
+		                </div>   <!-- chiude box content -->
+            		</div>       <!-- chiude ibox float-e-margins -->     
+	            </div>	<!-- col-lg-12 -->
+            </div>	<!-- chiude row -->
+            
+            
+           
+
+            
+            
+        	</div>	<!-- chiude wrapper wrapper-content animated fadeInRight -->
+        
+        
+        	<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+        	
+        </div>
+	</div>
+
+    
+    <script>
+        $(document).ready(function(){            
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green'
+            });
+        });
+    </script>
+    
+
+</body>
+
+</html>

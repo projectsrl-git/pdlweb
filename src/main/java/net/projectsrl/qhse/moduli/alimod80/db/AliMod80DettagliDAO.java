@@ -1,0 +1,204 @@
+
+package net.projectsrl.qhse.moduli.alimod80.db;
+
+import java.util.HashMap;
+
+import net.project.dataset.DataSetFactory;
+import net.project.dataset.DataSet_itf;
+import net.project.dataset.Row_itf;
+import net.project.db.DBTransaction;
+import net.project.db.WhereCondition;
+import net.project.errors.AppCrash;
+import net.project.misc.Util;
+import net.projectsrl.qhse.moduli.db.AliModDettagliDAO_base;
+import net.projectsrl.webapp.core.WebAppConstants_itf;
+
+public class AliMod80DettagliDAO extends AliModDettagliDAO_base {
+
+    private static final String TABLE_PARENT_NAME = "ALIMOD80";
+
+    private static final String AZIONE_CORRETTIVA   = "COR";
+
+    private static final String TABLE_NAME          = "ALIMOD80_DETTAGLI";
+
+    public static final String   PERSONA_INFORTUNATA = "PERSONA_INFORTUNATA";
+    public static final String   CODICE_CODICE_CATEGORIA_PERSONALE = "CODICE_CODICE_CATEGORIA_PERSONALE";
+    public static final String   CODICE_CODICE_TIPO_INFORTUNIO = "CODICE_CODICE_TIPO_INFORTUNIO";
+    public static final String   CODICE_CODICE_ATTREZZATURA_INTERESSATA = "CODICE_CODICE_ATTREZZATURA_INTERESSATA";
+    public static final String   CODICE_COMP_ATTR_INTERESSATA = "CODICE_COMP_ATTR_INTERESSATA";
+    public static final String   CODICE_GG_PROGNOSI = "CODICE_GG_PROGNOSI";
+    public static final String   CODICE_LESIONE_MAGGIORE = "CODICE_LESIONE_MAGGIORE";
+    public static final String   CODICE_PARTE_CORPO = "CODICE_PARTE_CORPO";
+    public static final String   CODICE_ALTRE_LESIONI = "CODICE_ALTRE_LESIONI";
+    public static final String   CODICE_ALTRE_LESIONI_PARTE_CORPO = "CODICE_ALTRE_LESIONI_PARTE_CORPO";
+	public static final String  STATO_AZIONE           = "STATO_AZIONE";
+    public static final String  TABELLA_PARENT         = "TABELLA_PARENT";
+    public static final String  ID_DETTAGLIO_PARENT    = "ID_DETTAGLIO_PARENT";
+    
+
+    public AliMod80DettagliDAO() throws AppCrash {
+
+        super(TABLE_NAME);
+    }
+
+    public AliMod80DettagliDAO(DBTransaction transact) throws AppCrash {
+
+        super(transact, TABLE_NAME);
+    }
+
+    public AliMod80DettagliDAO(DBTransaction transact, String tableName) throws AppCrash {
+
+        super(transact, tableName);
+    }
+
+    @Override
+    protected void init() throws AppCrash {
+
+        super.init();
+
+        addNoStringField(ID_DETTAGLIO_PARENT, Integer.class);
+    }
+    @Override
+    protected WhereCondition whereCondition() throws AppCrash {
+
+        WhereCondition whereCondition = new WhereCondition(this);
+
+        if (Util.IsNotEmpty(getAttribute(ID_DETTAGLIO))) {
+            appendField(ID_DETTAGLIO, whereCondition);
+        } else if (Util.IsNotEmpty(getAttribute(NR_DETTAGLIO))) {
+            appendField(NR_DETTAGLIO, whereCondition);
+        }
+
+        return whereCondition;
+    }
+    
+    
+     private void closeActionPlan() throws AppCrash {
+
+        Integer idModulo = (Integer) getAttribute(ID_MODULO);
+        AliMod80DAO dao = new AliMod80DAO();
+        dao.setAttribute(AliMod80DAO.ID_MODULO, idModulo);
+        dao.setAttribute(AliMod80DAO.STATO, "CLO");
+        dao.update();
+    }
+
+    private boolean isActionPlanClosed() throws AppCrash {
+
+        Integer idModulo = (Integer) getAttribute(ID_MODULO);
+        String dsName = "DSALIMOD80Dettaglio";
+        boolean isActionPlanClosed = true;
+
+        DataSet_itf dataSet = null;
+
+        DataSetFactory dsFactory = DataSetFactory.getInstance();
+
+        try {
+            dataSet = dsFactory.makeDataSet("", dsName);
+
+            HashMap<String, String> param = new HashMap<String, String>();
+            param.put(WebAppConstants_itf.WHERECONDITION, "WHERE ID_MODULO=" + idModulo);
+            dataSet.setParam(param);
+            dataSet.open();
+
+            while (dataSet.hasMoreElements()) {
+                Row_itf dbRow = (Row_itf) dataSet.nextElement();
+
+                if (!dbRow.getField(STATO_AZIONE).equals("CHK")) {
+                    isActionPlanClosed = false;
+                }
+            }
+        } catch (AppCrash ac) {
+            ac.logContext(this.getClass().getName(),
+                    "Errore nella ricerca dell'ultimo progressivo del dataset " + dsName);
+            throw ac;
+        } finally {
+            // chiude il dataset per il conteggio degli elementi trovati
+            if (dataSet != null) {
+                try {
+                    dataSet.close();
+                } catch (Throwable t) {
+                    AppCrash ac = new AppCrash(t);
+                    ac.logContext(this.getClass().getName(), "Errore nella close del dataset " + dsName);
+                }
+            }
+        }
+
+        return isActionPlanClosed;
+
+    }
+   /* 
+    @Override
+    public void insert() throws AppCrash {
+
+        super.insert();
+
+        AliMod51DAO aliMod51DAO = new AliMod51DAO();
+        aliMod51DAO.setAttribute(ID_MODULO, getAttribute(ID_MODULO));
+        aliMod51DAO.retrieve();
+
+        AliMod80DettagliDAO aliMod51DettagliDAO = new AliMod80DettagliDAO();
+        aliMod51DettagliDAO.setAttribute(ID_DETTAGLIO, getAttribute(ID_DETTAGLIO));
+        aliMod51DettagliDAO.retrieve();
+
+        AliMod20DAO aliMod20DAO = new AliMod20DAO();
+        aliMod20DAO.setAttribute(AliMod20DAO.TABELLA_PARENT, TABLE_PARENT_NAME);
+        aliMod20DAO.setAttribute(AliMod20DAO.ID_MODULO_PARENT, aliMod51DAO.getAttribute(AliModDAO_base.ID_MODULO));
+        if (!aliMod20DAO.retrieve()) {
+            aliMod20DAO.setAttribute(AliModDAO_base.ID_AZIENDA, aliMod51DAO.getAttribute(AliModDAO_base.ID_AZIENDA));
+            aliMod20DAO.setAttribute(AliModDAO_base.CODICE_BL, aliMod51DAO.getAttribute(AliModDAO_base.CODICE_BL));
+            aliMod20DAO.setAttribute(AliModDAO_base.ID_UTENTE_INS, aliMod51DAO.getAttribute(AliModDAO_base.ID_UTENTE_INS));
+            aliMod20DAO.setAttribute(AliModDAO_base.ID_UTENTE_CON, aliMod51DAO.getAttribute(AliModDAO_base.ID_UTENTE_CON));
+            aliMod20DAO.setAttribute(AliMod20DAO.TITOLO,
+                    "PdA da Visita Comportamentale di Sicurezza #" + aliMod51DAO.getAttribute(AliModDAO_base.NR_MODULO)
+                            + " del " + aliMod51DAO.getAttribute(AliModDAO_base.DT_MODULO));
+            aliMod20DAO.setAttribute(AliModDAO_base.DT_MODULO, Utils.getStringDataOggiRibaltata());
+            aliMod20DAO.setAttribute(AliModDAO_base.STATO, StatiRichiesta.WAITNG_FOR_FIRST_APPROVAL.getCode());
+
+            aliMod20DAO.insert();
+        }
+
+        AliMod20DettagliDAO aliMod20DettagliDAO = new AliMod20DettagliDAO();
+        aliMod20DettagliDAO.setAttribute(AliMod20DettagliDAO.ID_MODULO, aliMod20DAO.getAttribute(ID_MODULO));
+        aliMod20DettagliDAO.setAttribute(AliMod20DettagliDAO.DESCRIZIONE, "");
+        aliMod20DettagliDAO.setAttribute(AliMod20DettagliDAO.RIFERIMENTO_ORIGINE,
+                "Visita Comportamentale di Sicurezza #" + aliMod51DAO.getAttribute(AliMod51DAO.NR_MODULO) + " del "
+                        + aliMod51DAO.getAttribute(AliMod51DAO.DT_MODULO));
+        aliMod20DettagliDAO.setAttribute(AliMod20DettagliDAO.CODICE_TIPO_AZIONE, AZIONE_CORRETTIVA);
+        aliMod20DettagliDAO.setAttribute(AliMod20DettagliDAO.DT_SCADENZA, Utils.getStringDataOggiRibaltata());
+        aliMod20DettagliDAO.setAttribute(AliMod20DettagliDAO.CODICE_CLASSIFICAZIONE, "SEC");
+        aliMod20DettagliDAO.setAttribute(AliMod20DettagliDAO.STATO_AZIONE, "OPE");
+        aliMod20DettagliDAO.setAttribute(AliMod20DettagliDAO.ID_UTENTE_RES,
+                aliMod51DAO.getAttribute(AliMod51DAO.ID_UTENTE_CON));
+        aliMod20DettagliDAO.setAttribute(AliMod20DettagliDAO.ID_UTENTE_INS,
+                aliMod51DettagliDAO.getAttribute(AliMod51DAO.ID_UTENTE_INS));
+        aliMod20DettagliDAO.setAttribute(AliMod20DettagliDAO.ID_DETTAGLIO_PARENT,
+                aliMod51DettagliDAO.getAttribute(ID_DETTAGLIO));
+        aliMod20DettagliDAO.setAttribute(AliMod20DettagliDAO.TABELLA_PARENT, TABLE_NAME);
+        aliMod20DettagliDAO.insert();
+    }*/
+
+    @Override
+    public void update() throws AppCrash {
+        
+        Integer idDettaglio=(Integer) getAttribute(ID_DETTAGLIO);
+        AliMod80DettagliDAO daoOld=new AliMod80DettagliDAO();
+        daoOld.setAttribute(ID_DETTAGLIO, idDettaglio);
+        daoOld.retrieve();
+        String statoAzioneOld=(String) daoOld.getAttribute(STATO_AZIONE);
+        String nr=(String) daoOld.getAttribute(NR_DETTAGLIO);
+                
+        if (Util.IsEmpty((String) getAttribute(STATO_AZIONE))) {
+            setAttribute(STATO_AZIONE, statoAzioneOld);
+        }
+        
+        if (Util.IsEmpty((String) getAttribute(NR_DETTAGLIO))) {
+            setAttribute(NR_DETTAGLIO, nr);
+        }
+        
+        super.update();
+        
+        if (isActionPlanClosed()) {
+            closeActionPlan();   
+        }
+}
+}

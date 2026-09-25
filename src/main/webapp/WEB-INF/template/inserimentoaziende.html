@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+	
+		$(function(){
+			
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			
+			$("#ID_AZIENDA").val("<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>");
+			$("#CODICE").val("<#if CODICE?exists>${CODICE}</#if>");
+			$("#RAGSOC").val("<#if RAGSOC?exists>${RAGSOC}</#if>");
+			$("#ALIAS_AZIENDA").val("<#if ALIAS_AZIENDA?exists>${ALIAS_AZIENDA}</#if>");
+			$("#ID_AZIENDA_PARENT").trigger("loadDataSet",["DataSetAziende","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA_PARENT?exists>${ID_AZIENDA_PARENT}</#if>"," WHERE 1=1 "]);
+			$("#LISTA_TIPO_AZIENDA").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if TIPO_AZIENDA?exists>${TIPO_AZIENDA}</#if>"," WHERE DOMINIO='TAZ' "]);
+			
+
+			$("#formInserimento").validate();
+
+			$("#formInserimento").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+
+				tokenizeOptionSelected("LISTA_MENU_ABILITATI","MENU_ABILITATI");
+				tokenizeOptionSelected("LISTA_TIPO_AZIENDA","TIPO_AZIENDA");
+
+				$("#salva-group").hide();
+				
+				/* Send the data using Ajax post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) {
+					
+					$("#salva-group").show();
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+				
+				
+			});
+
+		});
+		
+    </script> 
+
+</head>
+
+<body>
+
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists>
+		<#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row">
+                <div class="col-sm-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+
+                        <div class="ibox-content">
+                        
+                        
+							<div class="row">
+								<div class="col-sm-12">
+	                        
+		                            <form action="astro" method="post" id="formInserimento" name="formInserimento" class="form-horizontal">
+					            		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoAziende" />
+										<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+										<input type="hidden" id="ID_AZIENDA" name="ID_AZIENDA">
+										<input type="hidden" id="TIPO_AZIENDA" name="TIPO_AZIENDA">
+										
+		                                <div class="form-group">
+		                                	<label class="col-sm-2">${label_sito_code}</label>
+		                                    <div class="col-sm-10"><input type="text" class="form-control" required id="CODICE" name="CODICE"></div>
+		                                </div>
+		                                
+		                                <div class="form-group">
+		                                	<label class="col-sm-2">${label_ragsoc}</label>
+		                                    <div class="col-sm-10"><input type="text" class="form-control" required id="RAGSOC" name="RAGSOC"></div>
+		                                </div>
+	
+		                                <div class="form-group">
+		                                	<label class="col-sm-2">${label_alias}</label>
+		                                    <div class="col-sm-10"><input type="text" class="form-control" required id="ALIAS_AZIENDA" name="ALIAS_AZIENDA"></div>
+		                                </div>
+
+										<div class="form-group">
+											<label class="col-sm-2">${label_top_company}</label>
+											<div class="col-sm-10">
+												<select class="form-control hidden-dropdown" id="ID_AZIENDA_PARENT" name="ID_AZIENDA_PARENT">
+												</select>
+											</div>
+										</div>		             
+										
+										<div class="form-group">
+											<label class="col-sm-2">${label_tipo_azienda}</label>
+											<div class="col-sm-10">
+												<select class="form-control hidden-dropdown" id="LISTA_TIPO_AZIENDA" name="LISTA_TIPO_AZIENDA" multiple="multiple">
+												</select>
+											</div>
+										</div>
+										                   
+	
+		                                <div class="hr-line-dashed"></div>                                
+		
+		                                <div class="form-group">
+		                                    <div class="col-sm-4">
+		                                        <button class="btn btn-white btn-sm" type="reset">${label_cancel}</button>
+												<button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+		                                    </div>
+		                                </div>
+		                            </form>
+	                            
+	                        	</div> <!-- col-sm-12 -->
+		                    </div> <!-- row -->
+                		</div> <!-- ibox-content -->
+            		</div>	<!-- ibox -->	
+	            </div> <!-- col-sm-12 -->	
+			</div> <!-- row -->            
+			
+			<#if INCLUDED_FOOTER_PDLWEB?exists><#include INCLUDED_FOOTER_PDLWEB></#if>
+		
+		</div> <!-- page-wrapper -->
+
+	</div> <!-- wrapper -->
+
+</body>
+
+</html>

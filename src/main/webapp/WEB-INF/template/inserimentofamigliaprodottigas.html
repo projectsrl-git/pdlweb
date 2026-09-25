@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+
+	<script type="text/javascript">
+	
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSComponenti&columns=ID_PRODOTTI_GAS_COMP,ID_PRODOTTI_GAS_COMP,CODICE_COMPONENTE,CODICE_FREQUENZA_ANALISI,CODICE_STRUMENTO_ANALISI,DESCR_COMPONENTE,COMPOSIZIONE_PERC,DESCR_STRUMENTO_ANALISI,DESCR_FREQUENZA_ANALISI&WHERECONDITION=";
+		var dtImpurezzeAjax="astro?FUNCTIONID=AJAXArray&dataset=DSImpurezzeGarantite&columns=ID_IMPUREZZE_GARANTITE,ID_IMPUREZZE_GARANTITE,CODICE_IMPUREZZA,CODICE_FREQUENZA_ANALISI,CODICE_STRUMENTO_ANALISI,DESCR_IMPUREZZA,SOGLIA_ANALISI,DA_PROCESSO,DESCR_STRUMENTO_ANALISI,DESCR_FREQUENZA_ANALISI&WHERECONDITION=";
+		var dtProdottiAjax="astro?FUNCTIONID=AJAXArray&dataset=DSProdottiGas&columns=ID_PRODOTTI_GAS,ID_PRODOTTI_GAS,CODICE_FAMIGLIA_ALLESTIMENTO,CODICE_ALLESTIMENTO,CODICE_ETICHETTA_ADR,DESCR_FAMIGLIA_ALLESTIMENTO,CODICE_PRODOTTO,DESCR_ALLESTIMENTO,DESCRIZIONE_PRODOTTO,DESCR_ETICHETTA_ADR,CODICE_SAP_ETICHETTA&WHERECONDITION=";
+	   	var dtAllestimento="astro?FUNCTIONID=AJAXArray&dataset=DSSpecificheAllestimenti&columns=ID_ALLESTIMENTO,ID_SPECIFICA,CARATTERISTICA,DESCRIZIONE,FL_MATERIALE,CODICE_SAP,TIPOLOGIA_ALLESTIMENTO,ID_MATERIALE,CODICE_ALLESTIMENTO";
+    	var dtWhereCondition=" WHERE 1=0 ";
+
+		var flagObsoleto="<#if FL_OBSOLETO?exists>${FL_OBSOLETO}</#if>";
+		var flagPubblicato=<#if FL_PUBBLICATO?exists>${FL_PUBBLICATO}<#else>false</#if>;
+        
+        
+        function modificaSpecifica(idSpecifica,idAllestimento,flagMateriale,tipologiaAllestimento,caratteristica,idMateriale,descrizione,codiceAllestimento) {
+            $( "#p-tipologia-allestimento" ).html( tipologiaAllestimento );
+            $( "#p-caratteristica" ).html( caratteristica );
+            
+        	$('#ID_SPECIFICA').val(idSpecifica);
+        	$('#CODICE_ALLESTIMENTO_SPECIFICA').val(codiceAllestimento);
+        	
+            if (idSpecifica!=""){
+            	$('#ID_MATERIALE').val(idMateriale).change();
+            	$('#DESCRIZIONE').val(descrizione);
+            } else {
+				$('#ID_SPECIFICA').val("");
+				$('#ID_MATERIALE').val("").change();
+				$('#DESCRIZIONE').val("");
+            }
+            
+        	var idFamiglia=$('#ID_FAMIGLIA').val(); 
+        	$('#ID_FAMIGLIA_SPECIFICA').val(idFamiglia); 
+        	$('#ID_ALLESTIMENTO').val(idAllestimento); 
+        	
+            if (flagMateriale=="false"){
+            	$('#ID_MATERIALE').prop("disabled", true); 
+            	$("#ID_MATERIALE").prop('required',false);
+            	$('#DESCRIZIONE').prop('readonly', false);
+            	$('#DESCRIZIONE').prop('required', true);
+    			$( "#DESCRIZIONE" ).focus();
+            } else {
+            	$('#ID_MATERIALE').prop("disabled", false); 
+            	$("#ID_MATERIALE").prop('required',true);
+            	$('#DESCRIZIONE').prop('readonly', true);
+            	$('#DESCRIZIONE').prop('required', false);
+    			$( "#ID_MATERIALE" ).focus();
+            }
+            
+        } 
+        	     
+	
+		$(function(){
+
+			$("#CODICE_COMPONENTE").trigger("loadDataSet",["DSComponentiGas","CODICE","DESCRIZIONE"]);
+			$("#CODICE_FREQUENZA_ANALISI").trigger("loadDataSet",["DSFrequenzaAnalisi","CODICE","DESCRIZIONE"]);
+			$("#CODICE_STRUMENTO_ANALISI").trigger("loadDataSet",["DSStrumentiAnalisi","CODICE","DESCRIZIONE"]);
+			
+			$("#CODICE_IMPUREZZA").trigger("loadDataSet",["DSImpurezze","CODICE","DESCRIZIONE"]);
+			$("#CODICE_FREQUENZA_ANALISI_IMPUREZZE").trigger("loadDataSet",["DSFrequenzaAnalisi","CODICE","DESCRIZIONE"]);
+			$("#CODICE_STRUMENTO_ANALISI_IMPUREZZE").trigger("loadDataSet",["DSStrumentiAnalisi","CODICE","DESCRIZIONE"]);
+
+			$("#CODICE_FAMIGLIA_ALLESTIMENTO").trigger("loadDataSet",["DSFamigliaAllestimento","CODICE","DESCRIZIONE"]);
+			$("#CODICE_ALLESTIMENTO").trigger("loadDataSet",["DSAllestimento","CODICE","DESCRIZIONE"]);
+			$("#CODICE_ETICHETTA_ADR").trigger("loadDataSet",["DSEtichettaADR","CODICE","DESCRIZIONE"]);
+			$("#ID_MATERIALE").trigger("loadDataSet",["DSMateriali","ID_MATERIALE","DESCRIZIONE_E_CODICE_SAP"]);
+
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			var operationType=$("#OPERATION_TYPE").val();
+			
+			if (operationType=="INSERT") {
+				$("#dettagli").hide();
+			}
+        	
+			$("#li-tab-5").hide();
+			
+			$("#ID_FAMIGLIA").val("<#if ID_FAMIGLIA?exists>${ID_FAMIGLIA}</#if>");
+			$("#ID_FAMIGLIA_COMPOSIZIONE").val("<#if ID_FAMIGLIA?exists>${ID_FAMIGLIA}</#if>");
+			$("#ID_FAMIGLIA_IMPUREZZA").val("<#if ID_FAMIGLIA?exists>${ID_FAMIGLIA}</#if>");
+			$("#ID_FAMIGLIA_PRODOTTI").val("<#if ID_FAMIGLIA?exists>${ID_FAMIGLIA}</#if>");
+			
+			$("#CODICE_FAMIGLIA").val("<#if CODICE_FAMIGLIA?exists>${CODICE_FAMIGLIA}</#if>");
+			$("#NOME_COMMERCIALE").val("<#if NOME_COMMERCIALE?exists>${NOME_COMMERCIALE}</#if>");
+			$('#CHECK_OBSOLETO').prop('checked',flagObsoleto==="true");
+
+			$("#PRESSIONE_CARICA_DATI_TECNICI").val("<#if PRESSIONE_CARICA?exists>${PRESSIONE_CARICA}</#if>");
+			$("#SCHEDA_SICUREZZA_DATI_TECNICI").val("<#if SCHEDA_SICUREZZA?exists>${SCHEDA_SICUREZZA}</#if>");
+			$("#LISTA_SITI_ABILITATI").trigger("loadDataSet",["DSSiti","CODICE","DESCRIZIONE","<#if SITI_ABILITATI?exists>${SITI_ABILITATI}</#if>"," WHERE 1=1 "]);
+			$("#COLORE_CORPO_DATI_TECNICI").val("<#if COLORE_CORPO?exists>${COLORE_CORPO}</#if>");
+			$("#COLORE_OGIVA_DATI_TECNICI").val("<#if COLORE_OGIVA?exists>${COLORE_OGIVA}</#if>");
+			
+    		if (flagPubblicato==true) {
+    			$('#pubblica').hide();
+    		} else {
+    			$('#pubblica').show();    			
+    		}
+		
+    		var idFamiglia=$("#ID_FAMIGLIA").val();
+    		if (idFamiglia != "") {
+    			dtWhereCondition=" WHERE ID_FAMIGLIA = "+idFamiglia;
+    		} else {
+    			$('#pubblica').hide();
+    		}
+    		
+	        $('#dt').DataTable({
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	    
+	            ajax: dtAjax+dtWhereCondition,
+				columnDefs: [
+					{
+						width:"1%",
+						targets:0,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="editRow" title="${label_edit}"><i class="fa fa-pencil fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						targets:1,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="deleteRow" title="${label_delete}"><i class="fa fa-trash-o fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						targets:2,
+						visible: false
+					},
+					{
+						targets:3,
+						visible: false
+					},
+					{
+						targets:4,
+						visible: false
+					}
+					
+				],
+				
+	            dom: '<"html5buttons"B>lTgitp',
+	            language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+	
+	            buttons: [
+	            ],
+				aaSorting: []
+	
+	        });
+
+	        $('#dt-impurezze').DataTable({
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	    
+	            ajax: dtImpurezzeAjax+dtWhereCondition,
+				columnDefs: [
+					{
+						width:"1%",
+						targets:0,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="editRow" title="${label_edit}"><i class="fa fa-pencil fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						targets:1,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="deleteRow" title="${label_delete}"><i class="fa fa-trash-o fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						targets:2,
+						visible: false
+					},
+					{
+						targets:3,
+						visible: false
+					},
+					{
+						targets:4,
+						visible: false
+					}
+					
+				],
+				
+	            dom: '<"html5buttons"B>lTgitp',
+	            language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+	
+	            buttons: [
+	            ],
+				aaSorting: []
+	
+	        });
+	        
+	        
+	        $('#dt-prodotti').DataTable({
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	    
+	            ajax: dtProdottiAjax+dtWhereCondition,
+				columnDefs: [
+					{
+						width:"1%",
+						targets:0,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="editRow" title="${label_edit}"><i class="fa fa-pencil fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						targets:1,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="deleteRow" title="${label_delete}"><i class="fa fa-trash-o fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						targets:2,
+						visible: false
+					},
+					{
+						targets:3,
+						visible: false
+					},
+					{
+						targets:4,
+						visible: false
+					}
+					
+				],
+				
+	            dom: '<"html5buttons"B>lTgitp',
+	            language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+	
+	            buttons: [
+	            ],
+				aaSorting: []
+	
+	        });
+	        
+
+	        $('#dt-prodotti').DataTable().on( 'draw', function () {
+	            
+	        	var table = $('#dt-prodotti').DataTable();
+	            var data = table.rows().data();
+	             
+	            var myNode = $("#tab-5-panel-body");
+            	$("div").remove( ".ibox-allestimento" );
+
+	            
+	            for (i = 0; i < data.length; i++) {
+
+	            	$("#li-tab-5").show();
+	            	
+		            var codiceAllestimento=data[i][3];
+		            var descrAllestimento=data[i][7];
+		            
+		            var iboxContentName='ibox-'+codiceAllestimento;
+		            var tableName='dt-'+codiceAllestimento;
+		            
+		            if($('#'+iboxContentName).length) {
+		            	break;
+		            }
+		            
+					var createIboxContent="<div class=\"row\"><div class=\"col-sm-12\"><div class=\"ibox float-e-margins ibox-allestimento\"><div class=\"ibox-title\"><h5>"+descrAllestimento+"</h5></div><div id=\""+iboxContentName+"\" class=\"ibox-content ibox-allestimenti\"></div></div></div></div>";
+					$(createIboxContent).appendTo(myNode); 
+		            var iboxContent = $('#'+iboxContentName);
+
+					var createTable="<div class='row'><table id='"+tableName+"' class='table table-striped table-bordered table-hover'></table></div>";					
+					$(createTable).appendTo(".ibox-allestimenti:last"); 
+		
+		    		var idFamiglia=$("#ID_FAMIGLIA").val();
+					var dtWhereConditionSpecificheAllestimento="&ID_FAMIGLIA="+idFamiglia+"&WHERECONDITION= CODICE_ALLESTIMENTO='"+codiceAllestimento+"'";
+					
+			        $('#'+tableName).DataTable({
+			            "paging":   false,
+			            "ordering": false,
+			            "info":     false,
+						"autoWidth": false,	    
+			            ajax: dtAllestimento+dtWhereConditionSpecificheAllestimento,
+				        columns: [
+				            { title: "" },
+				            { title: "" },
+				            { title: "Caratteristica" },
+				            { title: "Descrizione" },
+				            { title: "Materiale" },
+				            { title: "Codice SAP." },
+				            { title: "" },
+				            { title: "" },
+				            { title: "" }
+				        ],			            
+						columnDefs: [
+							{
+								width:"1%",
+								targets:0,
+								orderable: false,
+								data:null,
+								render: function ( data, type, row, meta ) {
+									if(type === 'display'){
+										data = '<a href="javascript:modificaSpecifica(\''+data[1]+'\',\''+data[0]+'\',\''+data[4]+'\',\''+data[6]+'\',\''+data[2]+'\',\''+data[7]+'\',\''+data[3]+'\',\''+data[8]+'\')" title="${label_edit}"><i class="fa fa-pencil fa-color-auto" aria-hidden="true"></i></a>';
+									}
+
+									return data;
+								}								
+							},
+							{
+								targets:1,
+								visible: false
+							},							
+							{
+								targets:4,
+								render: function ( data, type, row, meta ) {
+									if(type === 'display' ) {
+										if (data=='false') {
+											data = '';
+										} else {
+											data = '<i class="fa fa-check" aria-hidden="true"></i>';
+										}
+									}
+
+									return data;
+								}
+							},
+							{
+								targets:6,
+								visible: false							
+							},
+							{
+								targets:7,
+								visible: false							
+							},
+							{
+								targets:8,
+								visible: false							
+							}
+						
+							
+						],
+			            dom: '<"html5buttons"B>lTgitp',
+			            language: {
+					        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+					    },
+			
+			            buttons: [
+			            ],
+						aaSorting: []
+			
+			        });	
+					
+	            } 
+
+	        } );
+	        
+	        
+	        $('#dt tbody').on( 'click', '.editRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_PRODOTTI_GAS_COMP').val(data[0]);
+				$('#CODICE_COMPONENTE').val(data[2]).change();
+				$('#CODICE_FREQUENZA_ANALISI').val(data[3]).change();
+				$('#CODICE_STRUMENTO_ANALISI').val(data[4]).change();
+				$('#COMPOSIZIONE_PERC').val(data[6]);
+	        } );
+	        
+	        
+	        $('#dt tbody').on( 'click', '.deleteRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#keyField').val("ID_PRODOTTI_GAS_COMP");
+				$('#keyValue').val(data[0]);
+				$('#FUNCTIONID_DELETE').val("InserimentoComponente");
+				$('.modal-title').html('${label_delete_title_message}');
+				$('.modal-text').html('${label_messaggio_conferma_cancella_componente}');
+				$("#modalQuestionDialog").modal({backdrop: true});
+				$('#modalQuestionDialog').collapse("show");
+	        } );
+	        
+	        
+	        $('#dt-impurezze tbody').on( 'click', '.editRow', function () {
+	        	var table = $('#dt-impurezze').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_IMPUREZZE_GARANTITE').val(data[0]);
+				$('#CODICE_IMPUREZZA').val(data[2]).change();
+				$('#CODICE_FREQUENZA_ANALISI_IMPUREZZE').val(data[3]).change();
+				$('#CODICE_STRUMENTO_ANALISI_IMPUREZZE').val(data[4]).change();
+				$('#SOGLIA_ANALISI').val(data[6]);
+				$('#DA_PROCESSO').val(data[7]);
+	        } );
+	        
+	        
+	        $('#dt-impurezze tbody').on( 'click', '.deleteRow', function () {
+	        	var table = $('#dt-impurezze').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#keyField').val("ID_IMPUREZZE_GARANTITE");
+				$('#keyValue').val(data[0]);
+				$('#FUNCTIONID_DELETE').val("InserimentoImpurezzaGarantita");
+				$('.modal-title').html('${label_delete_title_message}');
+				$('.modal-text').html('${label_messaggio_conferma_cancella_componente}');
+				$("#modalQuestionDialog").modal({backdrop: true});
+				$('#modalQuestionDialog').collapse("show");
+	        } );
+	        
+	        
+	        $('#dt-prodotti tbody').on( 'click', '.editRow', function () {
+	        	var table = $('#dt-prodotti').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_PRODOTTI_GAS').val(data[0]);
+				$('#CODICE_FAMIGLIA_ALLESTIMENTO').val(data[2]).change();
+				$('#CODICE_ALLESTIMENTO').val(data[3]).change();
+				$('#CODICE_ETICHETTA_ADR').val(data[4]).change();
+				$('#CODICE_PRODOTTO').val(data[6]);
+				$('#CODICE_SAP_ETICHETTA').val(data[10]);
+            
+	        } );
+	        
+	        
+	        $('#dt-prodotti tbody').on( 'click', '.deleteRow', function () {
+	        	var table = $('#dt-prodotti').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#keyField').val("ID_PRODOTTI_GAS");
+				$('#keyValue').val(data[0]);
+				$('#FUNCTIONID_DELETE').val("InserimentoProdottiGas");
+				$('.modal-title').html('${label_delete_title_message}');
+				$('.modal-text').html('${label_messaggio_conferma_cancella_componente}');
+				$("#modalQuestionDialog").modal({backdrop: true});
+				$('#modalQuestionDialog').collapse("show");
+	        } );
+	        
+   
+			
+			$("#formInserimento").validate();
+			$("#formAggiungiComponente").validate();
+			$("#formAggiungiImpurezza").validate();
+			$("#formAggiungiProdotto").validate();
+			$("#formSalvaSpecifica").validate();
+			
+
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				$("#salva-group").hide();
+				
+				$("#FL_OBSOLETO").val($("#CHECK_OBSOLETO").is(':checked'));
+				
+				/* tokenize SITI*/
+				tokenizeOptionSelected("LISTA_SITI_ABILITATI","SITI_ABILITATI");
+				
+				$("#PRESSIONE_CARICA").val($("#PRESSIONE_CARICA_DATI_TECNICI").val());
+				$("#SCHEDA_SICUREZZA").val($("#SCHEDA_SICUREZZA_DATI_TECNICI").val());
+				$("#COLORE_CORPO").val($("#COLORE_CORPO_DATI_TECNICI").val());
+				$("#COLORE_OGIVA").val($("#COLORE_OGIVA_DATI_TECNICI").val());
+				
+				var idFamiglia=$("#ID_FAMIGLIA").val();
+				if (idFamiglia!='') {
+					$("#OPERATION_TYPE").val("UPDATE");
+				}				
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					
+					$("#salva-group").show();
+					var result = eval('('+response+')');
+					
+		    		var operationType=$("#OPERATION_TYPE").val();
+		    		if (operationType != "" && operationType=="INSERT") {
+		    			var idFamiglia=result.idFamiglia;
+		    			if (idFamiglia != null && idFamiglia != "") {
+							$("#ID_FAMIGLIA").val(idFamiglia);
+							$("#ID_FAMIGLIA_COMPOSIZIONE").val(idFamiglia);
+							$("#ID_FAMIGLIA_IMPUREZZA").val(idFamiglia);
+							$("#ID_FAMIGLIA_PRODOTTI").val(idFamiglia);
+							$("#dettagli").show();
+			    			$('#pubblica').show();    			
+						}
+		    		}
+		    		
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+				
+				
+			});
+			
+			
+			$("#formAggiungiComponente").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formAggiungiComponente").valid()) {
+					return false;
+				}		
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) {
+					var result = eval('('+response+')');
+					
+					if (result.result) {
+						
+						$('#ID_PRODOTTI_GAS_COMP').val("");
+						$('#CODICE_COMPONENTE').val("").change();
+						$('#CODICE_FREQUENZA_ANALISI').val("").change();
+						$('#CODICE_STRUMENTO_ANALISI').val("").change();
+						$('#COMPOSIZIONE_PERC').val("");								
+						
+			    		var idFamiglia=$("#ID_FAMIGLIA").val();
+			    		if (idFamiglia != "") {
+			    			dtWhereCondition=" WHERE ID_FAMIGLIA = "+idFamiglia;
+			    		}
+										
+						$( "#dt" ).DataTable().ajax.url( dtAjax+dtWhereCondition ).load();
+						
+					}					
+				});
+				
+				
+			});			
+			
+			$("#formAggiungiImpurezza").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formAggiungiImpurezza").valid()) {
+					return false;
+				}		
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) {
+					var result = eval('('+response+')');
+					
+					if (result.result) {
+						
+						$('#ID_IMPUREZZE_GARANTITE').val("");
+						$('#CODICE_IMPUREZZA').val("").change();
+						$('#CODICE_FREQUENZA_ANALISI_IMPUREZZE').val("").change();
+						$('#CODICE_STRUMENTO_ANALISI_IMPUREZZE').val("").change();
+						$('#SOGLIA_ANALISI').val("");
+						$('#DA_PROCESSO').val("");						
+						
+			    		var idFamiglia=$("#ID_FAMIGLIA").val();
+			    		if (idFamiglia != "") {
+			    			dtWhereCondition=" WHERE ID_FAMIGLIA = "+idFamiglia;
+			    		}
+										
+						$( "#dt-impurezze" ).DataTable().ajax.url( dtImpurezzeAjax+dtWhereCondition ).load();
+						
+					}					
+				});
+				
+				
+			});				
+
+			
+			$("#formAggiungiProdotto").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formAggiungiProdotto").valid()) {
+					return false;
+				}		
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) {
+					var result = eval('('+response+')');
+					
+					if (result.result) {
+						
+						$('#ID_PRODOTTI_GAS').val("");
+						$('#CODICE_FAMIGLIA_ALLESTIMENTO').val("").change();
+						$('#CODICE_PRODOTTO').val("").change();
+						$('#CODICE_ALLESTIMENTO').val("").change();
+						$('#DESCRIZIONE_PRODOTTO').val("");								
+						$('#CODICE_ETICHETTA_ADR').val("");								
+						$('#CODICE_SAP_ETICHETTA').val("");								
+						
+			    		var idFamiglia=$("#ID_FAMIGLIA").val();
+			    		if (idFamiglia != "") {
+			    			dtWhereCondition=" WHERE ID_FAMIGLIA = "+idFamiglia;
+			    		}
+										
+						$( "#dt-prodotti" ).DataTable().ajax.url( dtProdottiAjax+dtWhereCondition ).load();
+						
+					}					
+				});
+				
+			});	
+			
+
+			$("#formSalvaSpecifica").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formSalvaSpecifica").valid()) {
+					return false;
+				}		
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) {
+					var result = eval('('+response+')');
+					
+					if (result.result) {
+						
+			            var tableName='dt-'+$("#CODICE_ALLESTIMENTO_SPECIFICA").val();
+						var dtWhereConditionSpecificheAllestimento="&ID_FAMIGLIA="+$("#ID_FAMIGLIA_SPECIFICA").val()+"&WHERECONDITION= CODICE_ALLESTIMENTO='"+$("#CODICE_ALLESTIMENTO_SPECIFICA").val()+"'";
+
+						$('#p-tipologia-allestimento').html("");
+						$("#p-caratteristica").html("");
+						
+						$('#ID_SPECIFICA').val("");
+						$('#ID_MATERIALE').val("").change();
+			        	$('#ID_FAMIGLIA_SPECIFICA').val(""); 
+			        	$("#CODICE_ALLESTIMENTO_SPECIFICA").val("");
+			        	$('#ID_ALLESTIMENTO').val(""); 
+						$('#DESCRIZIONE').val("");
+						
+						$( "#"+tableName ).DataTable().ajax.url( dtAllestimento+dtWhereConditionSpecificheAllestimento ).load();
+						
+					}					
+				});
+				
+			});	
+			
+			
+			$("#aggiungi-componente").click(function() {
+				
+				if ($("#ID_PRODOTTI_GAS_COMP").val()=="") {
+					$("#OPERATION_TYPE_COMPOSIZIONE").val("INSERT");
+				} else {
+					$("#OPERATION_TYPE_COMPOSIZIONE").val("UPDATE");
+				}
+				
+				$("#formAggiungiComponente").submit();
+				
+			});		
+
+			$("#aggiungi-impurezza").click(function() {
+				
+				if ($("#ID_IMPUREZZE_GARANTITE").val()=="") {
+					$("#OPERATION_TYPE_IMPUREZZA").val("INSERT");
+				} else {
+					$("#OPERATION_TYPE_IMPUREZZA").val("UPDATE");
+				}
+				
+				$("#formAggiungiImpurezza").submit();
+				
+			});		
+			
+
+			$("#aggiungi-prodotto").click(function() {
+				
+				if ($("#ID_PRODOTTI_GAS").val()=="") {
+					$("#OPERATION_TYPE_PRODOTTI").val("INSERT");
+				} else {
+					$("#OPERATION_TYPE_PRODOTTI").val("UPDATE");
+				}
+				
+				$("#formAggiungiProdotto").submit();
+				
+			});		
+			
+			$("#salva-specifica").click(function() {
+				
+				if ($("#ID_SPECIFICA").val()=="") {
+					$("#OPERATION_TYPE_SPECIFICA").val("INSERT");
+				} else {
+					$("#OPERATION_TYPE_SPECIFICA").val("UPDATE");
+				}
+				
+				$("#formSalvaSpecifica").submit();
+				
+			});				
+
+			
+			$("#formDelete").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( "#dt-impurezze" ).DataTable().ajax.reload();
+					$( "#dt-prodotti" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});
+			
+        	$( "#pubblica" ).click(function() {
+        		var nomeCommerciale=$("#NOME_COMMERCIALE").val();
+				$('.modal-title').html('Pubblicazione Famiglia Prodotti');
+				$('.modal-text').html('Confermi la pubblicazione della Famiglia Prodotti '+nomeCommerciale+'?');
+				$("#modalQuestionDialogPublish").modal({backdrop: true});
+				$('#modalQuestionDialogPublish').collapse("show");
+        	});
+	        			
+			$("#formPublish").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+				
+		        var formName = $(this).attr('name');
+
+		        var id_famiglia=$("#ID_FAMIGLIA").val();
+				$("#SQL_STATEMENT").val("update FAMIGLIA_PRODOTTI_GAS set fl_pubblicato=true where id_famiglia="+id_famiglia+" ");
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});					
+			
+
+		});
+		
+    </script>
+
+</head>
+
+<body>
+
+	<form action="astro" method="post" id="formDelete" name="formDelete">
+		<input type="hidden" id="FUNCTIONID_DELETE" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="DELETE"> <input
+			type="hidden" id="keyField" name="keyField"> <input
+			type="hidden" id="keyValue" name="keyValue">
+	</form>
+
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1"
+		role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal"
+						class="btn btn-white btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();"
+						data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<form action="astro" id="formPublish" name="formPublish" method="post">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="ExecuteSQL">
+		<input type="hidden" id="SQL_STATEMENT" name="SQL_STATEMENT">
+	</form>
+
+	<div class="modal inmodal fade" id="modalQuestionDialogPublish"	tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm"	onclick="$('#modalQuestionDialogPublish').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialogPublish').collapse('toggle');$('#formPublish').submit();" data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists>
+		<#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row">
+                <div class="col-sm-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                        
+                        
+				<div class="row">
+					<div class="col-sm-12">
+
+						<form action="astro" method="post" id="formInserimento"	name="formInserimento" class="form-horizontal">
+							<input type="hidden" name="FUNCTIONID" value="InserimentoFamigliaProdottiGas"> 
+							<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+							<input type="hidden" id="ID_FAMIGLIA" name="ID_FAMIGLIA">
+							<input type="hidden" id="FL_OBSOLETO" name="FL_OBSOLETO">
+							<input type="hidden" id="FL_PUBBLICATO" name="FL_PUBBLICATO">
+							<input type="hidden" id="CODICE_FAMIGLIA" name="CODICE_FAMIGLIA">
+							<input type="hidden" id="PRESSIONE_CARICA" name="PRESSIONE_CARICA">
+							<input type="hidden" id="SCHEDA_SICUREZZA" name="SCHEDA_SICUREZZA">
+							<input type="hidden" id="SITI_ABILITATI" name="SITI_ABILITATI">
+							<input type="hidden" id="COLORE_CORPO" name="COLORE_CORPO">
+							<input type="hidden" id="COLORE_OGIVA" name="COLORE_OGIVA">
+
+							<div class="form-group">
+								<label class="col-sm-2 control-label-left">${label_commercial_name}</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="NOME_COMMERCIALE" name="NOME_COMMERCIALE" required>
+								</div>
+							</div>
+							
+							<div class="form-group">
+							 	<label class="col-sm-2 control-label-left">${label_prodotto_obsoleto}</label>
+								<div class="col-sm-10">
+									<label class="checkbox-inline"><input name="CHECK_OBSOLETO" id="CHECK_OBSOLETO" type="checkbox">&nbsp;</label>
+								</div>
+							</div>
+
+							<div class="form-group" id="salva-group">
+								<div class="col-sm-12">
+									<button class="btn btn-white btn-sm" type="reset">${label_cancel}</button>
+									<button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+									<button class="btn btn-primary btn-sm" id="pubblica" name="pubblica">Pubblica</button>
+								</div>
+							</div>
+
+						</form>
+					</div>
+				</div>
+
+				<div class="row" id="dettagli">
+					<div class="col-sm-12">
+
+						<div class="tabs-container">
+
+							<ul class="nav nav-tabs">
+								<li class="active"><a data-toggle="tab" href="#tab-1"><b>${label_composizione}</b></a></li>
+								<li class=""><a data-toggle="tab" href="#tab-2"><b>${label_impurezze_garantite}</b></a></li>
+								<li class=""><a data-toggle="tab" href="#tab-3"><b>${label_dati_tecnici}</b></a></li>
+								<li class=""><a data-toggle="tab" href="#tab-4"><b>${label_elenco_prodotti_disponibili}</b></a></li>
+								<li id="li-tab-5" class=""><a data-toggle="tab" href="#tab-5"><b>${label_allestimento_specifico_bombole}</b></a></li>
+							</ul>
+
+							<div class="tab-content">
+
+								<div id="tab-1" class="tab-pane active">
+									<div class="panel-body">
+
+										<form action="astro" method="post" id="formAggiungiComponente" name="formAggiungiComponente">
+											
+											<input type="hidden" name="FUNCTIONID" value="InserimentoComponente">
+											<input type="hidden" id="OPERATION_TYPE_COMPOSIZIONE" name="OPERATION_TYPE">
+											<input type="hidden" id="ID_FAMIGLIA_COMPOSIZIONE" name="ID_FAMIGLIA">
+											<input type="hidden" id="ID_PRODOTTI_GAS_COMP" name="ID_PRODOTTI_GAS_COMP">
+
+											<div class="form-group">
+	
+												<div class="row">
+													<label class="col-sm-2">${label_componente}</label>
+													<label class="col-sm-2">${label_composizione_percent}</label>
+													<label class="col-sm-2">${label_strumento_analisi}</label>
+													<label class="col-sm-2">${label_frequenza_analisi}</label>
+													<label class="col-sm-2">&nbsp;</label>
+													<label class="col-sm-2">&nbsp;</label>
+												</div>
+
+
+												<div class="row">
+
+													<div class="col-sm-2">
+														<select id="CODICE_COMPONENTE" name="CODICE_COMPONENTE"
+															class="form-control" required>
+														</select>
+													</div>
+	
+													<div class="col-sm-2">
+														<input type="text" class="form-control"	id="COMPOSIZIONE_PERC" name="COMPOSIZIONE_PERC">
+													</div>
+	
+													<div class="col-sm-2">
+														<select id="CODICE_STRUMENTO_ANALISI" name="CODICE_STRUMENTO_ANALISI" class="form-control">
+														</select>
+													</div>
+	
+													<div class="col-sm-2">
+														<select id="CODICE_FREQUENZA_ANALISI" name="CODICE_FREQUENZA_ANALISI" class="form-control">
+														</select>
+													</div>
+	
+													<div class="col-sm-2"></div>
+	
+													<div class="col-sm-2">
+														<button class="btn btn-primary btn-sm" type="button" id="aggiungi-componente" name="aggiungi-componente">${label_add}</button>
+													</div>
+
+												</div>
+
+
+											</div>
+
+										</form>
+										
+										<div class="table-responsive">
+											<table id="dt" class="table table-striped table-bordered table-hover">
+												<thead>
+													<tr>
+														<th></th>
+														<th></th>
+														<th></th>
+														<th></th>
+														<th></th>
+														<th>${label_componente}</th>
+														<th>${label_composizione_percent}</th>
+														<th>${label_strumento_analisi}</th>
+														<th>${label_frequenza_analisi}</th>
+													</tr>
+												</thead>
+											</table>
+										</div>										
+
+									</div>
+									<!-- panel-body -->
+
+								</div>
+								<!-- tab-1 -->
+
+
+								<div id="tab-2" class="tab-pane">
+
+									<div class="panel-body">
+
+										<form action="astro" method="post" id="formAggiungiImpurezza" name="formAggiungiImpurezza">
+											<input type="hidden" name="FUNCTIONID" value="InserimentoImpurezzaGarantita" />
+											<input type="hidden" id="OPERATION_TYPE_IMPUREZZA" name="OPERATION_TYPE">
+											<input type="hidden" id="ID_FAMIGLIA_IMPUREZZA" name="ID_FAMIGLIA">
+											<input type="hidden" id="ID_IMPUREZZE_GARANTITE" name="ID_IMPUREZZE_GARANTITE">
+
+											<div class="form-group">
+											
+												<div class="row">
+													<label class="col-sm-2">${label_componente}</label>
+													<label class="col-sm-2">${label_soglia_analisi}</label>
+													<label class="col-sm-2">${label_da_processo}</label>
+													<label class="col-sm-2">${label_strumento_analisi}</label>
+													<label class="col-sm-2">${label_frequenza_analisi}</label>
+													<label class="col-sm-2">&nbsp;</label>
+												</div>
+
+												<div class="row">
+	
+													<div class="col-sm-2">
+														<select id="CODICE_IMPUREZZA" name="CODICE_IMPUREZZA" class="form-control" required>
+														</select>
+													</div>
+	
+													<div class="col-sm-2">
+														<input type="text" class="form-control" id="SOGLIA_ANALISI" name="SOGLIA_ANALISI">
+													</div>
+	
+													<div class="col-sm-2">
+														<input type="text" class="form-control" id="DA_PROCESSO" name="DA_PROCESSO">
+													</div>
+	
+													<div class="col-sm-2">
+														<select id="CODICE_STRUMENTO_ANALISI_IMPUREZZE" name="CODICE_STRUMENTO_ANALISI" class="form-control">
+														</select>
+													</div>
+	
+													<div class="col-sm-2">
+														<select id="CODICE_FREQUENZA_ANALISI_IMPUREZZE" name="CODICE_FREQUENZA_ANALISI" class="form-control">
+														</select>
+													</div>
+	
+													<div class="col-sm-2">
+														<button class="btn btn-primary btn-sm" type="button" id="aggiungi-impurezza" name="aggiungi-impurezza">${label_add}</button>
+													</div>
+												
+												</div>
+												
+											</div>
+
+										</form>
+
+										<div class="table-responsive">
+											<table id="dt-impurezze" class="table table-striped table-bordered table-hover">
+												<thead>
+													<tr>
+														<th></th>
+														<th></th>
+														<th></th>
+														<th></th>
+														<th></th>
+														<th>${label_componente}</th>
+														<th>${label_soglia_analisi}</th>
+														<th>${label_da_processo}</th>
+														<th>${label_strumento_analisi}</th>
+														<th>${label_frequenza_analisi}</th>
+													</tr>
+												</thead>
+
+											</table>
+										</div>
+
+
+									</div>
+									<!-- panel-body -->
+
+								</div>
+								<!-- tab-2 -->
+
+								<div id="tab-3" class="tab-pane">
+
+									<div class="panel-body">
+
+										<form action="astro" method="post" id="formDatiTecnici" name="formDatiTecnici">
+
+											<div class="form-group">
+											  	<div class="row">
+													<label class="col-sm-2">Pressione di carica</label>
+													<div class="col-sm-6">
+														<input type="text" class="form-control" id="PRESSIONE_CARICA_DATI_TECNICI" name="PRESSIONE_CARICA">
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+											  	<div class="row">
+													<label class="col-sm-2">Scheda di sicurezza</label>
+													<div class="col-sm-6">
+														<input type="text" class="form-control" id="SCHEDA_SICUREZZA_DATI_TECNICI" name="SCHEDA_SICUREZZA">
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+											  	<div class="row">
+													<label class="col-sm-2">Colore corpo bombola</label>
+													<div class="col-sm-6">
+														<input type="text" class="form-control" id="COLORE_CORPO_DATI_TECNICI" name="COLORE_CORPO">
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+											  	<div class="row">
+													<label class="col-sm-2">Colore ogiva</label>
+													<div class="col-sm-6">
+														<input type="text" class="form-control"	id="COLORE_OGIVA_DATI_TECNICI" name="COLORE_OGIVA">
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+											  	<div class="row">
+													<label class="col-sm-2">Siti abilitati alla produzione</label>
+													<div class="col-sm-10">
+														<select class="form-control hidden-dropdown" id="LISTA_SITI_ABILITATI" name="LISTA_SITI_ABILITATI" multiple="multiple">
+														</select>
+													</div>
+												</div>
+											</div>
+
+										</form>
+
+
+									</div>
+									<!-- panel-body -->
+
+								</div>
+								<!-- tab-3 -->
+
+
+								<div id="tab-4" class="tab-pane">
+
+									<div class="panel-body">
+
+										<form action="astro" method="post" id="formAggiungiProdotto" name="formAggiungiProdotto">
+
+											<input type="hidden" name="FUNCTIONID" value="InserimentoProdottiGas">
+											<input type="hidden" id="OPERATION_TYPE_PRODOTTI" name="OPERATION_TYPE">
+											<input type="hidden" id="ID_FAMIGLIA_PRODOTTI" name="ID_FAMIGLIA">
+											<input type="hidden" id="ID_PRODOTTI_GAS" name="ID_PRODOTTI_GAS">
+
+											<div class="form-group">
+  												<div class="row">
+													<label class="col-sm-2">${label_famiglia_allestimento}</label>
+													<label class="col-sm-2">${label_codice_prodotto}</label>
+													<label class="col-sm-2">${label_tipologia_allestimento}</label>
+													<label class="col-sm-2">${label_descrizione_prodotto}</label>
+													<label class="col-sm-2">${label_etichetta_adr}</label>
+													<label class="col-sm-2">${label_codice_sap_etichetta}</label>
+												</div>
+
+  												<div class="row">
+  												
+													<div class="col-sm-2">
+														<select id="CODICE_FAMIGLIA_ALLESTIMENTO" name="CODICE_FAMIGLIA_ALLESTIMENTO" class="form-control select2-single" required>
+														</select>
+													</div>
+	
+													<div class="col-sm-2">
+														<input type="text" class="form-control" id="CODICE_PRODOTTO" name="CODICE_PRODOTTO">
+													</div>
+	
+													<div class="col-sm-2">
+														<select id="CODICE_ALLESTIMENTO" name="CODICE_ALLESTIMENTO" class="form-control">
+														</select>
+													</div>
+	
+													<div class="col-sm-2">
+														<input type="text" class="form-control" id="DESCRIZIONE_PRODOTTO" name="DESCRIZIONE_PRODOTTO">
+													</div>
+	
+													<div class="col-sm-2">
+														<select id="CODICE_ETICHETTA_ADR" name="CODICE_ETICHETTA_ADR" class="form-control">
+														</select>
+													</div>
+	
+													<div class="col-sm-2">
+														<input type="text" class="form-control" id="CODICE_SAP_ETICHETTA" name="CODICE_SAP_ETICHETTA">
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+  												<div class="row">
+													<div class="col-sm-12">
+														<button class="btn btn-primary btn-sm" type="button" id="aggiungi-prodotto" name="aggiungi-prodotto">${label_add}</button>
+													</div>
+												</div>
+
+											</div>
+
+										</form>
+
+										<div class="table-responsive">
+											<table id="dt-prodotti" class="table table-striped table-bordered table-hover">
+											
+												<thead>
+													<tr>
+														<th></th>
+														<th></th>
+														<th></th>
+														<th></th>
+														<th></th>
+														<th>${label_famiglia_allestimento}</th>
+														<th>${label_codice_prodotto}</th>
+														<th>${label_tipologia_allestimento}</th>
+														<th>${label_descrizione_prodotto}</th>
+														<th>${label_etichetta_adr}</th>
+														<th>${label_codice_sap_etichetta}</th>
+													</tr>
+												</thead>
+
+											</table>
+										</div>
+
+									</div>
+									<!-- panel-body -->
+
+								</div>
+								<!-- tab-4 -->
+
+								<div id="tab-5" class="tab-pane">
+
+									<div id="tab-5-panel-body" class="panel-body">
+
+										<form action="astro" method="post" id="formSalvaSpecifica" name="formSalvaSpecifica">
+											<input type="hidden" name="FUNCTIONID" value="InserimentoSpecificheAllestimento" />
+											<input type="hidden" id="OPERATION_TYPE_SPECIFICA" name="OPERATION_TYPE">
+											<input type="hidden" id="ID_FAMIGLIA_SPECIFICA" name="ID_FAMIGLIA">
+											<input type="hidden" id="ID_ALLESTIMENTO" name="ID_ALLESTIMENTO">
+											<input type="hidden" id="CODICE_ALLESTIMENTO_SPECIFICA" name="CODICE_ALLESTIMENTO">
+											<input type="hidden" id="ID_SPECIFICA" name="ID_SPECIFICA">
+
+											<div class="form-group">
+
+												<div class="row">
+													<label class="col-sm-2">${label_tipologia_allestimento}</label>
+													<label class="col-sm-2">${label_caratteristica}</label>
+													<label class="col-sm-2">${label_description}</label>
+													<label class="col-sm-2">${label_flag_materiale}</label>
+													<label class="col-sm-2">&nbsp;</label>
+												</div>
+												
+												<div class="row">
+
+													<div class="col-sm-2">
+														<p id="p-tipologia-allestimento" class="form-control-static"></p>
+													</div>
+
+													<div class="col-sm-2">
+														<p id="p-caratteristica" class="form-control-static"></p>
+													</div>
+
+													<div class="col-sm-2">
+														<input type="text" class="form-control" id="DESCRIZIONE" name="DESCRIZIONE">
+													</div>
+
+													<div class="col-sm-2">
+														<select id="ID_MATERIALE" name="ID_MATERIALE" class="form-control"></select>
+													</div>
+
+													<div class="col-sm-2">
+														<button class="btn btn-primary btn-sm" type="button"
+															id="salva-specifica" name="salva-specifica">${label_aggiorna_specifica_allestimento}</button>
+													</div>
+												</div>
+
+											</div>
+
+										</form>
+										
+
+
+
+									</div>
+									<!-- panel-body -->
+
+								</div>
+								<!-- tab-5 -->
+
+							</div>
+							<!-- tab-content -->
+
+						</div>
+						<!-- tabs-container -->
+
+					</div>
+
+				</div>
+
+                    	</div>
+					
+                	</div>
+				</div>
+            </div>
+            
+				<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+
+			</div>
+
+		</div>
+	</body>
+
+</html>

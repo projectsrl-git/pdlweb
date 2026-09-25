@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+	
+		$(function(){
+
+			$("#ID_AZIENDA").trigger("loadDataSet",["DataSetAziende","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_DIREZIONE_PARENT").trigger("loadDataSet",["DSDirezioni","ID_DIREZIONE","NOME_DIREZIONE","<#if ID_DIREZIONE_PARENT?exists>${ID_DIREZIONE_PARENT}</#if>"," WHERE 1=1 "]);
+			$("#LISTA_RISORSE").trigger("loadDataSet",["DSRisorseAziendaCombo","ID_RISORSA_AZIENDA","NOMINATIVO","<#if RISORSE_MULTIPLE?exists>${RISORSE_MULTIPLE}</#if>"," WHERE <#if AZIENDE_MULTIPLE?exists>RA.ID_AZIENDA IN (${AZIENDE_MULTIPLE?replace(';', ',', 'r')})<#else>1=1</#if> "]);
+			
+			$('#ID_AZIENDA').on("select2:selecting", function(e) { 
+				var listaAziende= e.params.args.data.id;
+				$("#ID_DIREZIONE_PARENT").empty();
+				$("#ID_DIREZIONE_PARENT").select2("destroy");
+				$("#ID_DIREZIONE_PARENT").trigger("loadDataSet",["DSDirezioni","ID_DIREZIONE","NOME_DIREZIONE","<#if ID_DIREZIONE_PARENT?exists>${ID_DIREZIONE_PARENT}</#if>"," WHERE ID_AZIENDA ="+listaAziende]);
+			});
+			
+			
+			$("#ID_DIREZIONE").val("<#if ID_DIREZIONE?exists>${ID_DIREZIONE}</#if>");
+			$("#NOME_DIREZIONE").val("<#if NOME_DIREZIONE?exists>${NOME_DIREZIONE}</#if>");
+			$("#NOME_DIREZIONE_BREVE").val("<#if NOME_DIREZIONE_BREVE?exists>${NOME_DIREZIONE_BREVE}</#if>");
+			
+			
+			
+			
+			$("#formInserimento").validate();
+
+			$("#formInserimento").submit(function(event) {
+				document.getElementById("salva").style.display="none";
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					document.getElementById("salva").style.display="block";
+					return false;
+				}
+				
+				/* tokenize DIPENDENTI*/
+				tokenizeOptionSelected("LISTA_RISORSE","RISORSE_MULTIPLE");
+				
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+
+			});
+			
+			$("#formCheckUnique").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					if (!result.result) {
+						var searchKey=$( "#SEARCH_KEY" ).val();
+						$("#"+searchKey).val("");
+						$( ".alert-danger" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+					}
+				});
+			});					
+			
+			
+			$( "#NOME_DIREZIONE" ).change(function() {
+			
+				var searchValue=$( "#NOME_DIREZIONE" ).val();
+				$( "#DAO_CLASS" ).val("net.projectsrl.dafne.db.DirezioniDAO");
+				$( "#ERROR_MESSAGE" ).val("Nome direzione presente in archivio");
+				$( "#SEARCH_KEY" ).val("NOME_DIREZIONE");
+				$( "#SEARCH_VALUE" ).val(searchValue);
+				$("#formCheckUnique").submit();
+			});
+
+			$( "#NOME_DIREZIONE_BREVE" ).change(function() {
+			
+				var searchValue=$( "#NOME_DIREZIONE_BREVE" ).val();
+				$( "#DAO_CLASS" ).val("net.projectsrl.dafne.db.DirezioniDAO");
+				$( "#ERROR_MESSAGE" ).val("Nome direzione breve presente in archivio");
+				$( "#SEARCH_KEY" ).val("NOME_DIREZIONE_BREVE");
+				$( "#SEARCH_VALUE" ).val(searchValue);
+				$("#formCheckUnique").submit();
+			});
+
+		});
+		
+    </script> 
+
+</head>
+
+<body>
+
+
+	<form action="astro" method="post" id="formCheckUnique" name="formCheckUnique">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="AjaxCheckUnique">
+		<input type="hidden" id="DAO_CLASS" name="DAO_CLASS">
+		<input type="hidden" id="SEARCH_KEY" name="SEARCH_KEY">
+		<input type="hidden" id="SEARCH_VALUE" name="SEARCH_VALUE">
+		<input type="hidden" id="ERROR_MESSAGE" name="ERROR_MESSAGE">
+	</form>
+		
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row wrapper border-bottom page-heading">
+                <div class="col-lg-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- titolo form-->
+						<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+
+							<form action="astro" class="form-horizontal" method="post" id="formInserimento" name="formInserimento">
+								
+								<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoDirezioni">
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE" value="<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>">
+								<input type="hidden" id="ID_DIREZIONE" name="ID_DIREZIONE">
+								
+								<input type="hidden" id="RISORSE_MULTIPLE" name="RISORSE_MULTIPLE">
+								
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_nome_direzione}</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" name="NOME_DIREZIONE" id="NOME_DIREZIONE" required></div>
+                                </div>
+								
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_nome_direzione_breve}</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" name="NOME_DIREZIONE_BREVE" id="NOME_DIREZIONE_BREVE" required maxlength="50"></div>
+                                </div>
+								
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_sito}</label>
+                                    <div class="col-sm-10">
+										<select id="ID_AZIENDA" name="ID_AZIENDA" class="form-control">
+										</select>
+                                    </div>
+                                </div>
+								
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_direzione_superiore}</label>
+                                    <div class="col-sm-10">
+										<select id="ID_DIREZIONE_PARENT" name="ID_DIREZIONE_PARENT" class="form-control">
+										</select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_dipendenti_associati}</label>
+                                    <div class="col-sm-10">
+										<select id="LISTA_RISORSE" name="LISTA_RISORSE" class="form-control" multiple>
+										</select>
+                                    </div>
+                                </div>
+								
+								
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+                                        <button class="btn btn-primary btn-sm" id="salva" type="submit">${label_save}</button>
+                                    </div>
+                                </div>
+								
+                            </form>
+
+                        </div>
+						
+                    </div>
+                </div>
+            </div>
+			
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

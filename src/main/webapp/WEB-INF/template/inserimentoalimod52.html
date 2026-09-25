@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+    
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSALIMOD52Dettaglio&columns=ID_DETTAGLIO,ID_DETTAGLIO,TIPO_DETTAGLIO,DESCR_TIPO_DETTAGLIO,ARGOMENTO,AZIONE_NOTA_COMMENTO,A_CURA_DI,ENTRO_IL,MESE_RIUNIONE,DESCR_MESE,DATA_RIUNIONE,NOMINATIVO,TEAM,DATA&WHERECONDITION=";
+    	var dtWhereCondition="<#if ID_MODULO?exists && ID_MODULO!=''>WHERE ID_MODULO = ${ID_MODULO}<#else> WHERE 1=0 </#if>";
+    	var stato="<#if STATO?exists>${STATO}</#if>";
+    	var readOnly="<#if READONLY?exists>${READONLY}<#else>N</#if>";
+    	
+		$(function(){
+			
+			$("#STATO").attr("disabled", true);
+			$("#inviaApprovatore").hide();
+			$("#ALTRO_EMAIL").attr("disabled", true);
+			
+			$("#inviaQP").hide();
+			
+			$("#ID_UTENTE").val(<#if ID_UTENTE?exists>${ID_UTENTE}</#if>);
+			
+			$("#CODICE_BL").trigger("loadDataSet",["DSBusinessLine","CODICE","DESCRIZIONE","<#if CODICE_BL?exists>${CODICE_BL}</#if>"," WHERE 1=1 "]);
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiQHSE","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_UTENTE_CON").trigger("loadDataSet",["DSUtentiAziendeProfili","ID_UTENTE","NOME_COGNOME","<#if ID_UTENTE_CON?exists>${ID_UTENTE_CON}</#if>","  WHERE CODICE_PROFILO='CON' "]);
+			$("#STATO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if STATO?exists>${STATO}</#if>"," WHERE DOMINIO='STA' "]);
+			$("#TIPO_DETTAGLIO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if TIPO_DETTAGLIO?exists>${TIPO_DETTAGLIO}</#if>"," WHERE DOMINIO='M52' "]);
+			$("#MESE").trigger("loadDataSet",["OpzioneMesi","CODICE","DESCR","<#if MESE?exists>${MESE}</#if>",""]);
+			$("#MESE_RIUNIONE").trigger("loadDataSet",["OpzioneMesi","CODICE","DESCR"]);
+			$("#RELATORE").val("<#if RELATORE?exists>${RELATORE}</#if>");
+			
+			
+			$("#DURATA_RIUNIONE").val("<#if DURATA_RIUNIONE?exists>${DURATA_RIUNIONE}</#if>");
+			
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			$("#ID_MODULO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			$("#CODICE_MODULO").val("<#if CODICE_MODULO?exists>${CODICE_MODULO}</#if>");
+			$("#DT_MODULO").val("<#if DT_MODULO?exists>${DT_MODULO}</#if>").change();
+			$("#TITOLO").val("<#if TITOLO?exists>${TITOLO}</#if>").change();
+			$("#NR_MODULO").val("<#if NR_MODULO?exists>${NR_MODULO}</#if>");
+			$("#NR_MODULO").attr("disabled", true);
+			
+			$("#ID_MODULO_DETTAGLIO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			
+			if (stato=='APP' || stato=='AQP') {
+				$("#STATO_AZIONE").attr("disabled", false);
+			} else {
+				$("#STATO_AZIONE").attr("disabled",true );
+			}
+			
+			var operationType=$("#OPERATION_TYPE").val();
+			
+			if (operationType=="INSERT") {
+				$("#dettagli").hide();
+			}
+
+			if (readOnly=="Y") {
+				disableFieldsReadOnly();
+			} else {
+				if (stato=="WAI" || stato=='WQP') {
+					disableFieldsReadOnly();
+				} else if (stato=="WAI" || stato=='WQP') {
+					disableFieldsReadOnly();
+				} else if (stato=="APP" || stato=='AQP') {
+					disableFieldsStatusAPP();
+				} else if (stato=="DRA") {
+					disableFieldsStatusDRA();
+				}
+			}
+
+			$("#formInserimento").validate();
+			$("#formAggiungiDettaglio").validate();
+			
+			$("#CODICE_BL").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_AZIENDA").empty();
+				$("#ID_AZIENDA").select2("destroy");
+				$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiQHSE","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE codice_bl='"+id+"' "]);
+			});	
+			
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				$("#salva-group").hide();
+				
+				var idModulo=$("#ID_MODULO").val();
+				if (idModulo!='') {
+					$("#OPERATION_TYPE").val("UPDATE");
+				}				
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					
+					$("#salva-group").show();
+					var result = eval('('+response+')');
+					
+		    		var operationType=$("#OPERATION_TYPE").val();
+		    		if (operationType != "" && operationType=="INSERT") {
+		    			var idModulo=result.id;
+		    			var nrModulo=result.nr;
+		    			if (idModulo != null && idModulo != "") {
+							$("#ID_MODULO").val(idModulo);
+							$("#NR_MODULO").val(nrModulo);
+							$("#ID_MODULO_DETTAGLIO").val(idModulo);
+							$("#dettagli").show();
+			    			$("#inviaApprovatore").show();							
+						}
+		    		}
+		    		
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+				
+				
+			});
+					
+			
+			$("#formAggiungiDettaglio").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formAggiungiDettaglio").valid()) {
+					return false;
+				}		
+				
+				if ($("#ID_DETTAGLIO").val()=="") {
+					$("#OPERATION_TYPE_DETTAGLIO").val("INSERT");
+				} else {
+					$("#OPERATION_TYPE_DETTAGLIO").val("UPDATE");
+				}
+				
+				$("#formAggiungiDettaglio :input:visible").attr("disabled", false);
+				$("#aggiungi").text('Aggiungi'); 
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) {
+					var result = eval('('+response+')');
+					
+					if (result.result) {
+						
+						<#if STATO?exists && (STATO='APP' || STATO='AQP')>			
+						disableFieldsStatusAPP();
+						</#if>				
+						
+						// reset dettaglio
+						$('#ID_DETTAGLIO').val("");
+						$('#TIPO_DETTAGLIO').val("").change();
+						$('#ARGOMENTO').val("");
+						$('#AZIONE_NOTA_COMMENTO').val("");
+						$('#A_CURA_DI').val("");
+						$('#ENTRO_IL').val("");
+						$('#MESE_RIUNIONE').val("").change();
+						$('#DATA_RIUNIONE').val("");
+						$('#NOMINATIVO').val("");
+						$('#TEAM').val("");
+						$('#DATA').val("");
+						// reset dettaglio
+						
+			    		var id=$("#ID_MODULO").val();
+			    		
+			    		dtWhereCondition=" WHERE 1=0 ";
+			    		if (id != "") {
+			    			dtWhereCondition=" WHERE ID_MODULO = "+id;
+			    		}
+										
+						$( "#dt" ).DataTable().ajax.url( dtAjax+dtWhereCondition ).load();
+						
+					}					
+				});
+				
+			});			
+			
+			
+			
+			$('#dt').DataTable({
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	  
+	            "ajax": dtAjax+dtWhereCondition,				
+				columnDefs: [
+					{
+						width:"1%",
+						targets:0,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="editRow" title="${label_edit}"><i class="fa fa-pencil fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						visible: <#if (READONLY?exists && READONLY='Y') || (STATO?exists && STATO!='DRA')>false<#else>true</#if>,
+						targets:1,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="deleteRow" title="${label_delete}"><i class="fa fa-trash-o fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						targets:2,
+						visible: false
+					},
+					{
+						targets:8,
+						visible: false
+					}
+					
+				],
+				
+	            dom: '<"html5buttons"B>lTgitp',
+	            language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+	
+	            buttons: [
+	            ],
+				aaSorting: []
+	
+	        });
+	        
+	        
+	        $('#dt tbody').on( 'click', '.editRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_DETTAGLIO').val(data[0]);
+				$('#TIPO_DETTAGLIO').val(data[2]).change();
+				$('#ARGOMENTO').val(data[4]);
+				$('#AZIONE_NOTA_COMMENTO').val(data[5]);
+				$('#A_CURA_DI').val(data[6]);
+				$('#ENTRO_IL').val(data[7]);
+				$('#MESE_RIUNIONE').val(data[8]).change();
+				$('#DATA_RIUNIONE').val(data[9]);
+				$('#NOMINATIVO').val(data[10]);
+				$('#TEAM').val(data[11]);
+				$('#DATA').val(data[12]);
+				$("#aggiungi").text('Salva'); 
+	        } );
+	        
+	        
+	        $('#dt tbody').on( 'click', '.deleteRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#keyField').val("ID_DETTAGLIO");
+				$('#keyValue').val(data[0]);
+				$('#FUNCTIONID_DELETE').val("InserimentoDettaglioALIMOD52");
+				$('.modal-title').html('${label_delete_title_message}');
+				$('.modal-text').html('${label_delete_text_message}');
+				$("#modalQuestionDialog").modal({backdrop: true});
+				$('#modalQuestionDialog').collapse("show");
+	        } );	        
+	        
+	        
+	        
+	     	$("#formDelete").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( "#dt-impurezze" ).DataTable().ajax.reload();
+					$( "#dt-prodotti" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});
+			
+			
+        	$( "#inviaApprovatore" ).click(function() {
+				$('.modal-title').html('Invia modulo');
+				$('.modal-text').html('Confermi invio modulo per approvazione?');
+				$("#modalQuestionDialogPublish").modal({backdrop: true});
+				$('#modalQuestionDialogPublish').collapse("show");
+        	});
+	        			
+			$("#formPublish").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+				
+		        var formName = $(this).attr('name');
+
+		        var id_modulo=$("#ID_MODULO").val();
+				$("#SQL_STATEMENT").val("update ALIMOD52 set STATO='WAI' where id_modulo="+id_modulo+" ");
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+					disableFieldsReadOnly();
+					$("#STATO").val("WAI").change();
+				});
+			});		
+			
+		function disableFieldsStatusDRA() {
+			var idModulo=$("#ID_MODULO").val();
+			if (idModulo!=null && idModulo!="") {
+				$("#inviaApprovatore").show();
+			} else {
+				$("#inviaApprovatore").hide();
+			}
+			
+		}
+
+
+		function disableFieldsStatusAPP() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#formAggiungiDettaglio :input:visible").attr("disabled", true);
+			$("#aggiungi").attr("disabled", false);
+			$("#STATO_AZIONE").attr("disabled", false);
+			$("#NOTE_AVANZAMENTO").attr("disabled", false);
+			$("#salva").hide();
+			$("#aggiungi").hide();
+			$("#inviaApprovatore").hide();
+			$("#inviaQP").hide();
+			$("#aggiungi").show();
+		}
+
+		function disableFieldsReadOnly() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#formAggiungiDettaglio :input:visible").attr("disabled", true);
+			$("#salva").hide();
+			$("#inviaApprovatore").hide();
+			$("#inviaQP").hide();
+			$("#aggiungi").hide();
+		}
+			
+			
+
+			$('#TIPO_DETTAGLIO').change(function() {
+
+				var valore =$(this).find('option:selected').val();
+				if(valore=='') {
+					$("#ARGOMENTO").attr("disabled", true);
+					$("#AZIONE_NOTA_COMMENTO").attr("disabled", true);
+					$("#A_CURA_DI").attr("disabled", true);
+					$("#ENTRO_IL").attr("disabled", true);
+					$("#MESE_RIUNIONE").attr("disabled", true);
+					$("#DATA_RIUNIONE").attr("disabled", true);
+					$("#NOMINATIVO").attr("disabled", true);
+					$("#TEAM").attr("disabled", true);
+					$("#DATA").attr("disabled", true);	
+				}
+				if(valore=='D01') {
+					$("#ARGOMENTO").attr("disabled", false);
+					$("#AZIONE_NOTA_COMMENTO").attr("disabled", true);
+					$("#A_CURA_DI").attr("disabled", true);
+					$("#ENTRO_IL").attr("disabled", true);
+					$("#MESE_RIUNIONE").attr("disabled", true);
+					$("#DATA_RIUNIONE").attr("disabled", true);
+					$("#NOMINATIVO").attr("disabled", true);
+					$("#TEAM").attr("disabled", true);
+					$("#DATA").attr("disabled", true);			
+				}
+				if(valore=='D02') {
+					$("#ARGOMENTO").attr("disabled", true);
+					$("#AZIONE_NOTA_COMMENTO").attr("disabled", false);
+					$("#A_CURA_DI").attr("disabled", false);
+					$("#ENTRO_IL").attr("disabled", false);
+					$("#MESE_RIUNIONE").attr("disabled", true);
+					$("#DATA_RIUNIONE").attr("disabled", true);
+					$("#NOMINATIVO").attr("disabled", true);
+					$("#TEAM").attr("disabled", true);
+					$("#DATA").attr("disabled", true);			
+				}
+				if(valore=='D03') {
+					$("#ARGOMENTO").attr("disabled", true);
+					$("#AZIONE_NOTA_COMMENTO").attr("disabled", true);
+					$("#A_CURA_DI").attr("disabled", true);
+					$("#ENTRO_IL").attr("disabled", true);
+					$("#MESE_RIUNIONE").attr("disabled", false);
+					$("#DATA_RIUNIONE").attr("disabled", false);
+					$("#NOMINATIVO").attr("disabled", false);
+					$("#TEAM").attr("disabled", false);
+					$("#DATA").attr("disabled", false);			
+				}
+				if(valore=='D04') {true
+					$("#ARGOMENTO").attr("disabled", true);
+					$("#AZIONE_NOTA_COMMENTO").attr("disabled", true);
+					$("#A_CURA_DI").attr("disabled", true);
+					$("#ENTRO_IL").attr("disabled", true);
+					$("#MESE_RIUNIONE").attr("disabled", false);
+					$("#DATA_RIUNIONE").attr("disabled", true);
+					$("#NOMINATIVO").attr("disabled", false);
+					$("#TEAM").attr("disabled", true);
+					$("#DATA").attr("disabled", false);			
+				}
+				
+				
+				
+			});		
+	        
+		});
+		
+    </script> 
+
+</head>
+
+<body>
+
+
+	<form action="astro" id="formPublish" name="formPublish" method="post">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="ExecuteSQL">
+		<input type="hidden" id="SQL_STATEMENT" name="SQL_STATEMENT">
+	</form>
+	
+	<form action="astro" method="post" id="formDelete" name="formDelete">
+		<input type="hidden" id="FUNCTIONID_DELETE" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="DELETE"> 
+		<input type="hidden" id="keyField" name="keyField">
+		<input type="hidden" id="keyValue" name="keyValue">
+	</form>
+
+
+	<div class="modal inmodal fade" id="modalQuestionDialogPublish"	tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm"	onclick="$('#modalQuestionDialogPublish').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialogPublish').collapse('toggle');$('#formPublish').submit();" data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1"
+		role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal"
+						class="btn btn-white btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();"
+						data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists>
+		<#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row">
+                <div class="col-sm-12">
+				
+                    <div class="ibox">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                        	
+							<div class="row">
+                        	<div class="col-sm-12">
+                        
+                            <form action="astro" method="post" id="formInserimento" name="formInserimento" class="form-horizontal">
+								<input type="hidden" name="FUNCTIONID" value="InserimentoALIMOD52"> 
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+								<input type="hidden" id="ID_MODULO" name="ID_MODULO">
+								<input type="hidden" id="CODICE_MODULO" name="CODICE_MODULO">
+								<input type="hidden" id="ID_UTENTE" name="ID_UTENTE">
+												
+								<div class="form-group">
+									<label class="col-sm-2 control-label-left">Business Line:</label>
+									<div class="col-sm-2">
+										<select class="form-control" id="CODICE_BL" name="CODICE_BL" required>
+										</select>
+									</div>
+
+                                	<label class="col-sm-1 control-label-left">Sito:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control" required>
+	                                    </select>
+									</div>
+									
+                                	<label class="col-sm-1 control-label-left">Redattore:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_UTENTE_CON" name="ID_UTENTE_CON"  class="form-control" required>
+	                                    </select>
+									</div>                                	
+                                </div>                                  
+											         
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Nr.Modulo</label>
+                                    <div class="col-sm-2"><input type="text" class="form-control" id="NR_MODULO" name="NR_MODULO"></div>
+
+                                	<label class="col-sm-1 control-label-left">Data</label>
+                                    <div class="col-sm-3">
+					                <div class="input-group date">
+	                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_MODULO" id="DT_MODULO" required>
+	                                </div>
+                                    </div>
+                                    
+                                	<label class="col-sm-1 control-label-left">Stato:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="STATO" name="STATO"  class="form-control" required>
+	                                    </select>
+									</div>                                	
+                                </div>    											         
+											                                
+								<div class="form-group">
+									<label class="col-sm-2 control-label-left">Relatore</label>
+									<div class="col-sm-10"><input type="text" class="form-control" id="RELATORE" name="RELATORE" required></div>
+								</div>
+								
+								
+								<div class="form-group">
+									<label class="col-sm-2 control-label-left">Mese</label>
+									<div class="col-sm-2"><select class="form-control" id="MESE" name="MESE">
+									</select>
+									</div>
+
+                                	<label class="col-sm-2 control-label-left">Durata riunione</label>
+                                    <div class="col-sm-6"><input type="text" class="form-control" id="DURATA_RIUNIONE" name="DURATA_RIUNIONE" required></div>                              	
+                                </div>       
+                                
+                                
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Durata riunione</label>
+                                    
+                                </div>
+                                
+								<div class="form-group" id="salva-group">
+									<div class="col-sm-12">
+										<button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+										<button class="btn btn-primary btn-sm" type="button" id="inviaApprovatore" name="inviaApprovatore">Invia Approvatore</button>
+										<button class="btn btn-primary btn-sm" type="button" id="inviaQP" name="inviaQP">Invia a QP</button>
+									</div>
+								</div>                                
+                                
+                            </form>
+                            </div>
+                            </div>
+						</div>
+                            
+                        <div class="ibox-content">
+                        
+							<div class="row" id="dettagli">
+							
+								<div class="col-sm-12">
+                                
+								<form action="astro" method="post" id="formAggiungiDettaglio" name="formAggiungiDettaglio" class="form-horizontal">
+									
+									<input type="hidden" name="FUNCTIONID" value="InserimentoDettaglioALIMOD52">
+									<input type="hidden" id="OPERATION_TYPE_DETTAGLIO" name="OPERATION_TYPE">
+									<input type="hidden" id="ID_MODULO_DETTAGLIO" name="ID_MODULO">
+									<input type="hidden" id="ID_DETTAGLIO" name="ID_DETTAGLIO">
+									
+									 	
+                                
+	                                <div class="form-group">
+				                        <div class="col-sm-12"><h3>Dettaglio</h3></div>
+	                                </div>
+
+									<div class="form-group">	                                    
+	                                	<label class="col-sm-1 control-label-left">Dettaglio:</label>
+	                                    <div class="col-sm-3">
+		                                    <select id="TIPO_DETTAGLIO" name="TIPO_DETTAGLIO"  class="form-control" required>
+		                                    </select>
+										</div>                                	
+	                                </div>   
+	                                
+	                                <div class="form-group">
+	                                	<label class="col-sm-2 control-label-left">Argomenti trattati / Materiali consegnati</label>
+	                                    <div class="col-sm-10">
+	                                    <textarea class="form-control" id="ARGOMENTO" name="ARGOMENTO" rows="3"></textarea>
+										</div>
+	                                </div>    
+	                                
+	                                
+	                                <!--  dettaglio 2 -->
+	                                 <div class="form-group">
+	                                	<label class="col-sm-2 control-label-left">Azioni / note e commenti</label>
+	                                    <div class="col-sm-10">
+	                                    <textarea class="form-control" id="AZIONE_NOTA_COMMENTO" name="AZIONE_NOTA_COMMENTO" rows="3"></textarea>
+										</div>
+	                                </div>
+	                                
+	                                <div class="form-group">
+	                                	<label class="col-sm-2 control-label-left">A cura di</label>
+	                                    <div class="col-sm-10"><input type="text" class="form-control" id="A_CURA_DI" name="A_CURA_DI"></div>
+	                                </div>
+	                                
+	                                <div class="form-group">
+	                                	<label class="col-sm-2 control-label-left">Entro il</label>
+	                                    <div class="col-sm-3">
+						                <div class="input-group date">
+		                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="ENTRO_IL" id="ENTRO_IL">
+		                                </div>
+	                                    </div>
+	                                </div>          
+	                                
+	                                
+	                                <!--  dettaglio 3  Presenze personale ALI Industria / Società Controllata -->
+	                                
+	                                <div class="form-group">
+										<label class="col-sm-2 control-label-left">Riunione del mese di</label>
+										<div class="col-sm-2"><select class="form-control" id="MESE_RIUNIONE" name="MESE_RIUNIONE">
+										</select>
+										</div>
+	
+	                                	<label class="col-sm-2 control-label-left">Data riunione</label>
+	                                    <div class="col-sm-3">
+						                <div class="input-group date">
+		                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DATA_RIUNIONE" id="DATA_RIUNIONE">
+		                                </div>
+	                                    </div>                              	
+	                                </div>
+                                
+	                                
+
+	                                <div class="form-group">
+	                                	<label class="col-sm-2 control-label-left">Nominativo</label>
+                                    	<div class="col-sm-10"><input type="text" class="form-control" id="NOMINATIVO" name="NOMINATIVO"></div>
+	                                </div>
+	                                
+	                                 <div class="form-group">
+                                		<label class="col-sm-2 control-label-left">Team di appartenenza  / Funzione</label>
+                                    	<div class="col-sm-10"><input type="text" class="form-control" id="TEAM" name="TEAM"></div>
+	                                </div>   
+	                                
+	                                <div class="form-group">
+	                                	<label class="col-sm-2 control-label-left">Data</label>
+	                                    <div class="col-sm-3">
+						                <div class="input-group date">
+		                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DATA" id="DATA">
+		                                </div>
+	                                    </div>
+	                                </div>  
+	                                
+	                                
+	                                <!-- dettaglio 4 Presenze personale interinale, collaboratori a progetto, collaboratori occasionali, stagisti, consulent -->
+	                                <!-- dettaglio 5 Presenze personale di società esterne -->
+	                                <!-- dettaglio 6 Altri -->
+									
+                      
+	                                <div class="form-group">
+	                                    <div class="col-sm-2">
+											<button class="btn btn-primary btn-sm" type="submit" id="aggiungi" name="aggiungi">${label_add}</button>
+	                                    </div>
+									</div>
+        
+								
+								</form>
+								
+								
+	                            <div class="row">
+	                        	<div class="col-sm-12">
+					
+			                        <div class="table-responsive">
+										<table id="dt" class="table table-bordered">
+			                                <thead>
+			                                <tr>
+												<th></th>
+												<th></th>
+												<th></th>
+												<th>Tipo dettaglio</th>
+												<th>Argomenti trattati / Materiali consegnati</th>
+												<th>Azioni / note e commenti</th>
+												<th>A cura di</th>
+												<th>Entro il</th>
+												<th></th>
+												<th>Riunione del mese di</th>
+												<th>Data riunione</th>
+												<th>Nominativo</th>
+												<th>Team di appartenenza / Funzione</th>
+												<th>Data</th>
+			                                </tr>
+			                                </thead>
+			                            </table>											
+			                        </div>
+
+	                            </div>
+	                            </div>
+                            								
+                                </div>
+                            </div>
+                                
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>		
+
+			
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

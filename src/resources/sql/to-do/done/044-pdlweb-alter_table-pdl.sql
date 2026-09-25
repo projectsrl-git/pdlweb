@@ -1,0 +1,1 @@
+﻿ALTER TABLE PDL ADD column DT_APERTURA character (10);

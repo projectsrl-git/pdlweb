@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	
+    <script type="text/javascript">
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSReportAliMOD20&columns=descr_bl,descr_sito,nr_azioni_registrate,nr_azioni_aperte,nr_azioni_chiuse,perc_chiuse_registrate,nr_azioni_chiuse_ritardo,nr_azioni_scadute,perc_scadute_aperte&WHERECONDITION=";
+		var dtWhereCondition="<#if WHERECONDITION?exists>${WHERECONDITION}<#else> AND 1=1 </#if>";
+		var flagRicerca=false;
+		
+		$(function(){
+	        $('#dt').DataTable({
+				ajax: dtAjax+dtWhereCondition,
+				paging: false,
+			    fixedHeader: true,
+			    info: false,
+                language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+			    "bSort" : false,
+		        "columnDefs": [
+		            { "visible": false, "targets": 0 }
+		        ],
+		        "drawCallback": function ( settings ) {
+                	$(".dataTables_filter").hide();    
+		            var api = this.api();
+		            var rows = api.rows( {page:'current'} ).nodes();
+		            var last=null;
+		            var colonne = 9;
+		            var totale = new Array();
+		            totale['Totale']= new Array();
+		            var groupid = -1;
+		            var subtotale = new Array();
+
+		                
+		            api.column(0, {page:'current'} ).data().each( function ( group, i ) {     
+		                if ( last !== group ) {
+		                    groupid++;
+		                    $(rows).eq( i ).before(
+		                        '<tr class="group"><td>'+group+'</td></tr>'
+		                    );
+		                    last = group;
+		                }
+		                
+		                                
+		                val = api.row(api.row($(rows).eq( i )).index()).data();      //current order index
+		                $.each(val,function(index2,val2){
+		                        if (typeof subtotale[groupid] =='undefined'){
+		                            subtotale[groupid] = new Array();
+		                        }
+		                        if (typeof subtotale[groupid][index2] =='undefined'){
+		                            subtotale[groupid][index2] = 0;
+		                        }
+		                        if (typeof totale['Totale'][index2] =='undefined'){ totale['Totale'][index2] = 0; }
+		                        
+		                        valore = Number(val2.replace('€',"").replace('.',"").replace(',',"."));
+		                        subtotale[groupid][index2] += valore;
+		                        totale['Totale'][index2] += valore;
+		                });
+		                
+		                
+		                
+		            } );                
+		            
+					$('tbody').find('.group').each(function (i,v) {
+			                var rowCount = $(this).nextUntil('.group').length;
+			        		$(this).find('td:first').append($('<span />', { 'class': 'rowCount-grid' }).append($('<b />', { 'text': ' ('+rowCount+')' })));
+			                         var subtd = '';
+			                        for (var a=2;a<colonne;a++)
+			                        { 
+			                            subtd += '<td>'+subtotale[i][a]+' / '+totale['Totale'][a]+ ' ('+ Math.round(subtotale[i][a]*100/totale['Totale'][a],2) +'%) '+'</td>';
+			                        }
+			                        $(this).append(subtd);
+			                });
+					
+			    	$('tbody').find('.group').each(function(){
+				        var rowsCollapse = $(this).nextUntil('.group');
+				        $(rowsCollapse).toggleClass('hidden');
+			    	});					
+									
+			        }
+		    } );
+	 
+	        
+
+	    	
+	    	
+		    // Collapse / Expand Click Groups
+			$('#dt tbody').on( 'click', 'tr.group', function () {
+		        var rowsCollapse = $(this).nextUntil('.group');
+		        $(rowsCollapse).toggleClass('hidden');
+		    });
+	        
+
+		});	
+		
+    </script> 
+
+</head>
+
+<body>
+
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+           
+			<div class="row">
+                <div class="col-sm-12">
+	                    
+                    <div class="ibox float-e-margins">	                    
+                   		<div class="ibox-title">
+							<h4>Dashboard</h4>
+	                    </div>	
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                        
+					<div class="row">
+ 				
+                    <div class="col-lg-3">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <span class="label label-primary pull-right">TOTALE</span>
+                                <h5>Piani d'Azione</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <h3 class="no-margins">${ALIMOD20}</h3>
+                                <small>2018</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <span class="label label-primary pull-right">TOTALE</span>
+                                <h5>Verifiche HSE</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <h3 class="no-margins">${ALIMOD50}</h3>
+                                <small>2018</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <span class="label label-success pull-right">TOTALE</span>
+                                <h5>VCS</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <h3 class="no-margins">${ALIMOD67}</h3>
+                                <small>2018</small>
+                            </div>
+                        </div>
+                    </div>
+                                        
+                    <div class="col-lg-3">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <span class="label label-danger pull-right">TOTALE</span>
+                                <h5>Infortuni Incidenti</h5>
+                            </div>
+                            <div class="ibox-content">
+                                <h3 class="no-margins">${ALIMOD80}</h3>
+                                <small>2018</small>
+                            </div>
+                        </div>
+            		</div>      
+
+        		</div>                           
+	                    </div>	
+                    </div>	
+
+                    <div class="ibox float-e-margins">	                    
+	                    		
+                   		<div class="ibox-title">
+							<h4>Piani d'Azione: stato azioni al <#if TODAY?exists>${TODAY}</#if></h4>
+	                    </div>	
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                                   
+							<div class="row">
+								<div class="col-sm-12">						
+						
+			                        <div class="table-responsive">
+										<table id="dt" class="table table-bordered table-hover" >
+											<thead>
+												<tr>
+													<td>BL</td>
+													<td>Sito</td>
+													<td>Registrate</td>
+													<td>Aperte</td>
+													<td>Chiuse</td>
+													<td>% Chiuse / Registrate</td>
+													<td>Chiuse con ritardo (>30gg)</td>
+													<td>Scadute</td>
+													<td>% Scadute / Aperte</td>
+												</tr>
+											</thead>
+									
+										</table>
+			                        </div>
+
+                    			</div>
+					
+                			</div>
+						</div>
+            		</div>
+				</div>
+			</div>
+						
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+	</div>
+	
+
+</body>
+
+</html>

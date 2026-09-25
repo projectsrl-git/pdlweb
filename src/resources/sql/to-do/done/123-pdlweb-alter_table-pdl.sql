@@ -1,0 +1,1 @@
+﻿ALTER TABLE PDL ADD column ID_UTENTE_CHIUSURA integer;

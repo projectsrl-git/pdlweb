@@ -1,0 +1,114 @@
+
+.border-bottom {
+    border-bottom: none !important;
+}
+
+
+body {
+    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background-color: #2f4050;
+    font-size: 11px;
+    color: #676a6c;
+    overflow-x: hidden;
+}
+
+.dataTables_wrapper {
+     padding-bottom: 0px; 
+}
+
+
+.center {
+	text-align:center;
+}
+
+label {
+    margin-bottom: 5px;
+}
+
+.form-horizontal .control-label-left {
+    padding-top: 7px;
+    text-align: left;
+}
+
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    text-align: center;
+}
+
+
+.fa-red {
+	color:red;
+}
+	
+.fa-color-auto {
+	color:#676a6c;
+}
+
+.hidden-div {
+	display: none;
+}
+
+.alert-message {
+    margin-top: 20px;
+}
+
+/* serve per il breadcrumb cliccabile*/
+	
+.breadcrumb > li a {
+	font-weight: 100;
+}
+
+.ibox-tools {
+    display: block;
+    float: none;
+    margin-top: 0;
+    position: relative;
+    padding: 0;
+    text-align: right;
+}
+
+fieldset{
+	margin: 5px 0px 15px 0px;
+	display:inline-block;
+	font-size:11px;
+}
+
+fieldset svg{
+	padding: 0px 2px 0px 10px;
+	width:12px;
+	height:12px;
+}
+
+fieldset svg rect{
+	width:12px;
+	height:12px;
+}
+
+fieldset i{
+	padding: 0px 5px 0px 15px;
+}
+
+th i{
+	cursor:default;
+}
+
+.inmodal .modal-title {
+    font-size: 16px;
+}
+
+.inmodal .modal-header {
+    padding: 10px 15px;
+    text-align: center;
+}
+
+/* footer */
+.modal-footer {
+    padding: 10px;
+    text-align: right;
+    border-top: 1px solid #e5e5e5;
+}
+
+

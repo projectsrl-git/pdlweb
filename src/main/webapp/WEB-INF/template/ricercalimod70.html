@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if> 
+	
+    <script type="text/javascript">
+    	var profilo="<#if PROFILO?exists>${PROFILO}</#if>";
+		var flagRicerca=false;
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSLIMOD70&columns=ID_MODULO,ID_MODULO,ID_MODULO,ID_MODULO,ID_MODULO_PARENT,TABELLA_PARENT,STATO,NR_MODULO,DT_MODULO,ORA,DESCR_STATO,DESCR_AZIENDA,DESCR_IMPIANTO,DESCR_AREA,FIRMA,DISTANZA_RISPETTO,NOME_FILE&JOLLY_CHAR=*&WHERECONDITION=";
+		var dtWhereCondition="<#if WHERECONDITION?exists>${WHERECONDITION}<#else> AND (STATO!='DRA' AND STATO!='' OR (STATO='DRA' AND ID_UTENTE_INS = <#if ID_UTENTE?exists>${ID_UTENTE}</#if> )) </#if>";
+		
+		$(function(){
+			
+			$("#ID_UTENTE").val(<#if ID_UTENTE?exists>${ID_UTENTE}</#if>);
+			
+	        $('#dt').DataTable({
+				ajax: dtAjax+dtWhereCondition,
+				columnDefs: [
+					{
+						targets:0,
+						visible: true,
+					},
+					{
+						width:"1%",
+						targets:1,
+						orderable: false,
+						data:null,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (row[1]=='DRA')  {
+									data = '<a href="#" class="editRow" title="${label_edit}"><i class="fa fa-pencil fa-color-auto" aria-hidden="true"></i></a>';
+								} else {
+									data = '<a href="#" class="viewRow" title="${label_view}"><i class="fa fa-search fa-color-auto" aria-hidden="true"></i></a>';
+								}
+							}
+
+							return data;
+						}
+					},
+					{
+						width:"1%",
+						targets:2,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="deleteRow" title="${label_delete}"><i class="fa fa-trash-o fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						targets:3,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="pdfA4Row" title="Stampa A4"><i class="fa fa-file-pdf-o fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						targets:4,
+						orderable: false,
+						data:null,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (row[2]!="" && row[3]!="" && row[3]=="ALIMOD64") {
+									data = '<a href="#" class="origALIMOD64" title="Vai al ALI-MOD 64"><i class="fa fa-shield" aria-hidden="true"></i></a>';
+								} else {
+									data = '';
+								}
+							}
+
+							return data;
+						}
+					},
+					{
+						targets:5,
+						visible: false
+					},
+					{
+						targets:6,
+						visible: false
+					},
+					{
+						targets:10,
+						visible: false
+					},
+					{
+						targets:15,
+						visible: false
+					},
+					{
+				         'targets': 0,
+				         'searchable':false,
+				         'orderable':false,
+				         'width':'1%',
+				         'className': 'dt-body-center',
+				         'render': function (data, type, full, meta){
+				             return '<input type="checkbox">';
+				         }
+				      }
+				],
+				
+                dom: '<"html5buttons"B>lTfgitp',
+                language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+    
+                buttons: [
+                    {extend: 'csv', title: $(document).find("title").text()},
+                    {extend: 'excel', title: $(document).find("title").text()},
+                    {extend: 'pdf', title: $(document).find("title").text(), orientation: 'landscape'}
+                ],
+                "drawCallback": function( settings ) {
+                	$(".dataTables_filter").hide();    
+                	$(".html5buttons").hide();   
+    	    		
+                	var dataCount=$('#dt').DataTable().column( 0 ).data().length;
+    	    		if(dataCount==0 && flagRicerca) {
+    					$('.modal-title').html('Attenzione!');
+    					$('.modal-text').html('Nessun risultato ottenuto: controllare i filtri impostati per la ricerca...');
+    					$("#modalAlert").modal({backdrop: true});
+    					$('#modalAlert').collapse("show");	    			
+    	    		}
+    	    		
+                },
+				aaSorting: []
+
+            });
+		
+	        $('#free-text-search').keyup(function(){
+	        	$('#dt').DataTable().search($(this).val()).draw() ;
+	        })	        
+	        
+	        $("#formDelete").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});			
+			
+					
+			
+			$("#formSearch").validate();
+			
+			$("#formSearch").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();			
+	
+				if (!$("#formSearch").valid()) {
+					return false;
+				}		
+				
+				flagRicerca=true;
+				
+				
+				dtWhereCondition="";
+	
+	    		
+				var idUtente=$("#ID_UTENTE").val();
+	    		dtWhereCondition+=" AND (STATO!='DRA' OR (STATO='DRA' AND ID_UTENTE_INS = '"+idUtente+"'))";
+	    		
+	    		$( "#dt" ).DataTable().ajax.url( dtAjax+dtWhereCondition ).load();
+				
+			});			
+			
+	        $('#dt tbody').on( 'click', '.viewRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_MODULO').val(data[1]);
+				$('#DISTANZA_RISPETTO').val(data[12]);
+				$('#FUNCTIONID_EDIT').val("InserimentoLIMOD70");
+				$('#READONLY').val("Y");
+				$("#formEdit").submit();
+	        } );
+	        
+	        $('#dt tbody').on( 'click', '.editRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_MODULO').val(data[1]);
+				$('#DISTANZA_RISPETTO').val(data[12]);
+				$('#FUNCTIONID_EDIT').val("InserimentoLIMOD70");
+				$('#READONLY').val("N");
+				$("#formEdit").submit();
+	        } );
+	        
+	        
+	        $('#dt tbody').on( 'click', '.origALIMOD64', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_MODULO_PARENT').val(data[5]);
+				var tabellaParent=data[5];
+				if (tabellaParent!=null && tabellaParent=="ALIMOD64") {
+					$('#FUNCTIONID_ORIGIN').val("InserimentoALIMOD64");
+					$("#formOrigin").submit();
+				}
+	        } );
+	        
+	        $('#dt tbody').on( 'click', '.deleteRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#keyField').val("ID_MODULO");
+				$('#keyValue').val(data[0]);
+				$('#FUNCTIONID_DELETE').val("InserimentoLIMOD70");
+				$('.modal-title').html('${label_delete_title_message}');
+				$('.modal-text').html('${label_delete_text_message}');
+				$("#modalQuestionDialog").modal({backdrop: true});
+				$('#modalQuestionDialog').collapse("show");
+	        } );	
+	        
+	        
+	      $( "#report" ).click(function() {
+	    		var dataCount=$('#dt').DataTable().column( 0 ).data().length;
+	    		if(dataCount>200) {
+					$('.modal-title').html('Attenzione!');
+					$('.modal-text').html('Il report che si desidera stampare supera le 200 righe. Si consiglia di restringere la ricerca');
+					$("#modalAlert").modal({backdrop: true});
+					$('#modalAlert').collapse("show");	    			
+	    		} else {
+		    		$('#dt').DataTable().button( 2 ).trigger();
+	    		}
+	    		
+	    	});
+	    	
+	    	$( "#excel" ).click(function() {
+	    		$('#dt').DataTable().button( 1 ).trigger();
+	    	});
+	    	
+	    	$( "#csv" ).click(function() {
+	    		$('#dt').DataTable().button( 0 ).trigger();
+	    	});			
+	    	
+	    	$('#dt tbody').on( 'click', '.pdfA4Row', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_MODULO_STAMPA').val(data[0]);
+				$('#formStampa').submit();
+				//alert(dtAjax+dtWhereCondition);
+				//reloadGrid();
+				//luca
+	    	});
+	    	
+	    	
+	    });	        
+		
+		
+	
+	    
+	    
+	    
+
+	 $(document).ready(function (){
+	    // Array holding selected row IDs
+	    var rows_selected = [];
+	    var table = $('#dt').DataTable();
+
+	    // Handle click on checkbox
+	    $('#dt tbody').on('click', 'input[type="checkbox"]', function(e){
+	       var $row = $(this).closest('tr');
+
+	       // Get row data
+	       var data = table.row($row).data();
+
+	       // Get row ID
+	       var rowId = data[0];
+
+	       // Determine whether row ID is in the list of selected row IDs 
+	       var index = $.inArray(rowId, rows_selected);
+
+	       // If checkbox is checked and row ID is not in list of selected row IDs
+	       if(this.checked && index === -1){
+	          rows_selected.push(rowId);
+
+	       // Otherwise, if checkbox is not checked and row ID is in list of selected row IDs
+	       } else if (!this.checked && index !== -1){
+	          rows_selected.splice(index, 1);
+	       }
+
+	       if(this.checked){
+	          $row.addClass('selected');
+	       } else {
+	          $row.removeClass('selected');
+	       }
+
+	      
+
+	       // Prevent click event from propagating to parent
+	       e.stopPropagation();
+	    });
+
+	    // Handle click on table cells with checkboxes
+	    $('#dt').on('click', 'tbody td, thead th:first-child', function(e){
+	       $(this).parent().find('input[type="checkbox"]').trigger('click');
+	    });
+
+	  
+	    // Handle form submission event 
+	    $( "#stampa" ).click(function() {
+			var count=0;
+			var arraySelezionati = [];
+			
+	       // Iterate over all selected checkboxes
+	       $.each(rows_selected, function(index, rowId){
+	          // Create a hidden element
+	          count++;
+	         //alert(rowId);
+	         arraySelezionati.push(rowId);
+	       });
+	       
+	       
+	       if (count>6){
+	    	   $("#modalDialogPrint").modal({backdrop: true});
+			   $('#modalDialogPrint').collapse("show");
+	       }else{
+	    	   $('#ID_MODULO_STAMPA').val(arraySelezionati);
+				$('#formStampa').submit();   
+	       }
+
+			
+	       
+	    });
+	    
+	    
+
+		$("#formStampa").submit(function(event) {
+			event.preventDefault();
+			this.submit();
+			setTimeout(function(){
+				$( "#dt" ).DataTable().ajax.reload();
+			}, 100);
+		});		
+		
+		
+		
+	 });
+		
+    </script> 
+
+</head>
+
+<body>
+	
+	
+	<form action="astro" method="get" id="formEdit" name="formEdit">
+		<input type="hidden" id="FUNCTIONID_EDIT" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="UPDATE">
+		<input type="hidden" id="READONLY" name="READONLY" value="N">
+		<input type="hidden" id="ID_MODULO" name="ID_MODULO">
+		<input type="hidden" id="DISTANZA_RISPETTO" name="DISTANZA_RISPETTO">
+	</form>		
+	
+	<form action="astro" method="post" id="formStampa" name="formStampa">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="StampaLIMOD70">	
+		<input type="hidden" id="ID_MODULO_STAMPA" name="ID_MODULO">
+	</form>
+	
+	<form action="astro" method="post" id="formDelete" name="formDelete">
+		<input type="hidden" id="FUNCTIONID_DELETE" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="DELETE">
+		<input type="hidden" id="keyField" name="keyField">
+		<input type="hidden" id="keyValue" name="keyValue">
+	</form>
+	
+	<form action="astro" method="get" id="formOrigin" name="formOrigin">
+		<input type="hidden" id="FUNCTIONID_ORIGIN" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="UPDATE">
+		<input type="hidden" id="ID_MODULO_PARENT" name="ID_MODULO">
+	</form>		
+	
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();" data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	
+	<div class="modal inmodal fade" id="modalDialogPrint" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title-print">Attenzione!</span></div>
+				<div class="modal-body"><span class="modal-text-print">E' possibile selezionare solo 6 interferenze</span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalDialogPrint').collapse('hide');">Ok</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+           
+			<div class="row">
+                <div class="col-sm-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                                   
+							<div class="row">
+								<div class="col-sm-12">							
+							
+									<form action="astro" method="get" id="formSearch" name="formSearch" class="form-horizontal">
+										<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="RicercaLIMOD70">
+										<input type="hidden" id="ID_UTENTE" name="ID_UTENTE">
+										
+		                              
+										<div class="form-group">
+										
+		                                	<label class="col-sm-2 control-label-left">Ricerca in linea:</label>
+		                                    <div class="col-sm-10">
+				                                <input type="text" id="free-text-search" name="free-text-search"  class="form-control" placeholder="digita il testo che vuoi cercare per aggiornare subito i risultati">
+											</div>
+											
+										</div>												
+		                                
+										<div class="form-group">
+										
+											<div class="col-sm-3">
+												<button class="btn btn-primary btn-sm" id="ricerca" type="submit" name="ricerca">${label_search}</button>
+												<button class="btn btn-primary btn-sm" type="button" id="report" name="report">PDF</button>
+												<button class="btn btn-primary btn-sm" type="button" id="excel" name="excel">XLS</button>
+												<button class="btn btn-primary btn-sm" type="button" id="csv" name="csv">CSV</button>
+												
+												<button class="btn btn-primary btn-sm" type="button" id="stampa" name="stampa">Stampa LIMOD70</button>
+											</div>
+											
+											<div class="col-sm-9">
+												<fieldset>
+													${label_legenda}:
+													<i class="fa fa-square-o" aria-hidden="true"></i>Selezione per stampa LIMOD70
+													<i class="fa fa-pencil" aria-hidden="true"></i>${label_edit}
+													<i class="fa fa-search" aria-hidden="true"></i>${label_view}
+													<i class="fa fa-trash-o" aria-hidden="true"></i>${label_delete}
+													<i class="fa fa-file-pdf-o" aria-hidden="true"></i>PDF A4
+												</fieldset>
+											</div>
+										</div>			
+										
+
+										
+									
+									</form>
+									
+									<div class="hr-line-dashed"></div>
+						
+									
+			
+			                        <div class="table-responsive">
+										<table id="dt" class="table table-striped table-bordered table-hover" >
+											<thead>
+												<tr>
+													<th></th>
+													<th></th>
+													<th></th>
+													<th></th>
+													<th></th>
+													<th></th>
+													<th></th>
+													<th>Id</th>
+													<th>Data</th>
+													<th>Ora</th>
+													<th>Stato</th>
+													<th>Sito</th>
+													<th>Impianto</th>
+													<th>Area</th>
+													<th>Firma</th>
+													<th></th>
+													<th>File LIMOD-70</th>
+													
+												</tr>
+											</thead>
+										
+										</table>
+			                        </div>
+
+                    			</div>
+					
+                			</div>
+						</div>
+            		</div>
+				</div>
+			</div>
+						
+			<#if INCLUDED_FOOTER_PDLWEB?exists><#include INCLUDED_FOOTER_PDLWEB></#if>
+		
+		</div>
+
+	</div>
+	
+
+</body>
+
+</html>

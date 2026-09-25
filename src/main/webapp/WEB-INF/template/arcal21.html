@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+	
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSComponenti&columns=ID_PRODOTTI_GAS_COMP,ID_PRODOTTI_GAS_COMP,COMPONENTE,COMPOSIZIONE_PERC,STRUMENTO_ANALISI,FREQUENZA_ANALISI&WHERECONDITION=";
+
+		
+	
+		$(function(){
+            $(".select2_demo_2").select2();
+
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			$("#ID_PRODOTTI_GAS").val("<#if ID_PRODOTTI_GAS?exists>${ID_PRODOTTI_GAS}</#if>");
+			$("#ID_PRODOTTI_GAS_NEXT").val("<#if ID_PRODOTTI_GAS_NEXT?exists>${ID_PRODOTTI_GAS_NEXT}</#if>");
+			
+			$("#NOME_COMMERCIALE").val("<#if NOME_COMMERCIALE?exists>${NOME_COMMERCIALE}</#if>");
+			
+			var flag="<#if FL_OBSOLETO?exists>${FL_OBSOLETO}</#if>";
+			$('#CHECK_OBSOLETO').prop('checked',flag==="true");
+			
+    		var idProdottiGasNext=$("#ID_PRODOTTI_GAS_NEXT").val();
+        	var dtWhereCondition="WHERE ID_PRODOTTI_GAS = "+idProdottiGasNext;
+		
+	        $('#dt').DataTable({
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+	            ajax: dtAjax+dtWhereCondition,
+				columnDefs: [
+					{
+						width:"1%",
+						targets:0,
+						orderable: false,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display'){
+								data = '<a href="#" onclick="updateRow('+data+');" title="${label_edit}"><i class="fa fa-pencil fa-color-auto" aria-hidden="true"></i></a>';
+							}
+	
+							return data;
+						}
+					},
+					{
+						width:"1%",
+						targets:1,
+						orderable: false,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display'){
+								data = '<a href="#" onclick="deleteRow('+data+');" title="${label_delete}"><i class="fa fa-trash-o fa-color-auto" aria-hidden="true"></i></a>';
+							}
+	
+							return data;
+						}
+					}
+				],
+				
+	            dom: '<"html5buttons"B>lTgitp',
+	            language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+	
+	            buttons: [
+	            ],
+				aaSorting: []
+	
+	        });
+
+			
+			$("#formInserimento").validate();
+
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				document.getElementById("salva").style.display="none";
+				
+				$("#FL_OBSOLETO").val($("#CHECK_OBSOLETO").is(':checked'));
+				
+				var idRichiesta=$("#ID_PRODOTTI_GAS").val();
+				if (idRichiesta!='') {
+					$("#OPERATION_TYPE").val("UPDATE");
+				} else {
+					$("#OPERATION_TYPE").val("INSERT");
+				}				
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					document.getElementById("salva").style.display="block";
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+				
+				
+			});
+
+			$("#aggiungi").click(function() {
+				$("#OPERATION_TYPE_COMP").val("INSERT");
+				$("#COMPONENTE").val($("#COMPONENTE_FORM").val());
+				$("#COMPOSIZIONE_PERC").val($("#COMPOSIZIONE_PERC_FORM").val());
+				$("#STRUMENTO_ANALISI").val($("#STRUMENTO_ANALISI_FORM").val());
+				$("#FREQUENZA_ANALISI").val($("#FREQUENZA_ANALISI_FORM").val());
+				
+				$.post( $("#formAggiungiComponente").attr( 'action' ), $("#formAggiungiComponente").serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+				});
+			});				
+	
+			
+			$("#formDelete").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});				
+		});
+		
+		function deleteRow(idRow){
+			$('#ID_PRODOTTI_GAS_COMP_DEL').val(idRow);
+			$('.modal-title').html('${label_delete_title_message}');
+			$('.modal-text').html('${label_messaggio_conferma_cancella_componente}');
+			$("#modalQuestionDialog").modal({backdrop: true});
+			$('#modalQuestionDialog').collapse("show");
+		}	
+		
+		function updateRow(idRow){
+			$('#ID_PRODOTTI_GAS_COMP').val(idRow);
+		}			
+		
+    </script> 
+
+</head>
+
+<body>
+	
+	<form action="astro" method="post" id="formAggiungiComponente" name="formAggiungiComponente">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoComponente" />
+		<input type="hidden" id="OPERATION_TYPE_COMP" name="OPERATION_TYPE">
+		<input type="hidden" id="ID_PRODOTTI_GAS_COMP" name="ID_PRODOTTI_GAS_COMP">
+		<input type="hidden" id="ID_PRODOTTI_GAS_NEXT" name="ID_PRODOTTI_GAS_NEXT">
+		<input type="hidden" id="COMPONENTE" name="COMPONENTE">
+		<input type="hidden" id="COMPOSIZIONE_PERC" name="COMPOSIZIONE_PERC">
+		<input type="hidden" id="STRUMENTO_ANALISI" name="STRUMENTO_ANALISI">
+		<input type="hidden" id="FREQUENZA_ANALISI" name="FREQUENZA_ANALISI">
+	</form>
+	
+	<form action="astro" method="post" id="formDelete" name="formDelete">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoComponente">
+		<input type="hidden" name="OPERATION_TYPE" value="DELETE">
+		<input type="hidden" id="keyField" name="keyField" value="ID_PRODOTTI_GAS_COMP">
+		<input type="hidden" id="ID_PRODOTTI_GAS_COMP_DEL" name="ID_PRODOTTI_GAS_COMP">
+	</form>
+			
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();" data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row wrapper border-bottom page-heading">
+			<div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+						<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+                        <div class="ibox-content">
+                        
+                            <form action="astro" method="post" id="formInserimento" name="formInserimento" class="form-horizontal">
+			            		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoProdottiGas" />
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+								<input type="hidden" id="ID_PRODOTTI_GAS" name="ID_PRODOTTI_GAS">
+								<input type="hidden" id="FL_OBSOLETO" name="FL_OBSOLETO">
+																
+                                <div class="form-group">
+                                	<label class="col-sm-2">${label_commercial_name}</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" required id="NOME_COMMERCIALE" name="NOME_COMMERCIALE"></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2">${label_prodotto_obsoleto}</label>
+                                    <div class="col-sm-10">
+                                        <div class="i-checks"><input name="CHECK_OBSOLETO" id="CHECK_OBSOLETO" type="checkbox" value=""></div>
+                                    </div>
+                                </div>                                
+                                <div class="form-group">
+                                	<label class="col-sm-2">Data scadenza pubblicazione</label>
+                                    <div class="col-sm-10">
+					                <div class="input-group date">
+	                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_DAL" id="DT_DAL" value="<#if DT_DAL?exists>${DT_DAL}</#if>" onchange="javascript:calculate()" required>
+	                                </div>
+                                    </div>
+                                </div>                                
+                                
+                                <!-- COMPOSIZIONE -->
+                                <div class="hr-line-dashed"></div>
+
+                                <div class="form-group">
+                                	<label class="col-sm-2">${label_composizione}</label>
+                                	<label class="col-sm-2">${label_componente}</label>
+                                	<label class="col-sm-2">${label_composizione_percent}</label>
+                                	<label class="col-sm-2">${label_strumento_analisi}</label>
+                                	<label class="col-sm-2">${label_frequenza_analisi}</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-2">
+										<button class="btn btn-primary btn-sm" type="button" id="aggiungi" name="aggiungi">${label_add}</button>
+                                    </div>
+                                    <div class="col-sm-2">
+                                    <select class="select2_demo_2 form-control" multiple="multiple">
+<option value='C2H2'>C2H2</option>
+<option value='C2H4'>C2H4</option>
+<option value='CO2'>CO2</option>
+<option value='N2'>N2</option>
+<option value='O2'>O2</option>
+<option value='Ar'>Ar</option>
+<option value='He'>He</option>
+<option value='H2'>H2</option>
+<option value='CH4'>CH4</option>
+<option value='C3H8'>C3H8</option>
+<option value='C3H6'>C3H6</option>
+<option value='P.C.I.'>P.C.I.</option>
+<option value='P.C.S.'>P.C.S.</option>
+<option value='I.W.I.'>I.W.I.</option>
+<option value='I.W.S.'>I.W.S.</option>
+<option value='Densità relativa'>Densità relativa</option>
+<option value='CH4H10 - n'>CH4H10 - n</option>
+<option value='Xe'>Xe</option>
+<option value='N.A.'>N.A.</option>
+<option value='N2O'>N2O</option>
+<option value='R134a'>R134a</option>
+<option value='R143a'>R143a</option>
+<option value='R125'>R125</option>
+<option value='R32'>R32</option>
+<option value='R218'>R218</option>
+<option value='R600'>R600</option>
+<option value='Pentano'>Pentano</option>
+<option value='ETO'>ETO</option>
+                                    </select>
+                                    </div>
+                                    <div class="col-sm-2"><input type="text" class="form-control" id="COMPOSIZIONE_PERC_FORM" name="COMPOSIZIONE_PERC_FORM"></div>
+                                    <div class="col-sm-2">
+                                    <select class="select2_demo_2 form-control" multiple="multiple">
+<option value='Buretta Claude'>Buretta Claude</option>
+<option value='EL'>EL</option>
+<option value='IR'>IR</option>
+<option value='PM'>PM</option>
+<option value='EL / ZR'>EL / ZR</option>
+<option value='DID'>DID</option>
+<option value='AID'>AID</option>
+<option value='EC'>EC</option>
+<option value='IG'>IG</option>
+<option value='TCD'>TCD</option>
+<option value='PM / ZR'>PM / ZR</option>
+<option value='GC - TCD'>GC - TCD</option>
+<option value='GC'>GC</option>
+<option value='THC'>THC</option>
+                                    </select>
+                                    </div>
+
+                                    
+                                    <div class="col-sm-2">
+                                    <select class="select2_demo_2 form-control" multiple="multiple">
+<option value='1 analisi / lotto carburo'>1 analisi / lotto carburo</option>
+<option value='1 bombola / lotto'>1 bombola / lotto</option>
+<option value='1 bombola / lotto solo 1°riempimento'>1 bombola / lotto solo 1°riempimento</option>
+<option value='1 bombola / cambio cisterna'>1 bombola / cambio cisterna</option>
+<option value='Tutte le bombole'>Tutte le bombole</option>
+<option value='Tutti i pacchi'>Tutti i pacchi</option>
+<option value='1 bombola /trimestre'>1 bombola /trimestre</option>
+<option value='1 bombola / mese'>1 bombola / mese</option>
+<option value='1 contenitore / lotto'>1 contenitore / lotto</option>
+                                    </select>
+                                    </div>
+                                    <div class="col-sm-2">
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+				
+				                        <div class="table-responsive">
+											<table class="table table-bordered">
+				                                <thead>
+				                                <tr>
+													<th><i class="fa fa-pencil" aria-hidden="true" title="${label_edit}"></i></th>
+													<th><i class="fa fa-trash-o" aria-hidden="true" title="${label_delete}"></i></th>
+													<th>${label_componente}</th>
+													<th>${label_composizione_percent}</th>
+													<th>${label_strumento_analisi}</th>
+													<th>${label_frequenza_analisi}</th>
+				                                </tr>
+				                                </thead>
+				                                <tbody>
+				                                <tr>
+													<td><i class="fa fa-pencil" aria-hidden="true" title="${label_edit}"></i></td>
+													<td><i class="fa fa-trash-o" aria-hidden="true" title="${label_delete}"></i></td>
+				                                    <td>Ar</td>
+				                                    <td>>= 99,998%</td>
+				                                    <td></td>
+				                                    <td></td>
+				                                </tr>
+				                                </tbody>
+				                            </table>											
+				                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- IMPUREZZE GARANTITE  -->
+                                <div class="hr-line-dashed"></div>
+
+                                <div class="form-group">
+                                	<label class="col-sm-2">Impurezze garantite</label>
+                                	<label class="col-sm-2">${label_componente}</label>
+                                	<label class="col-sm-2">Soglia Analisi</label>
+                                	<label class="col-sm-2">Da Processo</label>
+                                	<label class="col-sm-2">${label_strumento_analisi}</label>
+                                	<label class="col-sm-2">${label_frequenza_analisi}</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-2">
+										<button class="btn btn-primary btn-sm" type="button">${label_add}</button>
+                                    </div>
+                                    <div class="col-sm-2">
+                                    <select class="select2_demo_2 form-control" multiple="multiple">
+<option value='N2'>N2</option>
+<option value='AsH3'>AsH3</option>
+<option value='H2O (5 bar)'>H2O (5 bar)</option>
+<option value='H2O '>H2O </option>
+<option value='O2'>O2</option>
+<option value='CO'>CO</option>
+<option value='NO+NO2'>NO+NO2</option>
+<option value='CnHm'>CnHm</option>
+<option value='S Totale'>S Totale</option>
+<option value='Oli'>Oli</option>
+<option value='NVOC'>NVOC</option>
+<option value='H2'>H2</option>
+<option value='CO2'>CO2</option>
+<option value='NO / NOx'>NO / NOx</option>
+<option value='NOx'>NOx</option>
+<option value='SO2'>SO2</option>
+<option value='Gas rari'>Gas rari</option>
+<option value='H2S'>H2S</option>
+<option value='CH4'>CH4</option>
+<option value='Kr'>Kr</option>
+<option value='Ne'>Ne</option>
+<option value='Incondensabili in fase vapore'>Incondensabili in fase vapore</option>
+<option value='Impurezza alto bollenti'>Impurezza alto bollenti</option>
+<option value='Acidità'>Acidità</option>
+<option value='Alogenuri'>Alogenuri</option>
+<option value='Acidità'>Acidità</option>
+<option value='Fosfuri, Solfuri, Sost. Riducenti'>Fosfuri, Solfuri, Sost. Riducenti</option>
+<option value='Residuo dell'evaporazione'>Residuo dell'evaporazione</option>
+                                    </select>
+                                    </div>
+                                    <div class="col-sm-2"><input type="text" class="form-control" ></div>
+                                    <div class="col-sm-2"><input type="text" class="form-control" ></div>
+                                    <div class="col-sm-2">
+                                    <select class="select2_demo_2 form-control" multiple="multiple">
+<option value='Buretta Claude'>Buretta Claude</option>
+<option value='EL'>EL</option>
+<option value='IR'>IR</option>
+<option value='PM'>PM</option>
+<option value='EL / ZR'>EL / ZR</option>
+<option value='DID'>DID</option>
+<option value='AID'>AID</option>
+<option value='EC'>EC</option>
+<option value='IG'>IG</option>
+<option value='TCD'>TCD</option>
+<option value='PM / ZR'>PM / ZR</option>
+<option value='GC - TCD'>GC - TCD</option>
+<option value='GC'>GC</option>
+<option value='THC'>THC</option>
+                                    </select>
+                                    </div>
+                                    <div class="col-sm-2">
+                                    <select class="select2_demo_2 form-control" multiple="multiple">
+<option value='1 analisi / lotto carburo'>1 analisi / lotto carburo</option>
+<option value='1 bombola / lotto'>1 bombola / lotto</option>
+<option value='1 bombola / lotto solo 1°riempimento'>1 bombola / lotto solo 1°riempimento</option>
+<option value='1 bombola / cambio cisterna'>1 bombola / cambio cisterna</option>
+<option value='Tutte le bombole'>Tutte le bombole</option>
+<option value='Tutti i pacchi'>Tutti i pacchi</option>
+<option value='1 bombola /trimestre'>1 bombola /trimestre</option>
+<option value='1 bombola / mese'>1 bombola / mese</option>
+<option value='1 contenitore / lotto'>1 contenitore / lotto</option>
+                                    </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+				
+				                        <div class="table-responsive">
+											<table class="table table-bordered">
+												<thead>
+													<tr>
+														<th><i class="fa fa-pencil" aria-hidden="true" title="${label_edit}"></i></th>
+														<th><i class="fa fa-trash-o" aria-hidden="true" title="${label_delete}"></i></th>
+														<th>${label_componente}</th>
+														<th>Soglia Analisi</th>
+														<th>Da Processo</th>
+														<th>${label_strumento_analisi}</th>
+														<th>${label_frequenza_analisi}</th>
+														</tr>
+												</thead>
+				                                <tbody>
+				                                <tr>
+													<td><i class="fa fa-pencil" aria-hidden="true" title="${label_edit}"></i></td>
+													<td><i class="fa fa-trash-o" aria-hidden="true" title="${label_delete}"></i></td>
+				                                    <td>H2O</td>
+				                                    <td><= 5 ppm</td>
+				                                    <td></td>
+				                                    <td>IG	1 bb/lotto</td>
+				                                    <td>solo 1° riempimento</td>
+				                                </tr>
+				                                <tr>
+													<td><i class="fa fa-pencil" aria-hidden="true" title="${label_edit}"></i></td>
+													<td><i class="fa fa-trash-o" aria-hidden="true" title="${label_delete}"></i></td>
+				                                    <td>O2</td>	
+				                                    <td><= 5 ppm</td>
+				                                    <td>EL/ZR</td>
+				                                    <td>1bb/mese</td>
+				                                    <td></td>
+				                                </tr>
+				                                <tr>
+													<td><i class="fa fa-pencil" aria-hidden="true" title="${label_edit}"></i></td>
+													<td><i class="fa fa-trash-o" aria-hidden="true" title="${label_delete}"></i></td>
+				                                    <td>N2</td>	
+				                                    <td></td>
+				                                    <td><= 10 ppm</td>
+				                                    <td></td>
+				                                    <td></td>
+				                                </tr>				                                
+				                                </tbody>		
+				                                
+											</table>
+				                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="hr-line-dashed"></div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2">Dati Tecnici</label>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2">Pressione di carica</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" value="200 bar"></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2">Scheda di sicurezza</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" value='AL.003A'></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2">Siti abilitati alla produzione</label>
+                                    <div class="col-sm-10">
+                                    <select class="select2_demo_2 form-control" multiple="multiple">
+<option value='Grugliasco (TO)' selected>Grugliasco (TO)</option>
+<option value='Sannazzaro (PV)' selected>Sannazzaro (PV)</option>
+<option value='Rodano (MI)' selected>Rodano (MI)</option>
+<option value='Rodano MOD' selected>Rodano MOD</option>
+<option value='Chieve (CR)' selected>Chieve (CR)</option>
+<option value='Trevenzuolo (VR)' selected>Trevenzuolo (VR)</option>
+<option value='Trevenzuolo NAZIONALE - ITKF' selected>Trevenzuolo NAZIONALE - ITKF</option>
+<option value='Padova' selected>Padova</option>
+<option value='Modena' selected>Modena</option>
+<option value='Ravenna' selected>Ravenna</option>
+<option value='Porto Recanati (MC)' selected>Porto Recanati (MC)</option>
+<option value='Lucca' selected>Lucca</option>
+<option value='Lanuvio (RM)' selected>Lanuvio (RM)</option>
+<option value='Caserta (CE)' selected>Caserta (CE)</option>
+<option value='Ostuni (BR)' selected>Ostuni (BR)</option>
+<option value='Priolo (SR)' selected>Priolo (SR)</option>
+<option value='Assemini (CA)' selected>Assemini (CA)</option>
+                                    </select>
+									</div>
+                                </div>                                
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2">Colore corpo bombola</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" value="Blu RAL 5015 - a polvere/idrosolubile"></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2">Colore ogiva</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" value="Verde Scuro RAL 6001 - idrosolubile"></div>
+                                </div>                                
+                                
+                                <div class="hr-line-dashed"></div>
+                                
+                                <!-- Elenco Prodotti disponibili  -->
+                                <div class="hr-line-dashed"></div>
+
+                                <div class="form-group">
+                                	<label class="col-sm-2">Elenco prodotti disponibili</label>
+                                	<label class="col-sm-2">Famiglia prodotto</label>
+                                	<label class="col-sm-2">Codice prodotto</label>
+                                	<label class="col-sm-2">Descrizione prodotto</label>
+                                	<label class="col-sm-2">Etichetta ADR</label>
+                                	<label class="col-sm-2">Cod. SAP etichetta</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-2">
+										<button class="btn btn-primary btn-sm" type="button">${label_add}</button>
+                                    </div>
+                                    <div class="col-sm-2">
+                                    <select class="select2_demo_2 form-control" multiple="multiple">
+<option value='OSSIGENO Industriale '>OSSIGENO Industriale </option>
+<option value='ACETILENE Industriale'>ACETILENE Industriale</option>
+<option value='DIOSSIDO DI CARBONIO industriale'>DIOSSIDO DI CARBONIO industriale</option>
+<option value='ELIO Industriale'>ELIO Industriale</option>
+<option value='AZOTO Industriale'>AZOTO Industriale</option>
+<option value='IDROGENO industriale'>IDROGENO industriale</option>
+<option value='NOXAL Infiammabile'>NOXAL Infiammabile</option>
+<option value='NOXAL Inerte'>NOXAL Inerte</option>
+<option value='ARIA Industriale NON RESPIRABILE'>ARIA Industriale NON RESPIRABILE</option>
+<option value='ATAL industriale'>ATAL industriale</option>
+<option value='Argon Industriale'>Argon Industriale</option>
+<option value='SIOETIL'>SIOETIL</option>
+<option value='MIX AZOTO - IDROGENO INERTE'>MIX AZOTO - IDROGENO INERTE</option>
+<option value='ALIGAL 1'>ALIGAL 1</option>
+<option value='ALIGAL 2 '>ALIGAL 2 </option>
+<option value='ALIGAL 3'>ALIGAL 3</option>
+<option value='ALIGAL 6'>ALIGAL 6</option>
+<option value='ALIGAL MIX'>ALIGAL MIX</option>
+<option value='ALIGAL 49'>ALIGAL 49</option>
+<option value='ALIGAL 62'>ALIGAL 62</option>
+<option value='ARCAL 1'>ARCAL 1</option>
+<option value='ARCAL MIX'>ARCAL MIX</option>
+<option value='ARCA MIX TP'>ARCA MIX TP</option>
+<option value='ACETILENE  N26'>ACETILENE  N26</option>
+<option value='OSSIGENO ALTOP'>OSSIGENO ALTOP</option>
+<option value='LASAL MIX/81'>LASAL MIX/81</option>
+<option value='LASAL 1'>LASAL 1</option>
+<option value='LASAL 2'>LASAL 2</option>
+<option value='LASAL 2003'>LASAL 2003</option>
+<option value='LASAL 83'>LASAL 83</option>
+<option value='N2O PURO'>N2O PURO</option>
+<option value='ALPHAGAZ ELIO'>ALPHAGAZ ELIO</option>
+<option value='ALPHAGAZ  ARGON'>ALPHAGAZ  ARGON</option>
+<option value='ALPHAGAZ ARIA'>ALPHAGAZ ARIA</option>
+<option value='ALPHAGAZ OSSIGENO'>ALPHAGAZ OSSIGENO</option>
+<option value='ALPHAGAZ AZOTO'>ALPHAGAZ AZOTO</option>
+<option value='AHG MIX Inerte'>AHG MIX Inerte</option>
+<option value='AHG MIX Infiammabile'>AHG MIX Infiammabile</option>
+<option value='CO2 PURO senza TP'>CO2 PURO senza TP</option>
+<option value='CO2 PURO con TP'>CO2 PURO con TP</option>
+                                    </select>
+									</div>
+                                    <div class="col-sm-2"><input type="text" class="form-control" ></div>
+                                    <div class="col-sm-2"><input type="text" class="form-control" ></div>
+                                    <div class="col-sm-2"><input type="text" class="form-control" ></div>
+                                    <div class="col-sm-2"><input type="text" class="form-control" ></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+				
+				                        <div class="table-responsive">
+											<table class="table table-bordered">
+												<thead>
+													<tr>
+														<th><i class="fa fa-pencil" aria-hidden="true" title="${label_edit}"></i></th>
+														<th><i class="fa fa-trash-o" aria-hidden="true" title="${label_delete}"></i></th>
+														<th>Famiglia prodotto</th>
+														<th>Codice prodotto</th>
+														<th>Tipologia allestimento</th>
+														<th>Descrizione prodotto</th>
+														<th>Etichetta ADR</th>
+														<th>Cod. SAP etichetta</th>
+													</tr>
+												</thead>
+												<tbody>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Argon Industriale</td><td>I2010L40A2A001</td><td>ALTOP</td><td>ARCAL 1 BB-L ALTOP 40/200</td><td>Etichetta Bombole</td><td>58621</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Argon Industriale</td><td>I2010L50A2A001</td><td>ALTOP</td><td>ARCAL 1 BB-L ALTOP 50/200</td><td>Etichetta Bombole</td><td>58621</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Argon Industriale</td><td>I2010L40R2A001</td><td>REGULAR</td><td>ARCAL 1 BB-L REG 40/200</td><td>Etichetta Bombole</td><td>58621</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Argon Industriale</td><td>I2010L50R2A001</td><td>REGULAR</td><td>ARCAL 1 BB-L REG 50/200</td><td>Etichetta Bombole</td><td>58621</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Argon Industriale</td><td>I2010L40S2A001</td><td>SMARTOP</td><td>ARCAL 1 BB-L SMARTOP 40/200</td><td>Etichetta Bombole</td><td>58621</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Argon Industriale</td><td>I2010L50S2A001</td><td>SMARTOP</td><td>ARCAL 1 BB-L SMARTOP 50/200</td><td>Etichetta Bombole</td><td>58621</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Argon Industriale</td><td>I2010V16Z2A001</td><td>PACCO</td><td>ARCAL 1 PP-L V16*40/200</td><td>Etichetta Pacchi</td><td>48862</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Argon Industriale</td><td>I2010V16R2A001</td><td>PACCO</td><td>ARCAL 1 PP-L V16*50/200</td><td>Etichetta Pacchi</td><td>48862</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Argon Industriale</td><td>I2010V12R2A001</td><td>PACCO</td><td>ARCAL 1 PP-M V12*50/200</td><td>Etichetta Pacchi</td><td>48862</td></tr>
+			                                
+				                                </tbody>
+											
+											</table>
+				                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="hr-line-dashed"></div>                                
+
+
+                                <div class="form-group">
+                                	<label class="col-sm-12">Allestimento specifico BOMBOLE</label>
+                                </div>
+                                
+                                <div class="hr-line-dashed"></div>                                
+
+                                <div class="form-group">
+                                	<label class="col-sm-12">Tipologia Allestimento: REGULAR</label>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+				
+				                        <div class="table-responsive">
+											<table class="table table-bordered">
+												<thead>
+													<tr>
+														<th><i class="fa fa-pencil" aria-hidden="true" title="${label_edit}"></i></th>
+														<th><i class="fa fa-trash-o" aria-hidden="true" title="${label_delete}"></i></th>
+														<th>Caratteristica</th>
+														<th>Descrizione</th>
+														<th>Materiale</th>
+														<th>Codice SAP</th>
+													</tr>
+												</thead>
+												<tbody>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Taglia autorizzata</td><td>40 litri e 50 litri - acciaio</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Valvola</td><td></td><td>Tipo ARGON RPV non cromato</td><td>45514</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Cappellotto</td><td></td><td>Tipo EXAL - Blu RAL 5015</td><td>21163</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Cappellotto</td><td></td><td>Tipo SCANDINA in metallo - Blu</td><td>159605</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Termoretraibile</td><td>Non previsto</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Sigillo riempimento</td><td></td><td>Grigio, sulla valvola</td><td>58435</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Cartellino</td><td>Non previsto</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Barcode</td><td>Su collare bombola</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Anello di scadenza</td><td>Attorno alla vavola</td><td></td><td>????</td></tr>
+		                                
+				                                </tbody>
+											
+											</table>
+				                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="hr-line-dashed"></div>                                
+
+                                <div class="form-group">
+                                	<label class="col-sm-12">Tipologia Allestimento: SMARTOP</label>
+                                </div>                                
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+				
+				                        <div class="table-responsive">
+											<table class="table table-bordered">
+												<thead>
+													<tr>
+														<th><i class="fa fa-pencil" aria-hidden="true" title="${label_edit}"></i></th>
+														<th><i class="fa fa-trash-o" aria-hidden="true" title="${label_delete}"></i></th>
+														<th>Caratteristica</th>
+														<th>Descrizione</th>
+														<th>Materiale</th>
+														<th>Codice SAP</th>
+													</tr>
+												</thead>
+												<tbody>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Taglia autorizzata</td><td>40 litri e 50 litri - Acciaio</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Valvola</td><td>Tipo Smartop Argon</td><td></td><td>63942</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Cappellotto</td><td>Tipo Exal Blu RAL 5015</td><td></td><td>21163</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td></td><td>Tipo Scandina Blu RAL 5015</td><td></td><td>159605</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Termoretraibile</td><td>Non previsto</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Sigillo riempimento</td><td>Grigio, sulla valvola</td><td></td><td>58435</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Cartellino</td><td>Non previsto</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Barcode</td><td>Su collare bombola</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Anello di scadenza</td><td>Attorno alla vavola</td><td></td><td>????</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Adesivo Sicurezza giallo</td><td>Sulla valvola Smartop</td><td></td><td>108505</td></tr>
+      
+				                                </tbody>
+											
+											</table>
+				                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="hr-line-dashed"></div>                                
+
+                                <div class="form-group">
+                                	<label class="col-sm-12">Tipologia Allestimento: ALTOP</label>
+                                </div>                                
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+				
+				                        <div class="table-responsive">
+											<table class="table table-bordered">
+												<thead>
+													<tr>
+														<th><i class="fa fa-pencil" aria-hidden="true" title="${label_edit}"></i></th>
+														<th><i class="fa fa-trash-o" aria-hidden="true" title="${label_delete}"></i></th>
+														<th>Caratteristica</th>
+														<th>Descrizione</th>
+														<th>Materiale</th>
+														<th>Codice SAP</th>
+													</tr>
+												</thead>
+												<tbody>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Taglia autorizzata</td><td>50 lt - Acciaio</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Valvola</td><td>Tipo ALTOP ARGON</td><td></td><td>45525</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Cappellotto</td><td>Tipo Altop - Blu RAL 5015</td><td></td><td>58429</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Grani a punta</td><td>Fissaggio cappellotto 2X</td><td></td><td>45328</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Viti in plastica</td><td>Fissaggio coperchio cappellotto</td><td></td><td>45329</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Sigillo riempimento</td><td>Su leva riempimento</td><td></td><td>22569</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Cartellino</td><td>Non previsto</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Barcode</td><td>Su collare bombola</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Anello di scadenza</td><td>Attorno alla vavola</td><td></td><td>????</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Adesivo Avvertenza</td><td>Su cappellotto</td><td></td><td>46939</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Adesivo NON RIMUOVERE</td><td>Su foro riempimento</td><td></td><td></td></tr>
+      
+				                                </tbody>
+											
+											</table>
+				                        </div>
+                                    </div>
+                                </div>
+                                                                
+                                <div class="hr-line-dashed"></div>                                
+
+                                <div class="form-group">
+                                	<label class="col-sm-12">Tipologia Allestimento: PACCO</label>
+                                </div>                                
+                                <div class="form-group">
+                                    <div class="col-sm-12">
+				
+				                        <div class="table-responsive">
+											<table class="table table-bordered">
+												<thead>
+													<tr>
+														<th><i class="fa fa-pencil" aria-hidden="true" title="${label_edit}"></i></th>
+														<th><i class="fa fa-trash-o" aria-hidden="true" title="${label_delete}"></i></th>
+														<th>Caratteristica</th>
+														<th>Descrizione</th>
+														<th>Materiale</th>
+														<th>Codice SAP</th>
+													</tr>
+												</thead>
+												<tbody>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Taglia autorizzata</td><td>16 x 50 e 16 x 40</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Valvola</td><td>Argon per pacchi</td><td></td><td>45548</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Termoretraibile</td><td>Non previsto</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Sigillo riempimento</td><td>Grigio, sulla valvola</td><td></td><td>58435</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Cartellino</td><td>Non previsto</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Barcode</td><td>Su pannello anteriore e posteriore</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Anello scadenza</td><td>Su 4 bombole anteriori</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Staffa supporto valvola</td><td>Per valvola verticale o orizzontale</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Blocchetto valvola</td><td>in ottone, su vavola verticale</td><td></td><td></td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Logo ADR + brand</td><td>Su pannello frontale</td><td></td><td>58622</td></tr>
+<tr><td><i class='fa fa-pencil' aria-hidden='true'></i></td><td><i class='fa fa-trash' aria-hidden='true'></i></td><td>Pittogrammi ADR</td><td>Su 3 lati senza valvola</td><td></td><td>152915</td></tr>
+				                                </tbody>
+											
+											</table>
+				                        </div>
+                                    </div>
+                                </div>
+                                                                
+                                <div class="hr-line-dashed"></div>
+                                                                
+                                <div class="form-group">
+                                    <div class="col-sm-4">
+                                        <button class="btn btn-white btn-sm" type="reset">${label_cancel}</button>
+										<button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>		
+
+            </div>
+            
+			
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

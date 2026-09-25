@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+    
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSLIMOD70Dettaglio&columns=id_dettaglio,id_dettaglio,valutazione,descr_area,impresa_testo,nr_pdl,nome_cognome_preposto_impresa_final,descr_valutazione,distanza_rispetto,distanzarispetto,id_modulo,id_area,id_impianto,id_azienda,id_utente_ins,nome_cognome,ora_ins&WHERECONDITION=";
+		var dtWhereCondition="<#if ID_MODULO?exists && ID_MODULO!=''>WHERE ID_MODULO = ${ID_MODULO}<#else> WHERE 1=0 </#if>";
+    	var stato="<#if STATO?exists>${STATO}</#if>";
+		
+    	$(function(){
+
+    		$("#limod64").attr("disabled", true);
+    		
+			$("#STATO").attr("disabled", true);
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiPDL","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO","<#if ID_IMPIANTO?exists>${ID_IMPIANTO}</#if>"," WHERE 1=1 "]);
+			$("#ID_AREA").trigger("loadDataSet",["DSAreaLavoro","ID_AREA","DESCR_AREA","<#if ID_AREA?exists>${ID_AREA}</#if>"," WHERE 1=1 "]);
+			$('#DISTANZA_RISPETTO').trigger("loadDataSet",["OpzioneSiNo","CODICE","DESCR","<#if DISTANZA_RISPETTO?exists>${DISTANZA_RISPETTO}</#if>",""]);
+			$("#VALUTAZIONE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if VALUTAZIONE?exists>${VALUTAZIONE}</#if>"," WHERE DOMINIO='VAL' "]);
+			$("#CODICE_TURNO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_TURNO?exists>${CODICE_TURNO}</#if>"," WHERE DOMINIO='CTU' "]);
+			$("#STATO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if STATO?exists>${STATO}</#if>"," WHERE DOMINIO='SPA' "]);
+			
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			$("#ID_MODULO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			$("#CODICE_MODULO").val("<#if CODICE_MODULO?exists>${CODICE_MODULO}</#if>");
+			$("#DT_MODULO").val("<#if DT_MODULO?exists>${DT_MODULO}</#if>");
+			$("#NR_MODULO").val("<#if NR_MODULO?exists>${NR_MODULO}</#if>");
+			$("#ORA").val("<#if ORA?exists>${ORA}</#if>");
+			$("#NR_MODULO").attr("disabled", true);
+			$("#DT_MODULO").attr("disabled", true);
+			$("#ID_UTENTE_INS").trigger("loadDataSet",["DSResponsabileCentraleDelegato","ID_UTENTE","NOME_COGNOME","<#if ID_UTENTE_INS?exists>${ID_UTENTE_INS}</#if>","  WHERE 1=1 "]);
+			
+			$("#ID_AZIENDA").attr("disabled", true);
+			$("#ID_IMPIANTO").attr("disabled", true);
+			$("#ID_AREA").attr("disabled", true);
+			$("#CODICE_TURNO").attr("disabled", true);
+			$("#ORA_INS").attr("disabled", true);
+			$("#ID_UTENTE_INS").attr("disabled", true);
+			$("#ORA").attr("disabled", true);
+			
+			$("#ID_MODULO_DETTAGLIO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			$("#STATO_AZIONE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","OPE"," WHERE DOMINIO='SAZ' "]);
+			
+			$("#ID_AZIENDA").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_IMPIANTO").empty();
+				$("#ID_IMPIANTO").select2("destroy");
+				$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO",""," WHERE ID_AZIENDA="+id+" "]);
+			});		     
+			
+			
+			
+			
+			var operationType=$("#OPERATION_TYPE").val();
+			
+			if (operationType=="INSERT") {
+				//$("#dettagli").hide();
+				$("#dettagli").show();
+			}
+
+
+			$("#formInserimento").validate();
+			
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				$("#salva-group").hide();
+				
+				var nrModulo=$("#NR_MODULO").val();
+				var turno=$("#CODICE_TURNO").val();
+				
+				var idModulo=$("#ID_MODULO").val();
+				$("#OPERATION_TYPE").val("UPDATE");
+								
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					
+					$("#salva-group").show();
+					var result = eval('('+response+')');
+					
+		    		var operationType=$("#OPERATION_TYPE").val();
+		    		if (operationType != "" && operationType=="INSERT") {
+		    			var idModulo=result.id;
+		    			var nrModulo=result.nr;
+		    			if (idModulo != null && idModulo != "") {
+							$("#ID_MODULO").val(idModulo);
+							$("#NR_MODULO").val(nrModulo);
+							$("#ID_MODULO_DETTAGLIO").val(idModulo);
+							$("#dettagli").show();
+						}
+		    		}
+		    		
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+					
+					if ($("#DISTANZA_RISPETTO").val()=="N") {
+						$("#limod64").attr("disabled", false);
+					}else{
+						$("#limod64").attr("disabled", true);
+					}
+				});
+				
+				
+			});
+					
+			
+			
+
+			
+	        $('#dt').DataTable({
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	  
+	            "ajax": dtAjax+dtWhereCondition,				
+				columnDefs: [
+					{
+						width:"1%",
+						targets:0,
+						orderable: false,
+						data:null,
+						visible: false,
+			            defaultContent: '<a href="#" class="editRow" title="${label_edit}"><i class="fa fa-pencil fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						targets:1,
+						orderable: false,
+						data:null,
+						visible: false,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (row[0]!="" && row[9]!="" && row[10]!="" && row[8]=="N") {
+									data = '<a href="#" class="origALIMOD64" title="Crea LIMOD 64"><i class="fa fa-file" aria-hidden="true"></i></a>';
+								} else {
+									data = '';
+								}
+							}
+
+							return data;
+						}
+					},
+					{
+						targets:2,
+						visible: false
+					},
+					{
+						targets:3,
+						visible: false
+					},
+					{
+						targets:7,
+						visible: false
+					},
+					{
+						targets:8,
+						visible: false
+					},
+					{
+						targets:9,
+						visible: false
+					},
+					{
+						targets:10,
+						visible: false
+					},
+					{
+						targets:11,
+						visible: false
+					},
+					{
+						targets:12,
+						visible: false
+					},
+					{
+						targets:13,
+						visible: false
+					},
+					{
+						targets:14,
+						visible: false
+					},
+					{
+						targets:15,
+						visible: false
+					},
+					{
+						targets:16,
+						visible: false
+					}
+					
+				],
+				
+	            dom: '<"html5buttons"B>lTgitp',
+	            language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+	
+	            buttons: [
+	            ],
+				aaSorting: []
+	
+	        });
+	      
+	   
+		});
+    	
+    	$("#planimetria").click(function() {
+    		$("#ID_IMPIANTO_MODULO").val($("#ID_IMPIANTO").val());
+    		$("#ID_AZIENDA_MODULO").val($("#ID_AZIENDA").val());
+			$("#formPlanimetria").submit();   		
+    	});
+    	
+
+		function disableFieldsReadOnly() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#salva").hide();
+		}
+
+		
+    </script> 
+
+</head>
+
+<body>
+
+
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1"
+		role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal"
+						class="btn btn-white btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();"
+						data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+	
+		
+	
+	<form action="astro" method="get" id="formOrigin" name="formOrigin">
+		<input type="hidden" id="FUNCTIONID_ORIGIN" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="UPDATE">
+		<input type="hidden" id="ID_DETTAGLIO_ORIGIN" name="ID_DETTAGLIO_ORIGIN">
+		<input type="hidden" id="ID_MODULO_ORIGIN" name="ID_MODULO_ORIGIN">
+		<input type="hidden" id="ID_AREA_ORIGIN" name="ID_AREA_ORIGIN">
+		<input type="hidden" id="ID_IMPIANTO_ORIGIN" name="ID_IMPIANTO_ORIGIN">
+		<input type="hidden" id="ID_AZIENDA_ORIGIN" name="ID_AZIENDA_ORIGIN">
+	</form>		
+	
+	
+	
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists>
+		<#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row">
+                <div class="col-sm-12">
+				
+                    <div class="ibox">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                        	
+							<div class="row">
+                        	<div class="col-sm-12">
+                        
+                            <form action="astro" method="post" id="formInserimento" name="formInserimento" class="form-horizontal">
+								<input type="hidden" name="FUNCTIONID" value="InserimentoLIMOD70"> 
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+								<input type="hidden" id="ID_MODULO" name="ID_MODULO">
+								<input type="hidden" id="CODICE_MODULO" name="CODICE_MODULO">
+								<input type="hidden" id="ID_UTENTE" name="ID_UTENTE">
+								<input type="hidden" id="STATO" name="STATO">
+
+										
+								<div class="form-group">
+									<label class="col-sm-1 control-label-left">Area di lavoro:</label>
+                                    <div class="col-sm-3">
+	                                    <strong><select id="ID_AREA" name="ID_AREA"  class="form-control" style="font-weight:bold" required>
+	                                    </select></strong>
+									</div>
+                                </div>     
+                                		
+								<div class="form-group">
+                                	<label class="col-sm-1 control-label-left">Sito:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control" required>
+	                                    </select>
+									</div>
+									
+									<label class="col-sm-1 control-label-left">Impianto:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_IMPIANTO" name="ID_IMPIANTO"  class="form-control" required>
+	                                    </select>
+									</div>    
+                                </div>                                  
+											         
+                                <div class="form-group">
+                                	<label class="col-sm-1 control-label-left">Id Modulo</label>
+                                    <div class="col-sm-3">
+                                    	<input type="text" class="form-control" id="NR_MODULO" name="NR_MODULO">
+                                    </div>
+
+                                	<label class="col-sm-1 control-label-left">Data</label>
+                                    <div class="col-sm-3">
+	                                    <input type="text" class="form-control" name="DT_MODULO" id="DT_MODULO" required>
+                                    </div>
+                                    
+                                    <label class="col-sm-1 control-label-left">Ora</label>
+                                    <div class="col-sm-3">
+	                                    <input type="text" class="form-control" name="ORA" id="ORA" required>
+									</div>                           	
+                                  
+                                </div>
+                                <div class="form-group">  
+                                	<label class="col-sm-1 control-label-left">Redattore</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_UTENTE_INS" name="ID_UTENTE_INS"  class="form-control" required >
+	                                    </select>
+									</div>    
+									
+									<label class="col-sm-1 control-label-left">Turno:</label>
+									<div class="col-sm-3">
+										<select class="form-control" id="CODICE_TURNO" name="CODICE_TURNO" required>
+										</select>
+									</div>
+                                </div>    
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-1 control-label-left">Valutazione</label>
+                                    <div class="col-sm-3">
+	                                    <select class="form-control" id="VALUTAZIONE" name="VALUTAZIONE" required>
+	                                    </select>
+									</div>
+									
+									<label class="col-sm-1 control-label-left">C'&#232; la distanza di rispetto tra le imprese?</label>
+                                   	<div class="col-sm-3">
+	                                    <select class="form-control" id="DISTANZA_RISPETTO" name="DISTANZA_RISPETTO" required>
+	                                    </select>
+									</div>
+									
+                               </div>											         
+							
+								 <div class="form-group" id="salva-group">
+									<div class="col-sm-12">
+										<button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+									</div>
+								</div>
+								
+                            </form>
+                            
+                            <form action="astro" method="get" id="formPlanimetria" name="formLimod64">
+								<input type="hidden" id="FUNCTIONID_EDIT" name="FUNCTIONID" value="InserimentoLIMOD64">
+								<input type="hidden" id="ID_MODULO_ORIGIN" name="ID_MODULO_ORIGIN"  value="<#if ID_MODULO?exists>${ID_MODULO}</#if>">
+								<input type="hidden" id="ID_AZIENDA_ORIGIN" name="ID_AZIENDA_ORIGIN"  value="<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>">
+								<input type="hidden" id="ID_IMPIANTO_ORIGIN" name="ID_IMPIANTO_ORIGIN"  value="<#if ID_IMPIANTO?exists>${ID_IMPIANTO}</#if>">
+								<input type="hidden" id="ID_AREA_ORIGIN" name="ID_AREA_ORIGIN"  value="<#if ID_AREA?exists>${ID_AREA}</#if>">
+				
+								<div class="form-group">
+									<button class="btn btn-primary btn-sm" id="limod64" name="limod64">Crea MOD64</button>
+								</div>
+							</form>	
+                            
+                            <form action="astro" method="get" id="formPlanimetria" name="formPlanimetria">
+								<input type="hidden" id="FUNCTIONID_EDIT" name="FUNCTIONID" value="ModuloInterferenze">
+								<input type="hidden" id="ID_AZIENDA" name="ID_AZIENDA"  value="<#if ID_AZIENDA_MODULO?exists>${ID_AZIENDA_MODULO}</#if>">
+								<input type="hidden" id="ID_IMPIANTO" name="ID_IMPIANTO"  value="<#if ID_IMPIANTO_MODULO?exists>${ID_IMPIANTO_MODULO}</#if>">
+								<div class="form-group">
+									<button class="btn btn-primary btn-sm" id="planimetria" name="planimetria">Torna a planimetria interferenze</button>
+								</div>
+							</form>	
+                            
+                            	  
+								
+                            </div>
+                            </div>
+						</div>
+					</div>
+						
+                    <div class="ibox"  id="dettagli">					
+                            
+	                    <div class="ibox-title">
+	                        <div>
+								<h4><strong>Dettagli</strong></h4>
+	                        </div>                    
+	                    </div>	
+	                                                
+                        <div class="ibox-content">
+                        
+							<div class="row">
+							
+								<div class="col-sm-12">
+                            
+								<form action="astro" method="post" id="formAggiungiDettaglio" name="formAggiungiDettaglio"  class="form-horizontal">
+									
+									<input type="hidden" name="FUNCTIONID" value="InserimentoDettaglioLIMOD70">
+									<input type="hidden" id="OPERATION_TYPE_DETTAGLIO" name="OPERATION_TYPE">
+									<input type="hidden" id="ID_MODULO_DETTAGLIO" name="ID_MODULO">
+									<input type="hidden" id="ID_DETTAGLIO" name="ID_DETTAGLIO">
+									<input type="hidden" id="ID_UTENTE_INS" name="ID_UTENTE_INS">
+								</form>
+
+		                        <div class="table-responsive">
+									<table id="dt" class="table table-bordered">
+		                                <thead>
+		                                <tr>
+											<th></th>
+											<th></th>
+											<th></th>
+											<th>Area</th>
+											<th>Impresa</th>
+											<th>Nr. PDL</th>
+											<th>Preposto</th>
+											<th>Valutazione</th>
+											<th></th>
+											<th>Distanza di rispetto</th>
+											<th></th>
+											<th></th>
+											<th></th>
+											<th></th>
+											<th></th>
+											<th>Redattore</th>
+											<th>Ora</th>
+		                                </tr>
+		                                </thead>
+		                            </table>											
+		                        </div>
+					                        
+	                                                                
+                                </div>
+                            </div>
+                                
+                        </div>
+                    </div>
+                </div>
+            </div>		
+
+			
+			<#if INCLUDED_FOOTER_PDLWEB?exists><#include INCLUDED_FOOTER_PDLWEB></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

@@ -1,0 +1,2231 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	
+	<style>
+		/* Forza il tooltip sopra ogni cosa (header, menu fissi, modali) */
+.tooltip {
+    z-index: 999999 !important; 
+}
+
+/* Opzionale: se vuoi rendere il testo più leggibile o colorato */
+.tooltip-inner {
+    max-width: 250px;
+    background-color: grey !important; /* Rosso avviso */
+    color: white !important;
+    font-weight: bold;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
+}
+
+/* Colora anche la freccina di rosso */
+.tooltip.bs-tooltip-top .arrow::before {
+    border-top-color: #d9534f !important;
+}
+	</style>
+	
+    <script type="text/javascript">
+    
+    	function escapeHtml(str) {
+        return str.replace(/[&<>"']/g, function(match) {
+            const escapeMap = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'  // Escapare anche gli apici singoli
+            };
+            return escapeMap[match] || match;
+        });
+    }
+
+  
+    
+    
+		$(function(){
+			
+			<#if PROFILO?contains('SPL') || PROFILO?contains('ADM') || PROFILO?contains('PLA')>
+			<#else>
+				<#if PROFILO?contains('NEW')>
+					$('#modalAvvisoDuplicazione').modal({
+				        backdrop: 'static', // Impedisce la chiusura cliccando fuori dalla modal
+				        keyboard: false,    // Impedisce la chiusura con il tasto ESC
+				        show: true
+				    });
+				</#if>
+			</#if>
+			
+			
+			
+			
+			
+			$("#info").hide();
+		
+			
+			$("#planimetria").click(function() {
+	    		$("#FUNCTION_VIEW").val("ModuloInterferenze");
+				$("#formPlanimetria").submit();   
+	    	});
+			
+			$('select').bind('loadDataSetEIS',function(event,dataset,valueField,textField,selectedList,whereCondition,selectFirstIfUnique) {
+				
+				var objectID=this.id;
+				var $selectObject=$("#"+objectID).select2({
+					theme: "bootstrap",
+					containerCssClass: ':all:',
+				    width: '100%'				
+				} );			
+				
+
+
+				$.ajax({
+					url: "astro?FUNCTIONID=JSONDataSet&dataset="+dataset+"&columns="+valueField+","+textField+"&WHERECONDITION="+whereCondition,
+					dataType: 'json',
+					type: 'GET',
+					success: function (data) {
+
+						if (selectFirstIfUnique == null ){
+							selectFirstIfUnique=true;
+						}  
+
+						var firstValue="";
+						
+						if (selectFirstIfUnique){
+							if(data.rows.length==1) {
+								selectFirstIfUnique=true;
+							} else {
+								selectFirstIfUnique=false;
+							}
+						}
+						
+						var isMultiple=$selectObject.attr('multiple');
+						if (isMultiple!=null && isMultiple=="multiple") {
+							selectFirstIfUnique=false;
+						}
+						
+						
+
+						
+						$.each(data.rows,function(i,data) {
+							var value=eval("data."+valueField);
+
+							if (i==0) {
+								
+
+								firstValue=value;
+								if (isMultiple!=null && isMultiple=="multiple") {
+								} else {
+									if (firstValue!="") {
+										var blankOption="<option value=\"\">Selezionare...</option>";
+										$(blankOption).appendTo($selectObject); 
+									}
+								} 
+							}
+							var option="<option value='"+value+"'>"+eval("data."+textField)+"</option>";
+							$(option).appendTo($selectObject); 
+						}); 
+						
+						if (selectFirstIfUnique){
+							$selectObject.val(firstValue).change();
+						    return;
+						}				
+						
+						
+						if (selectedList == null || selectedList==""){
+							$selectObject.val("").change();
+						    return;
+						}
+						
+						
+						$.each(data.rows,function(i,data) {
+							var value=eval("data."+valueField);
+
+							if (value.indexOf(selectedList)!=-1) {
+								$selectObject.val(value).change();
+							}
+						}); 						
+
+
+					}
+				});
+			});			
+			
+		 	<#if !PROFILO?contains('RCD') && !PROFILO?contains('PLA')>
+				$("#formInserimento :input").attr("disabled", true);
+				$("#salva").attr("disabled", false);
+			</#if>
+
+			<#if PROFILO?contains('DLV')>
+			$("#tab-2 :input").attr("disabled", false);
+			</#if>
+			
+		 	<#if PROFILO?contains('CPT')>
+			$("#tab-3 :input").attr("disabled", false);
+			</#if>
+			
+			<#if PROFILO?contains('INT')>
+			$("#FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N").attr("disabled", false);
+			$("#LISTA_PDL1_NR").attr("disabled", false);
+			</#if>
+			
+			<#if INTERFERENZE?exists && INTERFERENZE?contains('Y')>
+				$("#formInserimento :input").attr("disabled", true);
+				$("#planimetria").attr("disabled", false);
+			<#else>
+				$("#planimetria").hide();
+			</#if>
+
+			
+			
+			<#if PROFILO?contains('SPL') || PROFILO?contains('ADM')>
+			<#else>
+				<#if PROFILO?contains('NEW')>
+					$("#salva").attr("disabled", true);
+	
+					if ($("#salva").is(":disabled")) {
+					    // Rendiamo il wrapper intercettabile e cambiamo il cursore
+					    $("#wrapper-salva").css({
+					        "cursor": "not-allowed",
+					        "display": "inline-block" // Importante perché i div a volte collassano
+					    });
+	
+					    // Impediamo al bottone di "mangiare" l'evento mouse
+					    $("#salva").css("pointer-events", "none");
+	
+					    $("#wrapper-salva").tooltip({
+					        title: "Il PdL non è modificabile siccome è una revisione precedente alla attuale.",
+					        placement: "top",
+					        container: 'body', 
+					        trigger: 'hover'
+					    });
+					}
+				</#if>
+			</#if>
+			
+			
+			
+			
+			
+			
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiPDL","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 ",false]);
+			$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO","<#if ID_IMPIANTO?exists>${ID_IMPIANTO}</#if>"," <#if ID_AZIENDA?exists>WHERE ID_AZIENDA=${ID_AZIENDA}<#else>WHERE 1=0</#if> "]);
+			$("#ID_AREA").trigger("loadDataSet",["DSAreaLavoro","ID_AREA","DESCR_AREA","<#if ID_AREA?exists>${ID_AREA}</#if>"," <#if ID_IMPIANTO?exists>WHERE ID_IMPIANTO=${ID_IMPIANTO}<#else>WHERE 1=0</#if> "]);
+			$("#ID_EQUIPMENT").trigger("loadDataSetEIS",["DSEquipment","ID_EQUIPMENT_EIS","DESCR_EQUIPMENT","<#if ID_EQUIPMENT?exists>${ID_EQUIPMENT}</#if>","<#if ID_AREA?exists> WHERE ID_AREA=${ID_AREA} <#else> WHERE 1=0 </#if> "]);
+			
+		
+		    // Escapare il valore di IMPRESA_TESTO
+		    var impresaTesto = escapeHtml("<#if IMPRESA_TESTO?exists>${IMPRESA_TESTO}</#if>");
+		
+		    // Passare il valore correttamente escapato alla funzione trigger
+		    $("#IMPRESA_TESTO").trigger("loadDataSet", ["DSImprese", "NOME_IMPRESA", "NOME_IMPRESA", impresaTesto, " WHERE 1=1 "]);
+		
+			
+			$("#NOME_COGNOME_PREPOSTO_IMPRESA").trigger("loadDataSet",["DSPrepostiImpresa","NOME_COGNOME_PREPOSTO_IMPRESA","NOME_COGNOME_PREPOSTO_IMPRESA","<#if NOME_COGNOME_PREPOSTO_IMPRESA?exists>${NOME_COGNOME_PREPOSTO_IMPRESA}</#if>","  <#if IMPRESA_TESTO?exists>WHERE NOME_IMPRESA='${IMPRESA_TESTO}'<#else>WHERE 1=0</#if> ",false]);
+			$("#NOME_COGNOME_DELEGATO_LAVORI_AL").trigger("loadDataSet",["DSDelegatoLavori","COGNOME_NOME","COGNOME_NOME","<#if NOME_COGNOME_DELEGATO_LAVORI_AL?exists>${NOME_COGNOME_DELEGATO_LAVORI_AL}</#if>"," WHERE 1=1 ",false]);
+			$("#RESPONSABILE_CENTRALE_DELEGATO").trigger("loadDataSet",["DSResponsabileCentraleDelegatoPDL","NOME_COGNOME","NOME_COGNOME","<#if RESPONSABILE_CENTRALE_DELEGATO?exists>${RESPONSABILE_CENTRALE_DELEGATO}</#if>"," WHERE 1=1 ",false]);
+			$("#RESPONSABILE_CENTRALE_DELEGATO1").trigger("loadDataSet",["DSResponsabileCentraleDelegatoPDL","NOME_COGNOME","NOME_COGNOME","<#if RESPONSABILE_CENTRALE_DELEGATO?exists>${RESPONSABILE_CENTRALE_DELEGATO}</#if>"," WHERE 1=1 ",false]);
+			$("#NOME_COGNOME_PREPOSTO_IMPRESA_2").trigger("loadDataSet",["DSPrepostiImpresa","NOME_COGNOME_PREPOSTO_IMPRESA","NOME_COGNOME_PREPOSTO_IMPRESA","<#if NOME_COGNOME_PREPOSTO_IMPRESA_2?exists>${NOME_COGNOME_PREPOSTO_IMPRESA_2}</#if>","  <#if IMPRESA_TESTO?exists>WHERE NOME_IMPRESA='${IMPRESA_TESTO}'<#else>WHERE 1=0</#if> ",false]);
+			$("#NOME_COGNOME_DELEGATO_LAVORI_AL_2").trigger("loadDataSet",["DSDelegatoLavori","COGNOME_NOME","COGNOME_NOME","<#if NOME_COGNOME_DELEGATO_LAVORI_AL_2?exists>${NOME_COGNOME_DELEGATO_LAVORI_AL_2}</#if>"," WHERE 1=1 ",false]);
+			
+			$("#STATO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if STATO?exists && STATO!=''>${STATO}<#else>OPE</#if>"," WHERE DOMINIO='SPL' "]);
+			
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			$("#DESCRIZIONE_LAVORO").val("<#if DESCRIZIONE_LAVORO?exists>${DESCRIZIONE_LAVORO}</#if>");
+			$("#ID_PDL").val("<#if ID_PDL?exists>${ID_PDL}</#if>");
+			$("#CODICE_PDL").val("<#if CODICE_PDL?exists>${CODICE_PDL}</#if>");
+			$("#DT_PDL").val("<#if DT_PDL?exists>${DT_PDL}</#if>");
+			$("#DT_CHIUSURA").val("<#if DT_CHIUSURA?exists>${DT_CHIUSURA}</#if>");
+			$("#NR_PDL").val("<#if NR_PDL?exists>${NR_PDL}</#if>");
+			$("#ODL").val("<#if ODL?exists>${ODL}</#if>");
+			$("#NR_PDL").prop('readonly', true);
+			$('#FLG_TA').prop('checked','<#if FLG_TA?exists && FLG_TA!=''>${FLG_TA}<#else>false</#if>'==='true')
+			
+			$('#FLG_TUTA_DA_LAVORO').prop('checked',"<#if FLG_TUTA_DA_LAVORO?exists && FLG_TUTA_DA_LAVORO!=''>${FLG_TUTA_DA_LAVORO}<#else>true</#if>"==="true");	
+			$('#FLG_SCARPE_DI_SICUREZZA').prop('checked','<#if FLG_SCARPE_DI_SICUREZZA?exists && FLG_SCARPE_DI_SICUREZZA!=''>${FLG_SCARPE_DI_SICUREZZA}<#else>true</#if>'==='true');	
+			$('#FLG_GUANTI').prop('checked',"<#if FLG_GUANTI?exists && FLG_GUANTI!=''>${FLG_GUANTI}<#else>true</#if>"==="true");	
+			$('#FLG_OCCHIALI').prop('checked',"<#if FLG_OCCHIALI?exists && FLG_OCCHIALI!=''>${FLG_OCCHIALI}<#else>true</#if>"==="true");	
+			$('#FLG_ELMETTO').prop('checked',"<#if FLG_ELMETTO?exists && FLG_ELMETTO!=''>${FLG_ELMETTO}<#else>true</#if>"==="true");	
+			
+			$('#FLG_MECCANICA').prop('checked','<#if FLG_MECCANICA?exists && FLG_MECCANICA!=''>${FLG_MECCANICA}<#else>false</#if>'==='true')
+			$('#FLG_STRUMENTALE').prop('checked','<#if FLG_STRUMENTALE?exists && FLG_STRUMENTALE!=''>${FLG_STRUMENTALE}<#else>false</#if>'==='true')
+			$('#FLG_ELETTRICA').prop('checked','<#if FLG_ELETTRICA?exists && FLG_ELETTRICA!=''>${FLG_ELETTRICA}<#else>false</#if>'==='true')
+			$('#FLG_EDILE').prop('checked','<#if FLG_EDILE?exists && FLG_EDILE!=''>${FLG_EDILE}<#else>false</#if>'==='true')
+			$('#FLG_A_FUOCO').prop('checked','<#if FLG_A_FUOCO?exists && FLG_A_FUOCO!=''>${FLG_A_FUOCO}<#else>false</#if>'==='true')
+			$('#FLG_IN_QUOTA').prop('checked','<#if FLG_IN_QUOTA?exists && FLG_IN_QUOTA!=''>${FLG_IN_QUOTA}<#else>false</#if>'==='true')
+			$('#FLG_SCAVO').prop('checked','<#if FLG_SCAVO?exists && FLG_SCAVO!=''>${FLG_SCAVO}<#else>false</#if>'==='true')
+			$('#FLG_IN_SPAZI_CONFINATI').prop('checked','<#if FLG_IN_SPAZI_CONFINATI?exists && FLG_IN_SPAZI_CONFINATI!=''>${FLG_IN_SPAZI_CONFINATI}<#else>false</#if>'==='true')
+			$('#FLG_COIBENTAZIONE_SCOIBENTAZIONE').prop('checked','<#if FLG_COIBENTAZIONE_SCOIBENTAZIONE?exists && FLG_COIBENTAZIONE_SCOIBENTAZIONE!=''>${FLG_COIBENTAZIONE_SCOIBENTAZIONE}<#else>false</#if>'==='true')
+			$('#FLG_CIECATURA_RIMOZIONE').prop('checked','<#if FLG_CIECATURA_RIMOZIONE?exists && FLG_CIECATURA_RIMOZIONE!=''>${FLG_CIECATURA_RIMOZIONE}<#else>false</#if>'==='true')
+			$('#FLG_PULIZIA_FACCHINAGGIO').prop('checked','<#if FLG_PULIZIA_FACCHINAGGIO?exists && FLG_PULIZIA_FACCHINAGGIO!=''>${FLG_PULIZIA_FACCHINAGGIO}<#else>false</#if>'==='true')
+			$('#FLG_VERNICIATURA').prop('checked','<#if FLG_VERNICIATURA?exists && FLG_VERNICIATURA!=''>${FLG_VERNICIATURA}<#else>false</#if>'==='true')
+			$('#FLG_SABBIATURA').prop('checked','<#if FLG_SABBIATURA?exists && FLG_SABBIATURA!=''>${FLG_SABBIATURA}<#else>false</#if>'==='true')
+			$('#FLG_AGGOTTAMENTO').prop('checked','<#if FLG_AGGOTTAMENTO?exists && FLG_AGGOTTAMENTO!=''>${FLG_AGGOTTAMENTO}<#else>false</#if>'==='true')
+			$('#FLG_PONTEGGIO').prop('checked','<#if FLG_PONTEGGIO?exists && FLG_PONTEGGIO!=''>${FLG_PONTEGGIO}<#else>false</#if>'==='true')
+			
+			$('#ALTRO_SEZ1_TIPOLAVORO1_TESTO').val("<#if ALTRO_SEZ1_TIPOLAVORO1_TESTO?exists>${ALTRO_SEZ1_TIPOLAVORO1_TESTO}</#if>");
+			
+			$('#FLG_OSSIGENO').prop('checked','<#if FLG_OSSIGENO?exists && FLG_OSSIGENO!=''>${FLG_OSSIGENO}<#else>false</#if>'==='true')
+			$('#FLG_AZOTO').prop('checked','<#if FLG_AZOTO?exists && FLG_AZOTO!=''>${FLG_AZOTO}<#else>false</#if>'==='true')
+			$('#FLG_ARGON').prop('checked','<#if FLG_ARGON?exists && FLG_ARGON!=''>${FLG_ARGON}<#else>false</#if>'==='true')
+			$('#FLG_LIQUIDI_CRIOGENICI').prop('checked','<#if FLG_LIQUIDI_CRIOGENICI?exists && FLG_LIQUIDI_CRIOGENICI!=''>${FLG_LIQUIDI_CRIOGENICI}<#else>false</#if>'==='true')
+			$('#FLG_METANO_O_GAS_NATURALE').prop('checked','<#if FLG_METANO_O_GAS_NATURALE?exists && FLG_METANO_O_GAS_NATURALE!=''>${FLG_METANO_O_GAS_NATURALE}<#else>false</#if>'==='true')
+			$('#FLG_IDROCARBURI').prop('checked','<#if FLG_IDROCARBURI?exists && FLG_IDROCARBURI!=''>${FLG_IDROCARBURI}<#else>false</#if>'==='true')
+			$('#FLG_PERLITE').prop('checked','<#if FLG_PERLITE?exists && FLG_PERLITE!=''>${FLG_PERLITE}<#else>false</#if>'==='true')
+			$('#FLG_BUTANO').prop('checked','<#if FLG_BUTANO?exists && FLG_BUTANO!=''>${FLG_BUTANO}<#else>false</#if>'==='true')
+			$('#FLG_SYNGAS').prop('checked','<#if FLG_SYNGAS?exists && FLG_SYNGAS!=''>${FLG_SYNGAS}<#else>false</#if>'==='true')
+			$('#FLG_IDROGENO').prop('checked','<#if FLG_IDROGENO?exists && FLG_IDROGENO!=''>${FLG_IDROGENO}<#else>false</#if>'==='true')
+			$('#FLG_DMDS').prop('checked','<#if FLG_DMDS?exists && FLG_DMDS!=''>${FLG_DMDS}<#else>false</#if>'==='true')
+			$('#FLG_OLI').prop('checked','<#if FLG_OLI?exists && FLG_OLI!=''>${FLG_OLI}<#else>false</#if>'==='true')
+			$('#FLG_VAPORE').prop('checked','<#if FLG_VAPORE?exists && FLG_VAPORE!=''>${FLG_VAPORE}<#else>false</#if>'==='true')
+			
+			$('#ALTRO_SEZ1_PRODOTTI1_TESTO').val("<#if ALTRO_SEZ1_PRODOTTI1_TESTO?exists>${ALTRO_SEZ1_PRODOTTI1_TESTO}</#if>")
+
+			$('#FLG_RUMORE').prop('checked','<#if FLG_RUMORE?exists && FLG_RUMORE!=''>${FLG_RUMORE}<#else>false</#if>'==='true')
+			$('#FLG_ALTA_TEMPERATURA').prop('checked','<#if FLG_ALTA_TEMPERATURA?exists && FLG_ALTA_TEMPERATURA!=''>${FLG_ALTA_TEMPERATURA}<#else>false</#if>'==='true')
+			$('#FLG_PRESSIONE').prop('checked','<#if FLG_PRESSIONE?exists && FLG_PRESSIONE!=''>${FLG_PRESSIONE}<#else>false</#if>'==='true')
+			$('#FLG_ALTEZZA').prop('checked','<#if FLG_ALTEZZA?exists && FLG_ALTEZZA!=''>${FLG_ALTEZZA}<#else>false</#if>'==='true')
+			$('#FLG_CRIOGENIA_BASSA_TEMPERATURA').prop('checked','<#if FLG_CRIOGENIA_BASSA_TEMPERATURA?exists && FLG_CRIOGENIA_BASSA_TEMPERATURA!=''>${FLG_CRIOGENIA_BASSA_TEMPERATURA}<#else>false</#if>'==='true')
+			$('#FLG_PARTI_IN_MOVIMENTO').prop('checked','<#if FLG_PARTI_IN_MOVIMENTO?exists && FLG_PARTI_IN_MOVIMENTO!=''>${FLG_PARTI_IN_MOVIMENTO}<#else>false</#if>'==='true')
+			$('#FLG_APPAR_CAVI_ELETTRICI').prop('checked','<#if FLG_APPAR_CAVI_ELETTRICI?exists && FLG_APPAR_CAVI_ELETTRICI!=''>${FLG_APPAR_CAVI_ELETTRICI}<#else>false</#if>'==='true')
+			$('#FLG_APPAR_CAVI_ELETTRICI_2').prop('checked','<#if FLG_APPAR_CAVI_ELETTRICI_2?exists && FLG_APPAR_CAVI_ELETTRICI_2!=''>${FLG_APPAR_CAVI_ELETTRICI_2}<#else>false</#if>'==='true')
+			$('#FLG_APPAR_CAVI_ELETTRICI_3').prop('checked','<#if FLG_APPAR_CAVI_ELETTRICI_3?exists && FLG_APPAR_CAVI_ELETTRICI_3!=''>${FLG_APPAR_CAVI_ELETTRICI_3}<#else>false</#if>'==='true')
+			$('#FLG_PRODOTTI_CHIMICI').prop('checked','<#if FLG_PRODOTTI_CHIMICI?exists && FLG_PRODOTTI_CHIMICI!=''>${FLG_PRODOTTI_CHIMICI}<#else>false</#if>'==='true')
+			$('#FLG_MATERIALI_INFIAMMABILI').prop('checked','<#if FLG_MATERIALI_INFIAMMABILI?exists && FLG_MATERIALI_INFIAMMABILI!=''>${FLG_MATERIALI_INFIAMMABILI}<#else>false</#if>'==='true')
+
+			$('#ALTRO_SEZ1_ATTIVITA1_TESTO').val("<#if ALTRO_SEZ1_ATTIVITA1_TESTO?exists>${ALTRO_SEZ1_ATTIVITA1_TESTO}</#if>")
+			
+			$('#FLG_INTERCETTARE').prop('checked','<#if FLG_INTERCETTARE?exists && FLG_INTERCETTARE!=''>${FLG_INTERCETTARE}<#else>false</#if>'==='true')
+			$('#FLG_DEPRESSURIZZARE').prop('checked','<#if FLG_DEPRESSURIZZARE?exists && FLG_DEPRESSURIZZARE!=''>${FLG_DEPRESSURIZZARE}<#else>false</#if>'==='true')
+			$('#FLG_VUOTARE').prop('checked','<#if FLG_VUOTARE?exists && FLG_VUOTARE!=''>${FLG_VUOTARE}<#else>false</#if>'==='true')
+			$('#FLG_DOPPIE_VALVOLE_CHIUSE').prop('checked','<#if FLG_DOPPIE_VALVOLE_CHIUSE?exists && FLG_DOPPIE_VALVOLE_CHIUSE!=''>${FLG_DOPPIE_VALVOLE_CHIUSE}<#else>false</#if>'==='true')
+			$('#FLG_SPURGHI_APERTI').prop('checked','<#if FLG_SPURGHI_APERTI?exists && FLG_SPURGHI_APERTI!=''>${FLG_SPURGHI_APERTI}<#else>false</#if>'==='true')
+			$('#FLG_SPURGHI_CHIUSI').prop('checked','<#if FLG_SPURGHI_CHIUSI?exists && FLG_SPURGHI_CHIUSI!=''>${FLG_SPURGHI_CHIUSI}<#else>false</#if>'==='true')
+			$('#FLG_VENT_APERTI').prop('checked','<#if FLG_VENT_APERTI?exists && FLG_VENT_APERTI!=''>${FLG_VENT_APERTI}<#else>false</#if>'==='true')
+			$('#FLG_VENT_CHIUSI').prop('checked','<#if FLG_VENT_CHIUSI?exists && FLG_VENT_CHIUSI!=''>${FLG_VENT_CHIUSI}<#else>false</#if>'==='true')
+			$('#FLG_SCONNETTERE_LINEE').prop('checked','<#if FLG_SCONNETTERE_LINEE?exists && FLG_SCONNETTERE_LINEE!=''>${FLG_SCONNETTERE_LINEE}<#else>false</#if>'==='true')
+			$('#FLG_SFLANGIARE').prop('checked','<#if FLG_SFLANGIARE?exists && FLG_SFLANGIARE!=''>${FLG_SFLANGIARE}<#else>false</#if>'==='true')
+			$('#FLG_CONTROLLARE_PRESSIONE').prop('checked','<#if FLG_CONTROLLARE_PRESSIONE?exists && FLG_CONTROLLARE_PRESSIONE!=''>${FLG_CONTROLLARE_PRESSIONE}<#else>false</#if>'==='true')
+			$('#FLG_CONTROLLARE_TEMPERATURA').prop('checked','<#if FLG_CONTROLLARE_TEMPERATURA?exists && FLG_CONTROLLARE_TEMPERATURA!=''>${FLG_CONTROLLARE_TEMPERATURA}<#else>false</#if>'==='true')
+			$('#FLG_AREARE').prop('checked','<#if FLG_AREARE?exists && FLG_AREARE!=''>${FLG_AREARE}<#else>false</#if>'==='true')
+			$('#FLG_DOPPIA_VALVOLA_CHIUSA_E_SPURGO_INTERMEDIO_APERTO').prop('checked','<#if FLG_DOPPIA_VALVOLA_CHIUSA_E_SPURGO_INTERMEDIO_APERTO?exists && FLG_DOPPIA_VALVOLA_CHIUSA_E_SPURGO_INTERMEDIO_APERTO!=''>${FLG_DOPPIA_VALVOLA_CHIUSA_E_SPURGO_INTERMEDIO_APERTO}<#else>false</#if>'==='true')
+			$('#FLG_LAVARE_CON_PRODOTTI_COMPATIBILI_ALIMENTARE_FARMACEUTICO').prop('checked','<#if FLG_LAVARE_CON_PRODOTTI_COMPATIBILI_ALIMENTARE_FARMACEUTICO?exists && FLG_LAVARE_CON_PRODOTTI_COMPATIBILI_ALIMENTARE_FARMACEUTICO!=''>${FLG_LAVARE_CON_PRODOTTI_COMPATIBILI_ALIMENTARE_FARMACEUTICO}<#else>false</#if>'==='true')
+			$('#FLG_PREDISPORRE_CARTELLI_DIVIETO_MANOVRA').prop('checked','<#if FLG_PREDISPORRE_CARTELLI_DIVIETO_MANOVRA?exists && FLG_PREDISPORRE_CARTELLI_DIVIETO_MANOVRA!=''>${FLG_PREDISPORRE_CARTELLI_DIVIETO_MANOVRA}<#else>false</#if>'==='true')
+			$('#FLG_PREDISPORRE_ILLUMINAZIONE').prop('checked','<#if FLG_PREDISPORRE_ILLUMINAZIONE?exists && FLG_PREDISPORRE_ILLUMINAZIONE!=''>${FLG_PREDISPORRE_ILLUMINAZIONE}<#else>false</#if>'==='true')
+			$('#FLG_PREDISPORRE_ATTREZZATURE_ANTINCENDIO').prop('checked','<#if FLG_PREDISPORRE_ATTREZZATURE_ANTINCENDIO?exists && FLG_PREDISPORRE_ATTREZZATURE_ANTINCENDIO!=''>${FLG_PREDISPORRE_ATTREZZATURE_ANTINCENDIO}<#else>false</#if>'==='true')
+			$('#FLG_LOCALIZZARE_LINEE_INTERRATE').prop('checked','<#if FLG_LOCALIZZARE_LINEE_INTERRATE?exists && FLG_LOCALIZZARE_LINEE_INTERRATE!=''>${FLG_LOCALIZZARE_LINEE_INTERRATE}<#else>false</#if>'==='true')
+			$('#FLG_APPLICARE_SEGNALETICA').prop('checked','<#if FLG_APPLICARE_SEGNALETICA?exists && FLG_APPLICARE_SEGNALETICA!=''>${FLG_APPLICARE_SEGNALETICA}<#else>false</#if>'==='true')
+			$('#FLG_TRIPODE').prop('checked','<#if FLG_TRIPODE?exists && FLG_TRIPODE!=''>${FLG_TRIPODE}<#else>false</#if>'==='true')
+			$('#FLG_PROTEGGERE_FOGNE').prop('checked','<#if FLG_PROTEGGERE_FOGNE?exists && FLG_PROTEGGERE_FOGNE!=''>${FLG_PROTEGGERE_FOGNE}<#else>false</#if>'==='true')
+			$('#FLG_PONTEGGIO_PIANO_DI_LAVORO').prop('checked','<#if FLG_PONTEGGIO_PIANO_DI_LAVORO?exists && FLG_PONTEGGIO_PIANO_DI_LAVORO!=''>${FLG_PONTEGGIO_PIANO_DI_LAVORO}<#else>false</#if>'==='true')
+			$('#FLG_PIATTAFORMA').prop('checked','<#if FLG_PIATTAFORMA?exists && FLG_PIATTAFORMA!=''>${FLG_PIATTAFORMA}<#else>false</#if>'==='true')
+			$('#FLG_DELIMITARE_ZONA_LAVORO').prop('checked','<#if FLG_DELIMITARE_ZONA_LAVORO?exists && FLG_DELIMITARE_ZONA_LAVORO!=''>${FLG_DELIMITARE_ZONA_LAVORO}<#else>false</#if>'==='true')
+			$('#FLG_SQUADRA_DI_SOCCORSO_IN_STAND_BY').prop('checked','<#if FLG_SQUADRA_DI_SOCCORSO_IN_STAND_BY?exists && FLG_SQUADRA_DI_SOCCORSO_IN_STAND_BY!=''>${FLG_SQUADRA_DI_SOCCORSO_IN_STAND_BY}<#else>false</#if>'==='true')
+			$('#FLG_INSUFFLARE_AZOTO').prop('checked','<#if FLG_INSUFFLARE_AZOTO?exists && FLG_INSUFFLARE_AZOTO!=''>${FLG_INSUFFLARE_AZOTO}<#else>false</#if>'==='true')
+			$('#FLG_INSUFFLARE_ARIA').prop('checked','<#if FLG_INSUFFLARE_ARIA?exists && FLG_INSUFFLARE_ARIA!=''>${FLG_INSUFFLARE_ARIA}<#else>false</#if>'==='true')
+			$('#FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N').prop('checked','<#if FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N?exists && FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N!=''>${FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N}<#else>false</#if>'==='true')
+			
+			$('#FLG_CIECATURA').prop('checked','<#if FLG_CIECATURA?exists && FLG_CIECATURA!=''>${FLG_CIECATURA}<#else>false</#if>'==='true')
+			
+			$('#FLG_RIMOZIONE_TEMPORANEA_EIS').prop('checked','<#if FLG_RIMOZIONE_TEMPORANEA_EIS?exists && FLG_RIMOZIONE_TEMPORANEA_EIS!=''>${FLG_RIMOZIONE_TEMPORANEA_EIS}<#else>false</#if>'==='true')
+			
+			$('#FLG_MESSA_IN_SICUREZZA_ELETTRICA').prop('checked','<#if FLG_MESSA_IN_SICUREZZA_ELETTRICA?exists && FLG_MESSA_IN_SICUREZZA_ELETTRICA!=''>${FLG_MESSA_IN_SICUREZZA_ELETTRICA}<#else>false</#if>'==='true')
+			
+			$('#FLG_PROVA_DI_ABITABILITA').prop('checked','<#if FLG_PROVA_DI_ABITABILITA?exists && FLG_PROVA_DI_ABITABILITA!=''>${FLG_PROVA_DI_ABITABILITA}<#else>false</#if>'==='true')
+			$('#FLG_PERMESSO_DI_ACCESSO').prop('checked','<#if FLG_PERMESSO_DI_ACCESSO?exists && FLG_PERMESSO_DI_ACCESSO!=''>${FLG_PERMESSO_DI_ACCESSO}<#else>false</#if>'==='true')
+			$('#FLG_LOTO').prop('checked','<#if FLG_LOTO?exists && FLG_LOTO!=''>${FLG_LOTO}<#else>false</#if>'==='true')
+			
+			$('#FLG_PERMESSO_ELETTRICO').prop('checked','<#if FLG_PERMESSO_ELETTRICO?exists && FLG_PERMESSO_ELETTRICO!=''>${FLG_PERMESSO_ELETTRICO}<#else>false</#if>'==='true')
+			$('#FLG_MODULO_INGLESE').prop('checked','<#if FLG_MODULO_INGLESE?exists && FLG_MODULO_INGLESE!=''>${FLG_MODULO_INGLESE}<#else>false</#if>'==='true')
+			
+			
+			$('#FLG_PROVA_DI_ESPLOSIVITA').prop('checked','<#if FLG_PROVA_DI_ESPLOSIVITA?exists && FLG_PROVA_DI_ESPLOSIVITA!=''>${FLG_PROVA_DI_ESPLOSIVITA}<#else>false</#if>'==='true')
+			
+			$('#FLG_CONSEGNA_VERIFICA_ACCETTAZIONE').prop('checked','<#if FLG_CONSEGNA_VERIFICA_ACCETTAZIONE?exists && FLG_CONSEGNA_VERIFICA_ACCETTAZIONE!=''>${FLG_CONSEGNA_VERIFICA_ACCETTAZIONE}<#else>false</#if>'==='true')
+			
+			$('#FLG_INTERFERENZA_LI_MOD_40_LI_SR_MOD_89').prop('checked','<#if FLG_INTERFERENZA_LI_MOD_40_LI_SR_MOD_89?exists && FLG_INTERFERENZA_LI_MOD_40_LI_SR_MOD_89!=''>${FLG_INTERFERENZA_LI_MOD_40_LI_SR_MOD_89}<#else>true</#if>'==='true')
+			
+			$('#FLG_LAVARE_CON').prop('checked','<#if FLG_LAVARE_CON?exists && FLG_LAVARE_CON!=''>${FLG_LAVARE_CON}<#else>false</#if>'==='true')
+			
+			$('#FLG_BONIFICARE_CON').prop('checked','<#if FLG_BONIFICARE_CON?exists && FLG_BONIFICARE_CON!=''>${FLG_BONIFICARE_CON}<#else>false</#if>'==='true')
+			
+			$('#FLG_PREDISPORRE_MANICHETTE_CON').prop('checked','<#if FLG_PREDISPORRE_MANICHETTE_CON?exists && FLG_PREDISPORRE_MANICHETTE_CON!=''>${FLG_PREDISPORRE_MANICHETTE_CON}<#else>false</#if>'==='true')
+
+			//$('#PDL1_NR').val('<#if PDL1_NR?exists>${PDL1_NR}</#if>')
+			
+			
+			$("#LISTA_PDL1_NR").trigger("loadDataSet",["DSPDLApertiAttivi","ID_PDL","NR_DESCR","<#if PDL_MULTIPLO?exists>${PDL_MULTIPLO}</#if>"," WHERE STATO IN ('OPE','ACT') <#if ID_AREA?exists>AND ID_AREA=${ID_AREA} <#if ID_PDL?exists>AND ID_PDL<>${ID_PDL}</#if> <#else> and 1=0</#if>"]);
+			
+			$('#SCHEDA_CIECATURA_NR').val('<#if SCHEDA_CIECATURA_NR?exists>${SCHEDA_CIECATURA_NR}</#if>')
+			
+			$('#LOTO_TESTO').val('<#if LOTO_TESTO?exists>${LOTO_TESTO}</#if>')
+			
+			$('#SCHEDA_EIS_NR').val('<#if SCHEDA_EIS_NR?exists>${SCHEDA_EIS_NR}</#if>')
+			
+			$('#MESSA_IN_SICUREZZA_ELETTRICA_TESTO').val("<#if MESSA_IN_SICUREZZA_ELETTRICA_TESTO?exists>${MESSA_IN_SICUREZZA_ELETTRICA_TESTO}</#if>")
+			
+			$('#PROVA_DI_ABITABILITA_TESTO').val("<#if PROVA_DI_ABITABILITA_TESTO?exists>${PROVA_DI_ABITABILITA_TESTO}</#if>")
+			$('#PERMESSO_ELETTRICO_TESTO').val("<#if PERMESSO_ELETTRICO_TESTO?exists>${PERMESSO_ELETTRICO_TESTO}</#if>")
+			
+			$('#PROVA_DI_ESPLOSIVITA_TESTO').val("<#if PROVA_DI_ESPLOSIVITA_TESTO?exists>${PROVA_DI_ESPLOSIVITA_TESTO}</#if>")
+			
+			$('#LAVARE_CON_TESTO').val('<#if LAVARE_CON_TESTO?exists>${LAVARE_CON_TESTO}</#if>')
+			
+			$('#BONIFICARE_CON_TESTO').val('<#if BONIFICARE_CON_TESTO?exists>${BONIFICARE_CON_TESTO}</#if>')
+			
+			$('#PREDISPORRE_MANICHETTE_CON_TEST').val('<#if PREDISPORRE_MANICHETTE_CON_TEST?exists>${PREDISPORRE_MANICHETTE_CON_TEST}</#if>')
+			$('#ALTRO_SEZ1_PRESCRIZIONI_SIC1_TESTO').val('<#if ALTRO_SEZ1_PRESCRIZIONI_SIC1_TESTO?exists>${ALTRO_SEZ1_PRESCRIZIONI_SIC1_TESTO}</#if>')
+			$('#ALTRI_DOCUMENTI_SITO').val('<#if ALTRI_DOCUMENTI_SITO?exists>${ALTRI_DOCUMENTI_SITO}</#if>')
+			
+			$('#FLG_PRODUZIONE_RIFIUTI_PERICOLOSI').prop('checked','<#if FLG_PRODUZIONE_RIFIUTI_PERICOLOSI?exists && FLG_PRODUZIONE_RIFIUTI_PERICOLOSI!=''>${FLG_PRODUZIONE_RIFIUTI_PERICOLOSI}<#else>false</#if>'==='true')
+			$('#FLG_PRODUZIONE_RIFIUTI_NON_PERICOLOSI').prop('checked','<#if FLG_PRODUZIONE_RIFIUTI_NON_PERICOLOSI?exists && FLG_PRODUZIONE_RIFIUTI_NON_PERICOLOSI!=''>${FLG_PRODUZIONE_RIFIUTI_NON_PERICOLOSI}<#else>false</#if>'==='true')
+			$('#FLG_RISCHIO_SPANDIMENTO').prop('checked','<#if FLG_RISCHIO_SPANDIMENTO?exists && FLG_RISCHIO_SPANDIMENTO!=''>${FLG_RISCHIO_SPANDIMENTO}<#else>false</#if>'==='true')
+			$('#FLG_EMISSIONI_IN_ATMOSFERA').prop('checked','<#if FLG_EMISSIONI_IN_ATMOSFERA?exists && FLG_EMISSIONI_IN_ATMOSFERA!=''>${FLG_EMISSIONI_IN_ATMOSFERA}<#else>false</#if>'==='true')
+			$('#PRECAUZIONI_DA_ADOTTARE').val('<#if PRECAUZIONI_DA_ADOTTARE?exists>${PRECAUZIONI_DA_ADOTTARE}</#if>')
+			
+			$('#FLG_MASCHERA_ANTIPOLVERE').prop('checked','<#if FLG_MASCHERA_ANTIPOLVERE?exists && FLG_MASCHERA_ANTIPOLVERE!=''>${FLG_MASCHERA_ANTIPOLVERE}<#else>false</#if>'==='true')
+			$('#FLG_MASCHERA_ANTIGAS').prop('checked','<#if FLG_MASCHERA_ANTIGAS?exists && FLG_MASCHERA_ANTIGAS!=''>${FLG_MASCHERA_ANTIGAS}<#else>false</#if>'==='true')
+			$('#FLG_AUTORESPIRATORE').prop('checked','<#if FLG_AUTORESPIRATORE?exists && FLG_AUTORESPIRATORE!=''>${FLG_AUTORESPIRATORE}<#else>false</#if>'==='true')
+			$('#FLG_VISIERA_DI_PROTEZIONE').prop('checked','<#if FLG_VISIERA_DI_PROTEZIONE?exists && FLG_VISIERA_DI_PROTEZIONE!=''>${FLG_VISIERA_DI_PROTEZIONE}<#else>false</#if>'==='true')
+			$('#FLG_PROTEZIONI_AURICOLARI').prop('checked','<#if FLG_PROTEZIONI_AURICOLARI?exists && FLG_PROTEZIONI_AURICOLARI!=''>${FLG_PROTEZIONI_AURICOLARI}<#else>false</#if>'==='true')
+			$('#FLG_RILEVATORE_OSSIGENO').prop('checked','<#if FLG_RILEVATORE_OSSIGENO?exists && FLG_RILEVATORE_OSSIGENO!=''>${FLG_RILEVATORE_OSSIGENO}<#else>false</#if>'==='true')
+			$('#FLG_ESPLOSIMETRO').prop('checked','<#if FLG_ESPLOSIMETRO?exists && FLG_ESPLOSIMETRO!=''>${FLG_ESPLOSIMETRO}<#else>false</#if>'==='true')
+			$('#FLG_INDUMENTI_IGNIFUGHI_SPECIALI').prop('checked','<#if FLG_INDUMENTI_IGNIFUGHI_SPECIALI?exists && FLG_INDUMENTI_IGNIFUGHI_SPECIALI!=''>${FLG_INDUMENTI_IGNIFUGHI_SPECIALI}<#else>false</#if>'==='true')
+			$('#FLG_STIVALI_ANTIFORTUNISTICI').prop('checked','<#if FLG_STIVALI_ANTIFORTUNISTICI?exists && FLG_STIVALI_ANTIFORTUNISTICI!=''>${FLG_STIVALI_ANTIFORTUNISTICI}<#else>false</#if>'==='true')
+			$('#FLG_IMBRAC_CINTURA_DI_SICUREZZA').prop('checked','<#if FLG_IMBRAC_CINTURA_DI_SICUREZZA?exists && FLG_IMBRAC_CINTURA_DI_SICUREZZA!=''>${FLG_IMBRAC_CINTURA_DI_SICUREZZA}<#else>false</#if>'==='true')
+			$('#FLG_GUANTI_PROTETTIVI_PER_AGENTI_CHIMICI').prop('checked','<#if FLG_GUANTI_PROTETTIVI_PER_AGENTI_CHIMICI?exists && FLG_GUANTI_PROTETTIVI_PER_AGENTI_CHIMICI!=''>${FLG_GUANTI_PROTETTIVI_PER_AGENTI_CHIMICI}<#else>false</#if>'==='true')
+			$('#FLG_PROTEZIONE_VISO_E_CORPO_PER_AGENTI_CHIMICI').prop('checked','<#if FLG_PROTEZIONE_VISO_E_CORPO_PER_AGENTI_CHIMICI?exists && FLG_PROTEZIONE_VISO_E_CORPO_PER_AGENTI_CHIMICI!=''>${FLG_PROTEZIONE_VISO_E_CORPO_PER_AGENTI_CHIMICI}<#else>false</#if>'==='true')
+			$('#FLG_GUANTI_PROTEZIONE_PER_ALTE_TEMPERATURE').prop('checked','<#if FLG_GUANTI_PROTEZIONE_PER_ALTE_TEMPERATURE?exists && FLG_GUANTI_PROTEZIONE_PER_ALTE_TEMPERATURE!=''>${FLG_GUANTI_PROTEZIONE_PER_ALTE_TEMPERATURE}<#else>false</#if>'==='true')
+			$('#FLG_GUANTI_CRIOGENICI').prop('checked','<#if FLG_GUANTI_CRIOGENICI?exists && FLG_GUANTI_CRIOGENICI!=''>${FLG_GUANTI_CRIOGENICI}<#else>false</#if>'==='true')
+			$('#FLG_GUANTI_DIELETTRICI').prop('checked','<#if FLG_GUANTI_DIELETTRICI?exists && FLG_GUANTI_DIELETTRICI!=''>${FLG_GUANTI_DIELETTRICI}<#else>false</#if>'==='true')
+			$('#FLG_ELMETTO_DIELETTRICO').prop('checked','<#if FLG_ELMETTO_DIELETTRICO?exists && FLG_ELMETTO_DIELETTRICO!=''>${FLG_ELMETTO_DIELETTRICO}<#else>false</#if>'==='true')
+
+			$('#ULTERIORI_PRESCRIZIONI_DI_SICUREZZA_DA_ADOTTARE').val("<#if ULTERIORI_PRESCRIZIONI_DI_SICUREZZA_DA_ADOTTARE?exists>${ULTERIORI_PRESCRIZIONI_DI_SICUREZZA_DA_ADOTTARE}</#if>")
+
+			$('#FLG_PERSONALE_INTERNO').prop('checked','<#if FLG_PERSONALE_INTERNO?exists && FLG_PERSONALE_INTERNO!=''>${FLG_PERSONALE_INTERNO}<#else>false</#if>'==='true');
+			onFlagPersonaleInternoChecked();
+			
+			
+			$('#FLG_PERSONALE_ESTERNO').prop('checked','<#if FLG_PERSONALE_ESTERNO?exists && FLG_PERSONALE_ESTERNO!=''>${FLG_PERSONALE_ESTERNO}<#else>false</#if>'==='true');
+			onFlagPersonaleEsternoChecked();
+			
+			$('#FLG_CASSETTA_ATTREZZI').prop('checked','<#if FLG_CASSETTA_ATTREZZI?exists && FLG_CASSETTA_ATTREZZI!=''>${FLG_CASSETTA_ATTREZZI}<#else>false</#if>'==='true')
+			$('#FLG_MOLA').prop('checked','<#if FLG_MOLA?exists && FLG_MOLA!=''>${FLG_MOLA}<#else>false</#if>'==='true')
+			$('#FLG_TAGLIA_TUBI').prop('checked','<#if FLG_TAGLIA_TUBI?exists && FLG_TAGLIA_TUBI!=''>${FLG_TAGLIA_TUBI}<#else>false</#if>'==='true')
+			$('#FLG_ELETTROSALDATRICE').prop('checked','<#if FLG_ELETTROSALDATRICE?exists && FLG_ELETTROSALDATRICE!=''>${FLG_ELETTROSALDATRICE}<#else>false</#if>'==='true')
+			$('#FLG_MOTOSALDATRICE').prop('checked','<#if FLG_MOTOSALDATRICE?exists && FLG_MOTOSALDATRICE!=''>${FLG_MOTOSALDATRICE}<#else>false</#if>'==='true')
+			$('#FLG_PARANCO').prop('checked','<#if FLG_PARANCO?exists && FLG_PARANCO!=''>${FLG_PARANCO}<#else>false</#if>'==='true')
+			$('#FLG_TRAPANO_ELETTRICO').prop('checked','<#if FLG_TRAPANO_ELETTRICO?exists && FLG_TRAPANO_ELETTRICO!=''>${FLG_TRAPANO_ELETTRICO}<#else>false</#if>'==='true')
+			$('#FLG_TRAPANO_A_TENUTA').prop('checked','<#if FLG_TRAPANO_A_TENUTA?exists && FLG_TRAPANO_A_TENUTA!=''>${FLG_TRAPANO_A_TENUTA}<#else>false</#if>'==='true')
+			$('#FLG_SABBIATRICE').prop('checked','<#if FLG_SABBIATRICE?exists && FLG_SABBIATRICE!=''>${FLG_SABBIATRICE}<#else>false</#if>'==='true')
+			$('#FLG_ATTREZZI_ANTISCINTILLA').prop('checked','<#if FLG_ATTREZZI_ANTISCINTILLA?exists && FLG_ATTREZZI_ANTISCINTILLA!=''>${FLG_ATTREZZI_ANTISCINTILLA}<#else>false</#if>'==='true')
+			$('#FLG_CARROPONTE').prop('checked','<#if FLG_CARROPONTE?exists && FLG_CARROPONTE!=''>${FLG_CARROPONTE}<#else>false</#if>'==='true')
+			$('#FLG_ESCAVATRICE').prop('checked','<#if FLG_ESCAVATRICE?exists && FLG_ESCAVATRICE!=''>${FLG_ESCAVATRICE}<#else>false</#if>'==='true')
+			$('#FLG_LANCIA_ACQUA_IN_PRESSIONE').prop('checked','<#if FLG_LANCIA_ACQUA_IN_PRESSIONE?exists && FLG_LANCIA_ACQUA_IN_PRESSIONE!=''>${FLG_LANCIA_ACQUA_IN_PRESSIONE}<#else>false</#if>'==='true')
+			$('#FLG_TRAPANO_PNEUMATICO').prop('checked','<#if FLG_TRAPANO_PNEUMATICO?exists && FLG_TRAPANO_PNEUMATICO!=''>${FLG_TRAPANO_PNEUMATICO}<#else>false</#if>'==='true')
+			$('#FLG_CANNELLO_OSSIACETILENICO').prop('checked','<#if FLG_CANNELLO_OSSIACETILENICO?exists && FLG_CANNELLO_OSSIACETILENICO!=''>${FLG_CANNELLO_OSSIACETILENICO}<#else>false</#if>'==='true')
+			$('#FLG_UTENSILI_A_TENSIONE_DI_SICUREZZA').prop('checked','<#if FLG_UTENSILI_A_TENSIONE_DI_SICUREZZA?exists && FLG_UTENSILI_A_TENSIONE_DI_SICUREZZA!=''>${FLG_UTENSILI_A_TENSIONE_DI_SICUREZZA}<#else>false</#if>'==='true')
+			$('#FLG_ATTREZZATURE_LAVAGGI_CHIMICI').prop('checked','<#if FLG_ATTREZZATURE_LAVAGGI_CHIMICI?exists && FLG_ATTREZZATURE_LAVAGGI_CHIMICI!=''>${FLG_ATTREZZATURE_LAVAGGI_CHIMICI}<#else>false</#if>'==='true')
+			$('#FLG_ATTREZZATURE_PER_RADIOGRAFIE').prop('checked','<#if FLG_ATTREZZATURE_PER_RADIOGRAFIE?exists && FLG_ATTREZZATURE_PER_RADIOGRAFIE!=''>${FLG_ATTREZZATURE_PER_RADIOGRAFIE}<#else>false</#if>'==='true')
+			$('#FLG_AUTOGRU').prop('checked','<#if FLG_AUTOGRU?exists && FLG_AUTOGRU!=''>${FLG_AUTOGRU}<#else>false</#if>'==='true')
+			$('#FLG_AUTOMEZZO').prop('checked','<#if FLG_AUTOMEZZO?exists && FLG_AUTOMEZZO!=''>${FLG_AUTOMEZZO}<#else>false</#if>'==='true')
+			$('#FLG_CARRELLO_ELEVATORE').prop('checked','<#if FLG_CARRELLO_ELEVATORE?exists && FLG_CARRELLO_ELEVATORE!=''>${FLG_CARRELLO_ELEVATORE}<#else>false</#if>'==='true')
+			$('#FLG_MOTOPOMPA').prop('checked','<#if FLG_MOTOPOMPA?exists && FLG_MOTOPOMPA!=''>${FLG_MOTOPOMPA}<#else>false</#if>'==='true')
+			$('#FLG_AUTOSPURGO').prop('checked','<#if FLG_AUTOSPURGO?exists && FLG_AUTOSPURGO!=''>${FLG_AUTOSPURGO}<#else>false</#if>'==='true')
+			$('#FLG_SCOVOLATRICE').prop('checked','<#if FLG_SCOVOLATRICE?exists && FLG_SCOVOLATRICE!=''>${FLG_SCOVOLATRICE}<#else>false</#if>'==='true')
+			$('#FLG_MOTOCOMPRESSORE').prop('checked','<#if FLG_MOTOCOMPRESSORE?exists && FLG_MOTOCOMPRESSORE!=''>${FLG_MOTOCOMPRESSORE}<#else>false</#if>'==='true')
+			
+			$('#ALTRA_ATTREZZATURA').val("<#if ALTRA_ATTREZZATURA?exists>${ALTRA_ATTREZZATURA}</#if>")
+			$('#PREPARAZ_DEL_LAVORO_PRECAUZIONI_PREVISTE_DURANTE_LESECUZIONE').val("<#if PREPARAZ_DEL_LAVORO_PRECAUZIONI_PREVISTE_DURANTE_LESECUZIONE?exists>${PREPARAZ_DEL_LAVORO_PRECAUZIONI_PREVISTE_DURANTE_LESECUZIONE}</#if>")
+			$('#RISCHI_SPECIFICI_ATT_INDICAZ_DEI_MEZZI_PROTEZIONE_PREVISTI').val("<#if RISCHI_SPECIFICI_ATT_INDICAZ_DEI_MEZZI_PROTEZIONE_PREVISTI?exists>${RISCHI_SPECIFICI_ATT_INDICAZ_DEI_MEZZI_PROTEZIONE_PREVISTI}</#if>")
+
+			$('#DESCRIZIONE_DELLA_SOSPENSIONE').val("<#if DESCRIZIONE_DELLA_SOSPENSIONE?exists>${DESCRIZIONE_DELLA_SOSPENSIONE}</#if>")
+			
+			$('#DT_CHIUSURA').val('<#if DT_CHIUSURA?exists>${DT_CHIUSURA}</#if>')
+			
+			$("#ID_AZIENDA").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				if(id=='' || id==null){
+					id='0';
+				}
+				$("#ID_IMPIANTO").empty();
+				$("#ID_IMPIANTO").select2("destroy");
+				$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO","<#if ID_IMPIANTO?exists>${ID_IMPIANTO}</#if>"," WHERE ID_AZIENDA="+id+" "]);
+				
+				$("#RESPONSABILE_CENTRALE_DELEGATO").empty();
+				$("#RESPONSABILE_CENTRALE_DELEGATO").select2("destroy");
+				$("#RESPONSABILE_CENTRALE_DELEGATO").trigger("loadDataSet",["DSResponsabileCentraleDelegatoPDL","NOME_COGNOME","NOME_COGNOME","<#if RESPONSABILE_CENTRALE_DELEGATO?exists>${RESPONSABILE_CENTRALE_DELEGATO}</#if>"," WHERE ID_AZIENDA="+id+" "]);
+				
+				<#if !PROFILO?contains('CPT')>
+					$("#RESPONSABILE_CENTRALE_DELEGATO1").empty();
+					$("#RESPONSABILE_CENTRALE_DELEGATO1").select2("destroy");
+					$("#RESPONSABILE_CENTRALE_DELEGATO1").trigger("loadDataSet",["DSResponsabileCentraleDelegatoPDL","NOME_COGNOME","NOME_COGNOME","<#if RESPONSABILE_CENTRALE_DELEGATO1?exists>${RESPONSABILE_CENTRALE_DELEGATO1}</#if>"," WHERE ID_AZIENDA="+id+" "]);
+				</#if>
+				
+				// Escapare il valore di IMPRESA_TESTO
+			    var impresaTesto = escapeHtml("<#if IMPRESA_TESTO?exists>${IMPRESA_TESTO}</#if>");
+			
+			    // Passare il valore correttamente escapato alla funzione trigger
+			    $("#IMPRESA_TESTO").empty();
+				$("#IMPRESA_TESTO").select2("destroy");
+			    $("#IMPRESA_TESTO").trigger("loadDataSet", ["DSImprese", "NOME_IMPRESA", "NOME_IMPRESA", impresaTesto, " WHERE ID_AZIENDA="+id]);
+			
+			    
+				$("#ID_AREA").change();
+			});	
+			
+			
+			$("#ID_IMPIANTO").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				if(id=='' || id==null){
+					id='0';
+				}
+				$("#ID_AREA").empty();
+				$("#ID_AREA").select2("destroy");
+				$("#ID_AREA").trigger("loadDataSet",["DSAreaLavoro","ID_AREA","DESCR_AREA","<#if ID_AREA?exists>${ID_AREA}</#if>"," WHERE ID_IMPIANTO="+id+" "]);
+				
+				$("#ID_EQUIPMENT").val("").change();
+			});	
+			
+			$("#ID_AREA").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				var sito=$("#ID_AZIENDA").val();
+				var idImpianto=$("#ID_IMPIANTO").val();
+				var idPDL=document.getElementById("ID_PDL").value;
+				
+
+				if(id=='' || id==null){
+					id='0';
+				}
+				if(sito=='' || sito==null){
+					sito='0';
+				}
+				if(idImpianto=='' || idImpianto==null){
+					idImpianto='0';
+				}
+				if(idPDL=='' || idPDL==null){
+					idPDL='0';
+				}
+				$("#ID_EQUIPMENT").empty();
+				$("#ID_EQUIPMENT").select2("destroy");
+				$("#ID_EQUIPMENT").trigger("loadDataSetEIS",["DSEquipment","ID_EQUIPMENT_EIS","DESCR_EQUIPMENT","<#if ID_EQUIPMENT?exists>${ID_EQUIPMENT}</#if>"," WHERE ID_AREA="+id+" "]);
+				
+				$("#POSSIBILE_INTERFERENZA").empty();
+				$("#POSSIBILE_INTERFERENZA").trigger("loadDataSetSimpleText",["DSPossibileInterferenza","TOTALE_PDL","TOTALE_PDL"," WHERE (STATO='ACT' OR STATO='OPE') AND ID_AZIENDA="+sito+" AND ID_IMPIANTO="+idImpianto+" AND ID_AREA="+id ]);
+				$("#info").show();
+				$("#LISTA_PDL1_NR").empty();
+				$("#LISTA_PDL1_NR").trigger("loadDataSet",["DSPDLApertiAttivi","ID_PDL","NR_DESCR","<#if PDL1_NR?exists>${PDL1_NR}</#if>"," WHERE STATO IN ('OPE','ACT') AND ID_AZIENDA="+sito+" AND ID_IMPIANTO="+idImpianto +" AND ID_AREA ="+id]);
+			});	
+
+			
+			
+
+			$("#LISTA_PDL1_NR").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+
+				$("#FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N").prop('checked',true);
+				document.getElementById("colorata").style.border = "none";
+			});	
+			
+			
+			
+			
+			$("#ID_EQUIPMENT").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				
+				var selectedValue=id.split("|")[0];
+				var isEis=id.split("|")[1];
+				
+				if (isEis=="true") {
+					$('.modal-title').html('Avvertenza EIS');
+					$('.modal-text').html('Attenzione è prevista la rimozione temporanea dell EIS?');
+					$("#modalQuestionEIS").modal({backdrop: true});
+					$('#modalQuestionEIS').collapse("show");				
+				}
+			});	
+			
+	        $('#IS_EIS').click(function(){
+				$('.modal-title').html('Avvertenza EIS');
+				$('.modal-text').html('Attenzione è prevista la rimozione temporanea dell EIS?');
+				$("#modalQuestionEIS").modal({backdrop: true});
+				$('#modalQuestionEIS').collapse("show");
+	    	});
+	        
+	        $('#IS_EIS_GET').click(function(){
+	        	
+	        	var numEIS = $("#EIS_TEXT").val();
+	        	
+	        	$('#FLG_RIMOZIONE_TEMPORANEA_EIS').prop('checked',true);
+	        	$('#SCHEDA_EIS_NR').val(numEIS);
+	        	
+
+				$('#modalQuestionEIS').collapse("hide");
+	    	});
+	        
+			$("#IMPRESA_TESTO").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				var encodedId = encodeURIComponent(id);
+				
+				$("#NOME_COGNOME_PREPOSTO_IMPRESA").empty();
+				$("#NOME_COGNOME_PREPOSTO_IMPRESA").select2("destroy");
+				$("#NOME_COGNOME_PREPOSTO_IMPRESA").trigger("loadDataSet",["DSPrepostiImpresa","NOME_COGNOME_PREPOSTO_IMPRESA","NOME_COGNOME_PREPOSTO_IMPRESA",""," WHERE NOME_IMPRESA='"+encodedId+"' "]);
+				
+				$("#NOME_COGNOME_PREPOSTO_IMPRESA_2").empty();
+				$("#NOME_COGNOME_PREPOSTO_IMPRESA_2").select2("destroy");
+				$("#NOME_COGNOME_PREPOSTO_IMPRESA_2").trigger("loadDataSet",["DSPrepostiImpresa","NOME_COGNOME_PREPOSTO_IMPRESA","NOME_COGNOME_PREPOSTO_IMPRESA",""," WHERE NOME_IMPRESA='"+encodedId+"' "]);
+			});
+			
+			$("#FLG_IN_QUOTA").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_IMBRAC_CINTURA_DI_SICUREZZA").prop('checked',true);
+			    } else {
+			    	$("#FLG_IMBRAC_CINTURA_DI_SICUREZZA").prop('checked',false);
+			    }
+			});
+			
+			$("#FLG_ELETTRICA").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_APPAR_CAVI_ELETTRICI").prop('checked',true);
+			    	$("#FLG_APPAR_CAVI_ELETTRICI_2").prop('checked',true);
+			    	$("#FLG_APPAR_CAVI_ELETTRICI_3").prop('checked',true);
+			    } else {
+			    	$("#FLG_APPAR_CAVI_ELETTRICI").prop('checked',false);
+			    	$("#FLG_APPAR_CAVI_ELETTRICI_2").prop('checked',false);
+			    	$("#FLG_APPAR_CAVI_ELETTRICI_3").prop('checked',false);
+			    }
+			});
+			
+			
+			
+			$("#PDL1_NR").change(function() {
+				if( $("#PDL1_NR").val() ) {
+					$("#FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N").prop('checked',true);
+				}
+			});
+		
+			$("#SCHEDA_CIECATURA_NR").change(function() {
+				if( $("#SCHEDA_CIECATURA_NR").val() ) {
+					$("#FLG_CIECATURA").prop('checked',true);
+				}
+			});
+			
+			$("#SCHEDA_EIS_NR").change(function() {
+				if( $("#SCHEDA_EIS_NR").val() ) {
+					$("#FLG_RIMOZIONE_TEMPORANEA_EIS").prop('checked',true);
+				}
+			});
+			
+			$("#MESSA_IN_SICUREZZA_ELETTRICA_TESTO").change(function() {
+				if( $("#MESSA_IN_SICUREZZA_ELETTRICA_TESTO").val() ) {
+					$("#FLG_MESSA_IN_SICUREZZA_ELETTRICA").prop('checked',true);
+				}
+			});
+			
+			$("#LOTO_TESTO").change(function() {
+				if( $("#LOTO_TESTO").val() ) {
+					$("#FLG_LOTO").prop('checked',true);
+				}
+			});
+			
+			$("#PROVA_DI_ESPLOSIVITA_TESTO").change(function() {
+				if( $("#PROVA_DI_ESPLOSIVITA_TESTO").val() ) {
+					$("#FLG_PROVA_DI_ESPLOSIVITA").prop('checked',true);
+				}
+			});
+			
+			$("#BONIFICARE_CON_TESTO").change(function() {
+				if( $("#BONIFICARE_CON_TESTO").val() ) {
+					$("#FLG_BONIFICARE_CON").prop('checked',true);
+				}
+			});
+			
+			$("#PREDISPORRE_MANICHETTE_CON_TEST").change(function() {
+				if( $("#PREDISPORRE_MANICHETTE_CON_TEST").val() ) {
+					$("#FLG_PREDISPORRE_MANICHETTE_CON").prop('checked',true);
+				}
+			});
+			
+			$("#LAVARE_CON_TESTO").change(function() {
+				if( $("#LAVARE_CON_TESTO").val() ) {
+					$("#FLG_LAVARE_CON").prop('checked',true);
+				}
+			});
+			
+			$("#PROVA_DI_ABITABILITA_TESTO").change(function() {
+				if( $("#PROVA_DI_ABITABILITA_TESTO").val() ) {
+					$("#FLG_PERMESSO_DI_ACCESSO").prop('checked',true);
+				}
+			});
+			
+			$("#PERMESSO_ELETTRICO_TESTO").change(function() {
+				if( $("#PERMESSO_ELETTRICO_TESTO").val() ) {
+					$("#FLG_PERMESSO_ELETTRICO").prop('checked',true);
+				}
+			});
+			
+			
+			
+			
+			
+			
+			
+			$("#FLG_APPAR_CAVI_ELETTRICI").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_PERMESSO_ELETTRICO").prop('checked',true);
+			    	$("#FLG_VISIERA_DI_PROTEZIONE").prop('checked',true);
+			    	$("#FLG_INDUMENTI_IGNIFUGHI_SPECIALI").prop('checked',true);
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',true);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',true);
+			    } else {
+			    	$("#FLG_PERMESSO_ELETTRICO").prop('checked',false);
+			    	$("#FLG_VISIERA_DI_PROTEZIONE").prop('checked',false);
+			    	$("#FLG_INDUMENTI_IGNIFUGHI_SPECIALI").prop('checked',false);
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',false);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',false);
+			    }
+			});
+			
+			$("#FLG_APPAR_CAVI_ELETTRICI_2").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_PERMESSO_ELETTRICO").prop('checked',true);
+			    	$("#FLG_VISIERA_DI_PROTEZIONE").prop('checked',true);
+			    	$("#FLG_INDUMENTI_IGNIFUGHI_SPECIALI").prop('checked',true);
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',true);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',true);
+			    } else {
+			    	$("#FLG_PERMESSO_ELETTRICO").prop('checked',false);
+			    	$("#FLG_VISIERA_DI_PROTEZIONE").prop('checked',false);
+			    	$("#FLG_INDUMENTI_IGNIFUGHI_SPECIALI").prop('checked',false);
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',false);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',false);
+			    }
+			});
+			
+			$("#FLG_APPAR_CAVI_ELETTRICI_3").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_PERMESSO_ELETTRICO").prop('checked',true);
+			    	$("#FLG_VISIERA_DI_PROTEZIONE").prop('checked',true);
+			    	$("#FLG_INDUMENTI_IGNIFUGHI_SPECIALI").prop('checked',true);
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',true);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',true);
+			    } else {
+			    	$("#FLG_PERMESSO_ELETTRICO").prop('checked',false);
+			    	$("#FLG_VISIERA_DI_PROTEZIONE").prop('checked',false);
+			    	$("#FLG_INDUMENTI_IGNIFUGHI_SPECIALI").prop('checked',false);
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',false);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',false);
+			    }
+			});
+			
+			
+			$("#FLG_PERMESSO_ELETTRICO").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_VISIERA_DI_PROTEZIONE").prop('checked',true);
+			    	$("#FLG_INDUMENTI_IGNIFUGHI_SPECIALI").prop('checked',true);
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',true);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',true);
+			    } else {
+			    	$("#FLG_VISIERA_DI_PROTEZIONE").prop('checked',false);
+			    	$("#FLG_INDUMENTI_IGNIFUGHI_SPECIALI").prop('checked',false);
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',false);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',false);
+			    }
+			});
+			
+			
+			$("#FLG_IN_SPAZI_CONFINATI").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_PROVA_DI_ABITABILITA").prop('checked',true);
+			    	$("#FLG_PROVA_DI_ESPLOSIVITA").prop('checked',true);
+			    	$("#FLG_PERMESSO_DI_ACCESSO").prop('checked',true);
+			    	
+			    } else {
+			    	$("#FLG_PROVA_DI_ABITABILITA").prop('checked',false);
+			    	$("#FLG_PROVA_DI_ESPLOSIVITA").prop('checked',false);
+			    	$("#FLG_PERMESSO_DI_ACCESSO").prop('checked',false);
+			    	$("#PROVA_DI_ABITABILITA_TESTO").val('');
+			    	$("#PROVA_DI_ESPLOSIVITA_TESTO").val('');
+			    }
+			});
+
+			$("#FLG_PROVA_DI_ABITABILITA").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_PERMESSO_DI_ACCESSO").prop('checked',true);
+			    	
+			    } else {
+			    	$("#FLG_PERMESSO_DI_ACCESSO").prop('checked',false);
+			    	$("#PROVA_DI_ABITABILITA_TESTO").val('');
+			    }
+			});
+			
+			$("#FLG_PONTEGGIO").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_IMBRAC_CINTURA_DI_SICUREZZA").prop('checked',true);
+			    	$("#FLG_CONSEGNA_VERIFICA_ACCETTAZIONE").prop('checked',true);
+			    } else {
+			    	$("#FLG_IMBRAC_CINTURA_DI_SICUREZZA").prop('checked',false);
+			    	$("#FLG_CONSEGNA_VERIFICA_ACCETTAZIONE").prop('checked',false);
+			    }
+			});
+			
+			
+			$("#FLG_ELETTRICA").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_MESSA_IN_SICUREZZA_ELETTRICA").prop('checked',true);
+			    	
+			    } else {
+			    	$("#FLG_MESSA_IN_SICUREZZA_ELETTRICA").prop('checked',false);
+			    	$("#MESSA_IN_SICUREZZA_ELETTRICA_TESTO").val('');
+			    	
+			    }
+			});			
+			
+
+			$("#FLG_A_FUOCO").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_PROVA_DI_ESPLOSIVITA").prop('checked',true);
+			    } else {
+			    	$("#FLG_PROVA_DI_ESPLOSIVITA").prop('checked',false);
+			    	$("#PROVA_DI_ESPLOSIVITA_TESTO").val('');			    	
+			    }
+			});	
+			
+
+			$("#FLG_OSSIGENO").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_RILEVATORE_OSSIGENO").prop('checked',true);
+			    } else {
+			    	$("#FLG_RILEVATORE_OSSIGENO").prop('checked',false);
+			    }
+			});	
+			
+
+			$("#FLG_AZOTO").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_RILEVATORE_OSSIGENO").prop('checked',true);
+			    } else {
+			    	$("#FLG_RILEVATORE_OSSIGENO").prop('checked',false);
+			    }
+			});	
+			
+
+			$("#FLG_ARGON").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_RILEVATORE_OSSIGENO").prop('checked',true);
+			    } else {
+			    	$("#FLG_RILEVATORE_OSSIGENO").prop('checked',false);
+			    }
+			});				
+			
+
+			$("#FLG_LIQUIDI_CRIOGENICI").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_VISIERA_DI_PROTEZIONE").prop('checked',true);
+			    	$("#FLG_GUANTI_CRIOGENICI").prop('checked',true);
+			    } else {
+			    	$("#FLG_VISIERA_DI_PROTEZIONE").prop('checked',false);
+			    	$("#FLG_GUANTI_CRIOGENICI").prop('checked',false);
+			    }
+			});					
+			
+
+			$("#FLG_METANO_O_GAS_NATURALE").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',true);
+			    	$("#FLG_MASCHERA_ANTIGAS").prop('checked',true);
+			    } else {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',false);
+			    	$("#FLG_MASCHERA_ANTIGAS").prop('checked',false);
+			    }
+			});					
+			
+
+			$("#FLG_IDROCARBURI").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',true);
+			    	$("#FLG_MASCHERA_ANTIGAS").prop('checked',true);
+			    } else {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',false);
+			    	$("#FLG_MASCHERA_ANTIGAS").prop('checked',false);
+			    }
+			});												
+			
+
+			$("#FLG_BUTANO").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',true);
+			    	$("#FLG_MASCHERA_ANTIGAS").prop('checked',true);
+			    } else {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',false);
+			    	$("#FLG_MASCHERA_ANTIGAS").prop('checked',false);
+			    }
+			});												
+			
+
+			$("#FLG_SYNGAS").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',true);
+			    	$("#FLG_MASCHERA_ANTIGAS").prop('checked',true);
+			    } else {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',false);
+			    	$("#FLG_MASCHERA_ANTIGAS").prop('checked',false);
+			    }
+			});												
+			
+
+			$("#FLG_IDROGENO").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',true);
+			    	$("#FLG_MASCHERA_ANTIGAS").prop('checked',true);
+			    } else {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',false);
+			    	$("#FLG_MASCHERA_ANTIGAS").prop('checked',false);
+			    }
+			});												
+
+			
+			$("#FLG_OLI").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',true);
+			    } else {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',false);
+			    }
+			});												
+
+			$("#FLG_DMDS").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',true);
+			    } else {
+			    	$("#FLG_ESPLOSIMETRO").prop('checked',false);
+			    }
+			});												
+
+			$("#FLG_PERLITE").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_MASCHERA_ANTIPOLVERE").prop('checked',true);
+			    } else {
+			    	$("#FLG_MASCHERA_ANTIPOLVERE").prop('checked',false);
+			    }
+			});												
+											
+
+			$("#FLG_VAPORE").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_GUANTI_PROTEZIONE_PER_ALTE_TEMPERATURE").prop('checked',true);
+			    } else {
+			    	$("#FLG_GUANTI_PROTEZIONE_PER_ALTE_TEMPERATURE").prop('checked',false);
+			    }
+			});		
+			
+
+			$("#FLG_RUMORE").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_PROTEZIONI_AURICOLARI").prop('checked',true);
+			    } else {
+			    	$("#FLG_PROTEZIONI_AURICOLARI").prop('checked',false);
+			    }
+			});				
+			
+
+			$("#FLG_ALTA_TEMPERATURA").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_GUANTI_PROTEZIONE_PER_ALTE_TEMPERATURE").prop('checked',true);
+			    } else {
+			    	$("#FLG_GUANTI_PROTEZIONE_PER_ALTE_TEMPERATURE").prop('checked',false);
+			    }
+			});				
+			
+
+			$("#FLG_PRESSIONE").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_VISIERA_DI_PROTEZIONE").prop('checked',true);
+			    } else {
+			    	$("#FLG_VISIERA_DI_PROTEZIONE").prop('checked',false);
+			    }
+			});				
+			
+
+			$("#FLG_ALTEZZA").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_IMBRAC_CINTURA_DI_SICUREZZA").prop('checked',true);
+			    } else {
+			    	$("#FLG_IMBRAC_CINTURA_DI_SICUREZZA").prop('checked',false);
+			    }
+			});				
+			
+
+			$("#FLG_CRIOGENIA_BASSA_TEMPERATURA").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_GUANTI_CRIOGENICI").prop('checked',true);
+			    } else {
+			    	$("#FLG_GUANTI_CRIOGENICI").prop('checked',false);
+			    }
+			});				
+			
+
+			$("#FLG_APPAR_CAVI_ELETTRICI").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',true);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',true);
+			    } else {
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',false);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',false);
+			    }
+			});	
+			
+			
+			$("#FLG_APPAR_CAVI_ELETTRICI").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',true);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',true);
+			    } else {
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',false);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',false);
+			    }
+			});	
+			
+			$("#FLG_APPAR_CAVI_ELETTRICI_2").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',true);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',true);
+			    } else {
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',false);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',false);
+			    }
+			});	
+			
+			
+			$("#FLG_APPAR_CAVI_ELETTRICI_2").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',true);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',true);
+			    } else {
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',false);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',false);
+			    }
+			});	
+			
+			$("#FLG_APPAR_CAVI_ELETTRICI_3").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',true);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',true);
+			    } else {
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',false);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',false);
+			    }
+			});	
+			
+			
+			$("#FLG_APPAR_CAVI_ELETTRICI_3").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',true);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',true);
+			    } else {
+			    	$("#FLG_GUANTI_DIELETTRICI").prop('checked',false);
+			    	$("#FLG_ELMETTO_DIELETTRICO").prop('checked',false);
+			    }
+			});	
+			
+			
+			$("#FLG_PRODOTTI_CHIMICI").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_GUANTI_PROTETTIVI_PER_AGENTI_CHIMICI").prop('checked',true);
+			    	$("#FLG_PROTEZIONE_VISO_E_CORPO_PER_AGENTI_CHIMICI").prop('checked',true);
+			    } else {
+			    	$("#FLG_GUANTI_PROTETTIVI_PER_AGENTI_CHIMICI").prop('checked',false);
+			    	$("#FLG_PROTEZIONE_VISO_E_CORPO_PER_AGENTI_CHIMICI").prop('checked',false);
+			    }
+			});		
+			
+			
+			$("#FLG_MATERIALI_INFIAMMABILI").change(function() {
+			    if(this.checked) {
+			    	$("#FLG_INDUMENTI_IGNIFUGHI_SPECIALI").prop('checked',true);
+			    } else {
+			    	$("#FLG_GUANTI_PROTETTIVI_PER_AGENTI_CHIMICI").prop('checked',false);
+			    }
+			});		
+			
+			
+			$("#FLG_PERSONALE_INTERNO").change(function() {
+				onFlagPersonaleInternoChecked();
+			});		
+			
+			$("#FLG_PERSONALE_ESTERNO").change(function() {
+				onFlagPersonaleEsternoChecked();
+			});		
+			
+	        $('#stampaA4').click(function(){
+				var idModulo=$("#ID_PDL").val();
+				if (idModulo!='') {
+					$('#ID_PDL_STAMPA').val(idModulo);
+					$('#FORMATO_STAMPA').val('A4');
+					$('.modal-title').html('Stampa PdL');
+					$('.modal-text').html('Confermi la stampa PDF del PdL selezionato?');
+					$("#modalQuestionDialogPrint").modal({backdrop: true});
+					$('#modalQuestionDialogPrint').collapse("show");
+				}				
+	    	});
+			
+	        $('#stampaA3').click(function(){
+				var idModulo=$("#ID_PDL").val();
+				if (idModulo!='') {
+					$('#ID_PDL_STAMPA').val(idModulo);
+					$('#FORMATO_STAMPA').val('A3');
+					$('.modal-title').html('Stampa PdL');
+					$('.modal-text').html('Confermi la stampa PDF del PdL selezionato?');
+					$("#modalQuestionDialogPrint").modal({backdrop: true});
+					$('#modalQuestionDialogPrint').collapse("show");
+				}				
+	    	});
+			
+			$("#formInserimento").validate();
+			
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();	
+				
+				
+				
+				var interferenze=$("#INTERFERENZE").val();
+				
+				if (interferenze=='Y'){
+					$("#formPlanimetria").submit();
+				}else{
+
+					if (!$("#formInserimento").valid()) {
+						return false;
+					}
+					
+					$("#salva-group").hide();
+					
+					var idModulo=$("#ID_PDL").val();
+					if (idModulo!='') {
+						$("#OPERATION_TYPE").val("UPDATE");
+					}				
+					
+					$("#FLG_TA").val($("#FLG_TA").is(':checked'));
+					
+					$("#FLG_TUTA_DA_LAVORO").val($("#FLG_TUTA_DA_LAVORO").is(':checked'));
+					$("#FLG_SCARPE_DI_SICUREZZA").val($("#FLG_SCARPE_DI_SICUREZZA").is(':checked'));
+					$("#FLG_GUANTI").val($("#FLG_GUANTI").is(':checked'));
+					$("#FLG_OCCHIALI").val($("#FLG_OCCHIALI").is(':checked'));
+					$("#FLG_ELMETTO").val($("#FLG_ELMETTO").is(':checked'));
+					
+					$('#FLG_MECCANICA').val($('#FLG_MECCANICA').is(':checked'));
+					$('#FLG_STRUMENTALE').val($('#FLG_STRUMENTALE').is(':checked'));
+					$('#FLG_ELETTRICA').val($('#FLG_ELETTRICA').is(':checked'));
+					$('#FLG_EDILE').val($('#FLG_EDILE').is(':checked'));
+					$('#FLG_A_FUOCO').val($('#FLG_A_FUOCO').is(':checked'));
+					$('#FLG_IN_QUOTA').val($('#FLG_IN_QUOTA').is(':checked'));
+					$('#FLG_SCAVO').val($('#FLG_SCAVO').is(':checked'));
+					$('#FLG_IN_SPAZI_CONFINATI').val($('#FLG_IN_SPAZI_CONFINATI').is(':checked'));
+					$('#FLG_COIBENTAZIONE_SCOIBENTAZIONE').val($('#FLG_COIBENTAZIONE_SCOIBENTAZIONE').is(':checked'));
+					$('#FLG_CIECATURA_RIMOZIONE').val($('#FLG_CIECATURA_RIMOZIONE').is(':checked'));
+					$('#FLG_PULIZIA_FACCHINAGGIO').val($('#FLG_PULIZIA_FACCHINAGGIO').is(':checked'));
+					$('#FLG_VERNICIATURA').val($('#FLG_VERNICIATURA').is(':checked'));
+					$('#FLG_SABBIATURA').val($('#FLG_SABBIATURA').is(':checked'));
+					$('#FLG_AGGOTTAMENTO').val($('#FLG_AGGOTTAMENTO').is(':checked'));
+
+					$('#FLG_OSSIGENO').val($('#FLG_OSSIGENO').is(':checked'));
+					$('#FLG_AZOTO').val($('#FLG_AZOTO').is(':checked'));
+					$('#FLG_ARGON').val($('#FLG_ARGON').is(':checked'));
+					$('#FLG_LIQUIDI_CRIOGENICI').val($('#FLG_LIQUIDI_CRIOGENICI').is(':checked'));
+					$('#FLG_METANO_O_GAS_NATURALE').val($('#FLG_METANO_O_GAS_NATURALE').is(':checked'));
+					$('#FLG_IDROCARBURI').val($('#FLG_IDROCARBURI').is(':checked'));
+					$('#FLG_PERLITE').val($('#FLG_PERLITE').is(':checked'));
+					$('#FLG_BUTANO').val($('#FLG_BUTANO').is(':checked'));
+					$('#FLG_SYNGAS').val($('#FLG_SYNGAS').is(':checked'));
+					$('#FLG_IDROGENO').val($('#FLG_IDROGENO').is(':checked'));
+					$('#FLG_DMDS').val($('#FLG_DMDS').is(':checked'));
+					$('#FLG_OLI').val($('#FLG_OLI').is(':checked'));
+					$('#FLG_VAPORE').val($('#FLG_VAPORE').is(':checked'));
+
+					$('#FLG_RUMORE').val($('#FLG_RUMORE').is(':checked'));
+					$('#FLG_ALTA_TEMPERATURA').val($('#FLG_ALTA_TEMPERATURA').is(':checked'));
+					$('#FLG_PRESSIONE').val($('#FLG_PRESSIONE').is(':checked'));
+					$('#FLG_ALTEZZA').val($('#FLG_ALTEZZA').is(':checked'));
+					$('#FLG_CRIOGENIA_BASSA_TEMPERATURA').val($('#FLG_CRIOGENIA_BASSA_TEMPERATURA').is(':checked'));
+					$('#FLG_PARTI_IN_MOVIMENTO').val($('#FLG_PARTI_IN_MOVIMENTO').is(':checked'));
+					$('#FLG_APPAR_CAVI_ELETTRICI').val($('#FLG_APPAR_CAVI_ELETTRICI').is(':checked'));
+					$('#FLG_APPAR_CAVI_ELETTRICI_2').val($('#FLG_APPAR_CAVI_ELETTRICI_2').is(':checked'));
+					$('#FLG_APPAR_CAVI_ELETTRICI_3').val($('#FLG_APPAR_CAVI_ELETTRICI_3').is(':checked'));
+					$('#FLG_PRODOTTI_CHIMICI').val($('#FLG_PRODOTTI_CHIMICI').is(':checked'));
+					$('#FLG_MATERIALI_INFIAMMABILI').val($('#FLG_MATERIALI_INFIAMMABILI').is(':checked'));
+					
+					
+					$('#FLG_INTERCETTARE').val($('#FLG_INTERCETTARE').is(':checked'));
+					$('#FLG_DEPRESSURIZZARE').val($('#FLG_DEPRESSURIZZARE').is(':checked'));
+					$('#FLG_VUOTARE').val($('#FLG_VUOTARE').is(':checked'));
+					$('#FLG_DOPPIE_VALVOLE_CHIUSE').val($('#FLG_DOPPIE_VALVOLE_CHIUSE').is(':checked'));
+					$('#FLG_SPURGHI_APERTI').val($('#FLG_SPURGHI_APERTI').is(':checked'));
+					$('#FLG_SPURGHI_CHIUSI').val($('#FLG_SPURGHI_CHIUSI').is(':checked'));
+					$('#FLG_VENT_APERTI').val($('#FLG_VENT_APERTI').is(':checked'));
+					$('#FLG_VENT_CHIUSI').val($('#FLG_VENT_CHIUSI').is(':checked'));
+					$('#FLG_SCONNETTERE_LINEE').val($('#FLG_SCONNETTERE_LINEE').is(':checked'));
+					$('#FLG_SFLANGIARE').val($('#FLG_SFLANGIARE').is(':checked'));
+					$('#FLG_CONTROLLARE_PRESSIONE').val($('#FLG_CONTROLLARE_PRESSIONE').is(':checked'));
+					$('#FLG_CONTROLLARE_TEMPERATURA').val($('#FLG_CONTROLLARE_TEMPERATURA').is(':checked'));
+					$('#FLG_AREARE').val($('#FLG_AREARE').is(':checked'));
+					$('#FLG_DOPPIA_VALVOLA_CHIUSA_E_SPURGO_INTERMEDIO_APERTO').val($('#FLG_DOPPIA_VALVOLA_CHIUSA_E_SPURGO_INTERMEDIO_APERTO').is(':checked'));
+					$('#FLG_LAVARE_CON_PRODOTTI_COMPATIBILI_ALIMENTARE_FARMACEUTICO').val($('#FLG_LAVARE_CON_PRODOTTI_COMPATIBILI_ALIMENTARE_FARMACEUTICO').is(':checked'));
+					$('#FLG_PREDISPORRE_CARTELLI_DIVIETO_MANOVRA').val($('#FLG_PREDISPORRE_CARTELLI_DIVIETO_MANOVRA').is(':checked'));
+					$('#FLG_PREDISPORRE_ILLUMINAZIONE').val($('#FLG_PREDISPORRE_ILLUMINAZIONE').is(':checked'));
+					$('#FLG_PREDISPORRE_ATTREZZATURE_ANTINCENDIO').val($('#FLG_PREDISPORRE_ATTREZZATURE_ANTINCENDIO').is(':checked'));
+					$('#FLG_LOCALIZZARE_LINEE_INTERRATE').val($('#FLG_LOCALIZZARE_LINEE_INTERRATE').is(':checked'));
+					$('#FLG_APPLICARE_SEGNALETICA').val($('#FLG_APPLICARE_SEGNALETICA').is(':checked'));
+					$('#FLG_TRIPODE').val($('#FLG_TRIPODE').is(':checked'));
+					$('#FLG_PROTEGGERE_FOGNE').val($('#FLG_PROTEGGERE_FOGNE').is(':checked'));
+					$('#FLG_PONTEGGIO_PIANO_DI_LAVORO').val($('#FLG_PONTEGGIO_PIANO_DI_LAVORO').is(':checked'));
+					$('#FLG_PIATTAFORMA').val($('#FLG_PIATTAFORMA').is(':checked'));
+					$('#FLG_DELIMITARE_ZONA_LAVORO').val($('#FLG_DELIMITARE_ZONA_LAVORO').is(':checked'));
+					$('#FLG_SQUADRA_DI_SOCCORSO_IN_STAND_BY').val($('#FLG_SQUADRA_DI_SOCCORSO_IN_STAND_BY').is(':checked'));
+					$('#FLG_INSUFFLARE_AZOTO').val($('#FLG_INSUFFLARE_AZOTO').is(':checked'));
+					$('#FLG_INSUFFLARE_ARIA').val($('#FLG_INSUFFLARE_ARIA').is(':checked'));
+					$('#FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N').val($('#FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N').is(':checked'));
+
+					$('#FLG_CIECATURA').val($('#FLG_CIECATURA').is(':checked'));
+
+					$('#FLG_RIMOZIONE_TEMPORANEA_EIS').val($('#FLG_RIMOZIONE_TEMPORANEA_EIS').is(':checked'));
+
+					$('#FLG_MESSA_IN_SICUREZZA_ELETTRICA').val($('#FLG_MESSA_IN_SICUREZZA_ELETTRICA').is(':checked'));
+
+					$('#FLG_PROVA_DI_ABITABILITA').val($('#FLG_PROVA_DI_ABITABILITA').is(':checked'));
+					$('#FLG_PERMESSO_DI_ACCESSO').val($('#FLG_PERMESSO_DI_ACCESSO').is(':checked'));
+					$('#FLG_LOTO').val($('#FLG_LOTO').is(':checked'));
+
+					$('#FLG_PROVA_DI_ESPLOSIVITA').val($('#FLG_PROVA_DI_ESPLOSIVITA').is(':checked'));
+
+					$('#FLG_CONSEGNA_VERIFICA_ACCETTAZIONE').val($('#FLG_CONSEGNA_VERIFICA_ACCETTAZIONE').is(':checked'));
+
+					$('#FLG_INTERFERENZA_LI_MOD_40_LI_SR_MOD_89').val($('#FLG_INTERFERENZA_LI_MOD_40_LI_SR_MOD_89').is(':checked'));
+					$('#FLG_LAVARE_CON').val($('#FLG_LAVARE_CON').is(':checked'));
+
+					$('#FLG_BONIFICARE_CON').val($('#FLG_BONIFICARE_CON').is(':checked'));
+
+					$('#FLG_PREDISPORRE_MANICHETTE_CON').val($('#FLG_PREDISPORRE_MANICHETTE_CON').is(':checked'));
+
+					$('#FLG_PRODUZIONE_RIFIUTI_PERICOLOSI').val($('#FLG_PRODUZIONE_RIFIUTI_PERICOLOSI').is(':checked'));
+					$('#FLG_PRODUZIONE_RIFIUTI_NON_PERICOLOSI').val($('#FLG_PRODUZIONE_RIFIUTI_NON_PERICOLOSI').is(':checked'));
+					$('#FLG_RISCHIO_SPANDIMENTO').val($('#FLG_RISCHIO_SPANDIMENTO').is(':checked'));
+					$('#FLG_EMISSIONI_IN_ATMOSFERA').val($('#FLG_EMISSIONI_IN_ATMOSFERA').is(':checked'));
+
+					$('#FLG_MASCHERA_ANTIPOLVERE').val($('#FLG_MASCHERA_ANTIPOLVERE').is(':checked'));
+					$('#FLG_MASCHERA_ANTIGAS').val($('#FLG_MASCHERA_ANTIGAS').is(':checked'));
+					$('#FLG_AUTORESPIRATORE').val($('#FLG_AUTORESPIRATORE').is(':checked'));
+					$('#FLG_VISIERA_DI_PROTEZIONE').val($('#FLG_VISIERA_DI_PROTEZIONE').is(':checked'));
+					$('#FLG_PROTEZIONI_AURICOLARI').val($('#FLG_PROTEZIONI_AURICOLARI').is(':checked'));
+					$('#FLG_RILEVATORE_OSSIGENO').val($('#FLG_RILEVATORE_OSSIGENO').is(':checked'));
+					$('#FLG_ESPLOSIMETRO').val($('#FLG_ESPLOSIMETRO').is(':checked'));
+					$('#FLG_INDUMENTI_IGNIFUGHI_SPECIALI').val($('#FLG_INDUMENTI_IGNIFUGHI_SPECIALI').is(':checked'));
+					$('#FLG_STIVALI_ANTIFORTUNISTICI').val($('#FLG_STIVALI_ANTIFORTUNISTICI').is(':checked'));
+					$('#FLG_IMBRAC_CINTURA_DI_SICUREZZA').val($('#FLG_IMBRAC_CINTURA_DI_SICUREZZA').is(':checked'));
+					$('#FLG_GUANTI_PROTETTIVI_PER_AGENTI_CHIMICI').val($('#FLG_GUANTI_PROTETTIVI_PER_AGENTI_CHIMICI').is(':checked'));
+					$('#FLG_PROTEZIONE_VISO_E_CORPO_PER_AGENTI_CHIMICI').val($('#FLG_PROTEZIONE_VISO_E_CORPO_PER_AGENTI_CHIMICI').is(':checked'));
+					$('#FLG_GUANTI_PROTEZIONE_PER_ALTE_TEMPERATURE').val($('#FLG_GUANTI_PROTEZIONE_PER_ALTE_TEMPERATURE').is(':checked'));
+					$('#FLG_GUANTI_CRIOGENICI').val($('#FLG_GUANTI_CRIOGENICI').is(':checked'));
+					$('#FLG_GUANTI_DIELETTRICI').val($('#FLG_GUANTI_DIELETTRICI').is(':checked'));
+					$('#FLG_ELMETTO_DIELETTRICO').val($('#FLG_ELMETTO_DIELETTRICO').is(':checked'));
+					$('#FLG_PERSONALE_INTERNO').val($('#FLG_PERSONALE_INTERNO').is(':checked'));
+					$('#FLG_PERSONALE_ESTERNO').val($('#FLG_PERSONALE_ESTERNO').is(':checked'));
+
+					$('#FLG_CASSETTA_ATTREZZI').val($('#FLG_CASSETTA_ATTREZZI').is(':checked'));
+					$('#FLG_MOLA').val($('#FLG_MOLA').is(':checked'));
+					$('#FLG_TAGLIA_TUBI').val($('#FLG_TAGLIA_TUBI').is(':checked'));
+					$('#FLG_ELETTROSALDATRICE').val($('#FLG_ELETTROSALDATRICE').is(':checked'));
+					$('#FLG_MOTOSALDATRICE').val($('#FLG_MOTOSALDATRICE').is(':checked'));
+					$('#FLG_PARANCO').val($('#FLG_PARANCO').is(':checked'));
+					$('#FLG_TRAPANO_ELETTRICO').val($('#FLG_TRAPANO_ELETTRICO').is(':checked'));
+					$('#FLG_TRAPANO_A_TENUTA').val($('#FLG_TRAPANO_A_TENUTA').is(':checked'));
+					$('#FLG_SABBIATRICE').val($('#FLG_SABBIATRICE').is(':checked'));
+					$('#FLG_ATTREZZI_ANTISCINTILLA').val($('#FLG_ATTREZZI_ANTISCINTILLA').is(':checked'));
+					$('#FLG_CARROPONTE').val($('#FLG_CARROPONTE').is(':checked'));
+					$('#FLG_ESCAVATRICE').val($('#FLG_ESCAVATRICE').is(':checked'));
+					$('#FLG_LANCIA_ACQUA_IN_PRESSIONE').val($('#FLG_LANCIA_ACQUA_IN_PRESSIONE').is(':checked'));
+					$('#FLG_TRAPANO_PNEUMATICO').val($('#FLG_TRAPANO_PNEUMATICO').is(':checked'));
+					$('#FLG_CANNELLO_OSSIACETILENICO').val($('#FLG_CANNELLO_OSSIACETILENICO').is(':checked'));
+					$('#FLG_UTENSILI_A_TENSIONE_DI_SICUREZZA').val($('#FLG_UTENSILI_A_TENSIONE_DI_SICUREZZA').is(':checked'));
+					$('#FLG_ATTREZZATURE_LAVAGGI_CHIMICI').val($('#FLG_ATTREZZATURE_LAVAGGI_CHIMICI').is(':checked'));
+					$('#FLG_ATTREZZATURE_PER_RADIOGRAFIE').val($('#FLG_ATTREZZATURE_PER_RADIOGRAFIE').is(':checked'));
+					$('#FLG_AUTOGRU').val($('#FLG_AUTOGRU').is(':checked'));
+					$('#FLG_AUTOMEZZO').val($('#FLG_AUTOMEZZO').is(':checked'));
+					$('#FLG_CARRELLO_ELEVATORE').val($('#FLG_CARRELLO_ELEVATORE').is(':checked'));
+					$('#FLG_MOTOPOMPA').val($('#FLG_MOTOPOMPA').is(':checked'));
+					$('#FLG_AUTOSPURGO').val($('#FLG_AUTOSPURGO').is(':checked'));
+					$('#FLG_SCOVOLATRICE').val($('#FLG_SCOVOLATRICE').is(':checked'));
+					$('#FLG_MOTOCOMPRESSORE').val($('#FLG_MOTOCOMPRESSORE').is(':checked'));
+
+					$('#FLG_PERSONALE_INTERNO').val($('#FLG_PERSONALE_INTERNO').is(':checked'));
+					$('#FLG_PERSONALE_ESTERNO').val($('#FLG_PERSONALE_ESTERNO').is(':checked'));
+					
+					tokenizeOptionSelected("LISTA_PDL1_NR","PDL_MULTIPLO");
+					if ($("#formInserimento :input").attr("disabled")=="disabled"){
+						disattivato=true;
+						$("#formInserimento :input").attr("disabled", false);
+					}else{
+						disattivato=false;
+					}
+					
+					/* Send the data using post */
+					$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+						
+						$("#salva-group").show();
+						var result = eval('('+response+')');
+						
+			    		var operationType=$("#OPERATION_TYPE").val();
+			    		if (operationType != "" && operationType=="INSERT") {
+			    			var id=result.id;
+			    			var nrPdl=result.nrPdl;
+			    			if (id != null && id != "") {
+								$("#ID_PDL").val(id);
+								$("#NR_PDL").val(nrPdl);
+							}
+			    		}
+			    		
+			    		if (disattivato){
+			    			$("#formInserimento :input").attr("disabled", true);
+			    			<#if PROFILO?contains('INT')>
+				    			$("#FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N").attr("disabled", false);
+				    			$("#LISTA_PDL1_NR").attr("disabled", false);
+			    			</#if>
+			    		}
+						$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+					});
+				}
+
+				
+				
+			});
+			
+	    	var rispostaVerifica="<#if RISPOSTA_VERIFICA?exists>${RISPOSTA_VERIFICA}</#if>";
+	    	if (rispostaVerifica!="") {
+	    		window.location="#FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N";
+	    		document.getElementById("FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N").focus();
+	    		
+	    		document.getElementById("colorata").style.border = ".2em solid red";
+	    		
+	    		//window.location="#LISTA_PDL1_NR";
+	    		//document.getElementById("LISTA_PDL1_NR").focus();
+			}
+			
+								
+			
+		});		
+		
+		
+		function onFlagPersonaleInternoChecked() {
+		    if($('#FLG_PERSONALE_INTERNO').is(':checked')) {
+		    	$("#FLG_PERSONALE_ESTERNO").prop('disabled',true);
+		    	$("#IMPRESA_TESTO").prop('disabled',true);
+		    	$("#NOME_COGNOME_PREPOSTO_IMPRESA").prop('disabled',true);
+		    	$("#NOME_COGNOME_PREPOSTO_IMPRESA_2").prop('disabled',true);
+		    	$("#IMPRESA_TESTO").prop('required',false);
+		    	$("#NOME_COGNOME_PREPOSTO_IMPRESA").prop('required',false);
+		    	$("#NOME_COGNOME_PREPOSTO_IMPRESA_2").prop('required',false);
+		    } else {
+		    	$("#FLG_PERSONALE_ESTERNO").prop('disabled',false);
+		    	$("#IMPRESA_TESTO").prop('disabled',false);
+		    	$("#NOME_COGNOME_PREPOSTO_IMPRESA").prop('disabled',false);
+		    	$("#NOME_COGNOME_PREPOSTO_IMPRESA_2").prop('disabled',false);
+		    	$("#IMPRESA_TESTO").prop('required',true);
+		    	$("#NOME_COGNOME_PREPOSTO_IMPRESA").prop('required',true);
+		    	$("#NOME_COGNOME_PREPOSTO_IMPRESA_2").prop('required',true);
+		    }
+		}
+		
+		function onFlagPersonaleEsternoChecked() {
+		    if($('#FLG_PERSONALE_ESTERNO').is(':checked')) {
+		    	$("#FLG_PERSONALE_INTERNO").prop('disabled',true);
+		    	//$("#IMPRESA_TESTO").focus(); 
+		    } else {
+		    	$("#FLG_PERSONALE_INTERNO").prop('disabled',false);
+		    }			
+		}
+		
+		function settingEISFields(){
+	    	var numEIS = $("#EIS_TEXT").val();
+	    	
+	    	$('#FLG_RIMOZIONE_TEMPORANEA_EIS').prop('checked',true);
+	    	$('#SCHEDA_EIS_NR').val(numEIS);
+	    	
+			$('#modalQuestionEIS').collapse("hide");
+		}
+		
+		
+		
+				
+    </script> 
+
+</head>
+
+<body>
+
+
+	
+								
+
+	<form action="astro" method="post" id="formStampa" name="formStampa">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="StampaPDL">	
+		<input type="hidden" id="ID_PDL_STAMPA" name="ID_PDL">
+		<input type="hidden" id="FORMATO_STAMPA" name="FORMATO_STAMPA">
+		<input type="hidden" id="DATA_OGGI" name="DATA_OGGI">
+	</form>
+
+	<div class="modal inmodal fade" id="modalQuestionDialogPrint" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialogPrint').collapse('toggle');$('#modalQuestionDialogDataPDL').modal({backdrop: true}).collapse('show');" data-dismiss="modal" type="button">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	<div class="modal inmodal fade" id="modalQuestionDialogDataPDL" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">Stampa PdL</div>
+				<div class="modal-body">Vuoi stampare il PdL con la data odierna?</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalQuestionDialogDataPDL').collapse('toggle');$('#DATA_OGGI').val('N');$('#formStampa').submit();">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialogDataPDL').collapse('toggle');$('#DATA_OGGI').val('S');$('#formStampa').submit();" data-dismiss="modal" type="button">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	<div class="modal inmodal fade" id="modalQuestionEIS" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalQuestionEIS').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" 
+							onclick="$('#modalQuestionEIS').collapse('hide');$('.modal-title').html('Inserimento numero EIS');$('.modal-text').html('Attenzione : inserire numero scheda EIS');$('#modalQuestionEISGET').modal({backdrop: true});$('#modalQuestionEISGET').collapse('show');" 
+							data-dismiss="modal" type="button">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+
+	<div class="modal inmodal fade" id="modalQuestionEISGET" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+				    <input type="text" id="EIS_TEXT" name="EIS_TEXT" class="form-control">
+					<button class="btn btn-primary btn-sm" onclick="settingEISFields();" data-dismiss="modal" type="button">${label_ok}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	
+	<div class="modal fade" id="modalAvvisoDuplicazione" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    	<div class="modal-dialog">
+	        <div class="modal-content">
+	            <div class="modal-header" style="background-color: #D7001E; color: white;">
+	                <h4 class="modal-title" id="myModalLabel"><b>ATTENZIONE</b></h4>
+	            </div>
+	            <div class="modal-body">
+	                <div class="text-center">
+	                    <i class="fa fa-exclamation-triangle fa-3x" style="color: #D7001E; margin-bottom: 15px;"></i>
+	                    <p style="font-size: 16px;">
+	                        <b>STAI VISUALIZZANDO UN PDL DELLA VERSIONE PRECEDENTE.</b><br>
+	                        Alcuni campi potrebbero essere differenti dalla versione attuale.
+	                    </p>
+	                </div>
+	            </div>
+	            <div class="modal-footer">
+				    <button type="button" 
+				            class="btn" 
+				            data-dismiss="modal" 
+				            style="background-color: #D7001E; color: white; border: none; font-weight: bold;">
+				        Ho capito, procedi
+				    </button>
+				</div>
+	        </div>
+	    </div>
+	</div>
+
+
+
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+			
+			<div class="row">
+                <div class="col-lg-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- titolo form-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>		
+
+						<!-- contenuto form-->
+
+						<div class="ibox float-e-margins">
+					
+                        	<div class="ibox-content">
+                        	
+                        	
+								
+								
+								
+							
+                        	
+	                            <form action="astro" method="post" id="formInserimento" name="formInserimento" class="form-horizontal">
+                        	
+									<div class="row">
+			                        	<div class="col-sm-12">
+			                        
+											<input type="hidden" name="FUNCTIONID" value="InserimentoPDL"> 
+											<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+											<input type="hidden" id="PDL_MULTIPLO" name="PDL_MULTIPLO">
+											<input type="hidden" id="ID_PDL" name="ID_PDL">
+											
+			                                <div class="form-group">
+			                                	<label class="col-sm-2 control-label-left">${label_sito}</label>
+			                                    <div class="col-sm-4">
+				                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control" required>
+				                                    </select>
+												</div>
+												
+			                                	<label class="col-sm-2 control-label-left">Impianto:</label>
+			                                    <div class="col-sm-4">
+				                                    <select id="ID_IMPIANTO" name="ID_IMPIANTO"  class="form-control" required>
+				                                    </select>
+												</div>
+			                                </div>
+			                                    
+			                                <div class="form-group">
+			                                	<label class="col-sm-2 control-label-left">Area di lavoro:</label>
+			                                    <div class="col-sm-4">
+				                                    <select id="ID_AREA" name="ID_AREA"  class="form-control" required>
+				                                    </select>
+												</div>
+												
+			                                	<label class="col-sm-2 control-label-left">Equipment:</label>
+			                                    <div class="col-sm-4">
+				                                    <select id="ID_EQUIPMENT" name="ID_EQUIPMENT"  class="form-control">
+				                                    </select>
+												</div>
+			                                </div>    
+			
+											<div class="form-group">
+													
+												<label class="col-sm-2 control-label-left">Nr.PdL</label>
+												<div class="col-sm-2">
+													<input type="text" id="NR_PDL" name="NR_PDL" class="form-control">
+												</div>
+
+												<label class="col-sm-2 control-label-left">
+													<input id="FLG_TA" name="FLG_TA" type="checkbox">&nbsp;&nbsp;Fermata (T/A)
+												</label>												
+													
+												<label class="col-sm-2 control-label-left">Data PdL</label>
+												<div class="col-sm-4">
+													<div class="input-group date">
+														<span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" id="DT_PDL" name="DT_PDL" class="form-control" required>
+													</div>
+												</div>
+												
+											</div>
+
+											<div class="form-group" id="salva-group">
+												<div class="col-sm-6">
+													
+													<div id="wrapper-salva" style="display: inline-block;">
+													    <button class="btn btn-primary btn-sm" type="submit" class="btn btn-primary btn-sm" id="salva">Salva</button>
+													</div>
+
+													<button class="btn btn-primary btn-sm" id="stampaA4" type="button" name="salva">PDF A4</button>
+													<button class="btn btn-primary btn-sm" id="stampaA3" type="button" name="salva">PDF A3</button>
+<!-- 													
+												 	<#if !PROFILO?contains('DLV') && !PROFILO?contains('CPT')>
+													<button class="btn btn-primary btn-sm" id="invia-dl" type="button" name="invia-dl">Invia al DL</button>
+													</#if>													
+-->
+												</div>
+												<div class="col-sm-6">
+													<div class="col-sm-12 alert alert-danger" id="info">
+						                               <b><input type="text" style="border:none;background-color:transparent;text-align:center;width:100%" disabled name="POSSIBILE_INTERFERENZA" id="POSSIBILE_INTERFERENZA"></b>
+						                            </div>
+						                        </div>	
+											</div>
+											
+											<div class="form-group">
+												<div class="col-sm-12">
+													<button class="btn btn-primary btn-sm" id="planimetria" name="planimetria">Torna a planimetria interferenze</button>
+												</div>
+											</div>
+											
+											
+											
+											
+											
+											
+			                            </div>
+		                            </div>							
+
+									<div class="tabs-container">
+										
+										<ul class="nav nav-tabs">
+											<li class="active"><a data-toggle="tab" href="#tab-1"><b>Sezione 1</b></a></li>
+											<li class=""><a data-toggle="tab" href="#tab-2"><b>Sezione 2</b></a></li>
+											<li class=""><a data-toggle="tab" href="#tab-3"><b>Stato Permesso</b></a></li>
+										</ul>			
+			
+										<div class="tab-content">
+											
+											<div id="tab-1" class="tab-pane active"> <!-- tab-1 -->
+											
+												<div class="panel-body">
+													
+													<div class="row">
+							                        	<div class="col-sm-12">
+							                        	
+															
+															<div class="form-group">
+																<label class="col-sm-2 control-label-left">OdL / Invest.</label>
+																<div class="col-sm-4">
+																	<input type="text" id="ODL" name="ODL" class="form-control">
+																</div>
+															</div>
+															
+															<div class="form-group">
+																<label class="col-sm-2 control-label-left">Descrizione Lavoro</label>
+																<div class="col-sm-10">
+																	<textarea class="form-control" id="DESCRIZIONE_LAVORO" name="DESCRIZIONE_LAVORO" rows="3" required placeholder="max 600 caratteri" maxlength="600"></textarea>
+																</div>
+															</div>
+																
+																
+															<div class="form-group">
+																<div class="col-sm-3">	
+																	<div class="table-responsive">
+																		<table class="table table-bordered">
+																			<tbody>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_MODULO_INGLESE" id="FLG_MODULO_INGLESE"></td><td>Permesso di lavoro in lingua inglese (LI-MOD25_en)</td>
+																				</tr>
+																			</tbody>
+																		</table>
+																	</div>
+																</div>
+															</div>
+																
+															<div class="form-group">
+																<label class="col-sm-12"><h4><b>Tipo Attivita'</b></h4></label>
+															</div>			
+																
+															<div class="form-group">
+																<div class="col-sm-12">
+																	<div class="table-responsive">
+																		<table class="table table-bordered">
+																			<tbody>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_MECCANICA" id="FLG_MECCANICA"></td><td>Meccanica</td>
+																					<td><input type="checkbox" name="FLG_A_FUOCO" id="FLG_A_FUOCO"></td><td>A fuoco</td>
+																					<td><input type="checkbox" name="FLG_COIBENTAZIONE_SCOIBENTAZIONE" id="FLG_COIBENTAZIONE_SCOIBENTAZIONE"></td><td>Coibentazione/Scoibentazione</td>
+																					<td><input type="checkbox" name="FLG_SABBIATURA" id="FLG_SABBIATURA"></td><td>Sabbiatura</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_STRUMENTALE" id="FLG_STRUMENTALE"></td><td>Strumentale</td>
+																					<td><input type="checkbox" name="FLG_IN_QUOTA" id="FLG_IN_QUOTA"></td><td>In quota</td>
+																					<td><input type="checkbox" name="FLG_CIECATURA_RIMOZIONE" id="FLG_CIECATURA_RIMOZIONE"></td><td>Ciecatura/rimozione</td>
+																					<td><input type="checkbox" name="FLG_AGGOTTAMENTO" id="FLG_AGGOTTAMENTO"></td><td>Aggottamento</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_ELETTRICA" id="FLG_ELETTRICA"></td><td>Elettrica</td>
+																					<td><input type="checkbox" name="FLG_SCAVO" id="FLG_SCAVO"></td><td>Scavo</td>
+																					<td><input type="checkbox" name="FLG_PULIZIA_FACCHINAGGIO" id="FLG_PULIZIA_FACCHINAGGIO"></td><td>Pulizia/facchinaggio</td>
+																					<td><input type="checkbox" name="FLG_PONTEGGIO" id="FLG_PONTEGGIO"></td><td>Ponteggio</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_EDILE" id="FLG_EDILE"></td><td>Edile</td>
+																					<td><input type="checkbox" name="FLG_IN_SPAZI_CONFINATI" id="FLG_IN_SPAZI_CONFINATI"></td><td>In spazi confinati</td>
+																					<td><input type="checkbox" name="FLG_VERNICIATURA" id="FLG_VERNICIATURA"></td><td>Verniciatura</td>
+																					<td></td><td></td>
+																				</tr>
+																			</tbody>
+																		</table>
+																	</div>
+																</div>
+															</div>
+																	
+															<div class="form-group">
+																<label class="col-sm-2 control-label-left">Altro tipo attivit&agrave;</label>
+																<div class="col-sm-10">
+																	<textarea class="form-control" id="ALTRO_SEZ1_TIPOLAVORO1_TESTO" name="ALTRO_SEZ1_TIPOLAVORO1_TESTO" rows="3" placeholder="max 100 caratteri" maxlength="100"></textarea>
+																</div>
+															</div>
+																
+															<div class="form-group">
+																<label class="col-sm-12"><h4><b>Rischi Specifici dei prodotti</b></h4></label>
+															</div>					
+														
+															<div class="form-group">
+																<div class="col-sm-12">
+											
+																	<div class="table-responsive">
+																		<table class="table table-bordered">
+																			<tbody>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_OSSIGENO" id="FLG_OSSIGENO"></td><td> Ossigeno</td><td> <b>Sovraossigenazione</b></td>
+																					<td><input type="checkbox" name="FLG_AZOTO" id="FLG_AZOTO"></td><td> Azoto</td><td> <b>Sottossigenazione</b></td>
+																					<td><input type="checkbox" name="FLG_ARGON" id="FLG_ARGON"></td><td> Argon</td><td> <b>Sottossigenazione</b></td>
+																					<td><input type="checkbox" name="FLG_LIQUIDI_CRIOGENICI" id="FLG_LIQUIDI_CRIOGENICI"></td><td> Liquidi Criogenici</td><td> <b>Ustioni da freddo</b></td>
+																				</tr>
+																				
+																				<tr>
+																					<td><input type="checkbox" name="FLG_METANO_O_GAS_NATURALE" id="FLG_METANO_O_GAS_NATURALE"></td><td> Metano o gas naturale</td><td> <b>Incendio / Esplosione</b></td>
+																					<td><input type="checkbox" name="FLG_IDROCARBURI" id="FLG_IDROCARBURI"></td><td> Idrocarburi</td><td> <b>Incendio / Esplosione</b></td>
+																					<td><input type="checkbox" name="FLG_PERLITE" id="FLG_PERLITE"></td><td> Perlite</td><td> <b>Annegamento</b></td>
+																					<td><input type="checkbox" name="FLG_BUTANO" id="FLG_BUTANO"></td><td> Butano</td><td> <b>Incendio/Esplosione</b></td>
+																				</tr>
+																				
+																				<tr>
+																					<td><input type="checkbox" name="FLG_SYNGAS" id="FLG_SYNGAS"></td><td> SynGas</td><td> <b>Incendio / Esplosione</b></td>
+																					<td><input type="checkbox" name="FLG_IDROGENO" id="FLG_IDROGENO"></td><td> Idrogeno</td><td> <b>Incendio / Esplosione</b></td>
+																					<td><input type="checkbox" name="FLG_DMDS" id="FLG_DMDS"></td><td> DMDS</td><td> <b>Infiammabile / Tossico</b></td>
+																					<td><input type="checkbox" name="FLG_OLI" id="FLG_OLI"></td><td> Oli</td><td> <b>Infiammabile/ Tossico</b></td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_VAPORE" id="FLG_VAPORE"></td><td> Vapore</td><td> <b>Ustioni da caldo</b></td>
+																				</tr>
+																			</tbody>
+																		</table>											
+																	</div>
+																	
+																</div>
+															</div>
+															
+															
+															<div class="form-group">
+																<label class="col-sm-2 control-label-left">Altro rischio</label>
+																<div class="col-sm-10">
+																<input type="text" maxlength="50" class="form-control" id="ALTRO_SEZ1_PRODOTTI1_TESTO" name="ALTRO_SEZ1_PRODOTTI1_TESTO" placeholder="max 45 caratteri" maxlength="45">
+																</div>
+															</div>
+															
+														
+															<div class="form-group">
+																<label class="col-sm-12"><h4><b>Rischi Specifici delle attivita'</b></h4></label>
+															</div>					
+																									
+															<div class="form-group">
+																<div class="col-sm-12">
+											
+																	<div class="table-responsive">
+																		<table class="table table-bordered">
+																			<tbody>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_RUMORE" id="FLG_RUMORE"></td><td>Rumore</td><td><b>Ipoacusia</b></td>
+																					<td><input type="checkbox" name="FLG_ALTA_TEMPERATURA" id="FLG_ALTA_TEMPERATURA"></td><td>Alta Temperatura</td><td><b>Ustioni da caldo</b></td>
+																					<td><input type="checkbox" name="FLG_PRESSIONE" id="FLG_PRESSIONE"></td><td>Pressione</td><td><b>Rottura apparato/Esplosione</b></td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_CRIOGENIA_BASSA_TEMPERATURA" id="FLG_CRIOGENIA_BASSA_TEMPERATURA"></td><td>Criogenia / bassa temperatura</td><td><b>Ustioni da freddo</b></td>
+																					<td><input type="checkbox" name="FLG_PARTI_IN_MOVIMENTO" id="FLG_PARTI_IN_MOVIMENTO"></td><td>Parti in movimento</td><td><b>Traumi fisici</b></td>
+																					<td><input type="checkbox" name="FLG_APPAR_CAVI_ELETTRICI" id="FLG_APPAR_CAVI_ELETTRICI"></td><td>Appar/cavi elettrici sotto tensione</td><td><b>Folgorazioni</b></td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_APPAR_CAVI_ELETTRICI_2" id="FLG_APPAR_CAVI_ELETTRICI_2"></td><td>Appar/cavi elettrici fuori tensione</td><td><b>Folgorazioni</b></td>
+																					<td><input type="checkbox" name="FLG_APPAR_CAVI_ELETTRICI_3" id="FLG_APPAR_CAVI_ELETTRICI_3"></td><td>Appar/cavi elettrici in prossimit&#224;</td><td><b>Folgorazioni</b></td>
+																					<td><input type="checkbox" name="FLG_PRODOTTI_CHIMICI" id="FLG_PRODOTTI_CHIMICI"></td><td>Prodotti chimici</td><td><b>Contatto prodotti chimici</b></td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_ALTEZZA" id="FLG_ALTEZZA"></td><td>Altezza</td><td><b>Caduta dall'alto</b></td>
+																					<td><input type="checkbox" name="FLG_MATERIALI_INFIAMMABILI" id="FLG_MATERIALI_INFIAMMABILI"></td><td>Materiali infiammabili</td><td><b>Ustioni da caldo</b></td>
+																				</tr>
+																			</tbody>
+																		</table>											
+																	</div>
+																</div>
+																
+															</div>
+															
+															<div class="form-group">
+																<label class="col-sm-2 control-label-left">Altro rischio</label>
+																<div class="col-sm-10">
+																<input type="text" class="form-control" id="ALTRO_SEZ1_ATTIVITA1_TESTO" name="ALTRO_SEZ1_ATTIVITA1_TESTO" placeholder="max 150 caratteri" maxlength="150">
+																</div>
+															</div>
+											
+															<div class="form-group">
+																<label class="col-sm-12"><h4><b>Prescrizioni di sicurezza da adottare</b></h4></label>
+															</div>					
+																									
+															<div class="form-group">
+																<div class="col-sm-12">
+										
+																	<div class="table-responsive">
+																		<table class="table table-bordered">
+																			<tbody>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_INTERCETTARE" id="FLG_INTERCETTARE"></td><td>Intercettare</td>
+																					<td><input type="checkbox" name="FLG_DEPRESSURIZZARE" id="FLG_DEPRESSURIZZARE"></td><td>Depressurizzare</td>
+																					<td><input type="checkbox" name="FLG_VUOTARE" id="FLG_VUOTARE"></td><td>Vuotare</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_DOPPIE_VALVOLE_CHIUSE" id="FLG_DOPPIE_VALVOLE_CHIUSE"></td><td>Doppie valvole chiuse</td>
+																					<td><input type="checkbox" name="FLG_SPURGHI_APERTI" id="FLG_SPURGHI_APERTI"></td><td>Spurghi aperti</td>
+																					<td><input type="checkbox" name="FLG_SPURGHI_CHIUSI" id="FLG_SPURGHI_CHIUSI"></td><td>Spurghi chiusi</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_VENT_APERTI" id="FLG_VENT_APERTI"></td><td>Vent aperti</td>
+																					<td><input type="checkbox" name="FLG_VENT_CHIUSI" id="FLG_VENT_CHIUSI"></td><td>Vent chiusi</td>
+																					<td><input type="checkbox" name="FLG_SCONNETTERE_LINEE" id="FLG_SCONNETTERE_LINEE"></td><td>Sconnettere linee</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_SFLANGIARE" id="FLG_SFLANGIARE"></td><td>Sflangiare</td>
+																					<td><input type="checkbox" name="FLG_CONTROLLARE_PRESSIONE" id="FLG_CONTROLLARE_PRESSIONE"></td><td>Controllare Pressione</td>
+																					<td><input type="checkbox" name="FLG_CONTROLLARE_TEMPERATURA" id="FLG_CONTROLLARE_TEMPERATURA"></td><td>Controllare Temperatura</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_AREARE" id="FLG_AREARE"></td><td>Areare</td>
+																					<td><input type="checkbox" name="FLG_DOPPIA_VALVOLA_CHIUSA_E_SPURGO_INTERMEDIO_APERTO" id="FLG_DOPPIA_VALVOLA_CHIUSA_E_SPURGO_INTERMEDIO_APERTO"></td><td>Doppia valvola chiusa e spurgo intermedio aperto</td>
+																					<td><input type="checkbox" name="FLG_LAVARE_CON_PRODOTTI_COMPATIBILI_ALIMENTARE_FARMACEUTICO" id="FLG_LAVARE_CON_PRODOTTI_COMPATIBILI_ALIMENTARE_FARMACEUTICO"></td><td>Lavare con prodotti compatibili alimentare /farmaceutico</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_PREDISPORRE_CARTELLI_DIVIETO_MANOVRA" id="FLG_PREDISPORRE_CARTELLI_DIVIETO_MANOVRA"></td><td>Predisporre cartelli divieto manovra</td>
+																					<td><input type="checkbox" name="FLG_PREDISPORRE_ILLUMINAZIONE" id="FLG_PREDISPORRE_ILLUMINAZIONE"></td><td>Predisporre illuminazione</td>
+																					<td><input type="checkbox" name="FLG_PREDISPORRE_ATTREZZATURE_ANTINCENDIO" id="FLG_PREDISPORRE_ATTREZZATURE_ANTINCENDIO"></td><td>Predisporre attrezzature antincendio</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_LOCALIZZARE_LINEE_INTERRATE" id="FLG_LOCALIZZARE_LINEE_INTERRATE"></td><td>Localizzare linee interrate</td>
+																					<td><input type="checkbox" name="FLG_APPLICARE_SEGNALETICA" id="FLG_APPLICARE_SEGNALETICA"></td><td>Applicare segnaletica</td>
+																					<td><input type="checkbox" name="FLG_TRIPODE" id="FLG_TRIPODE"></td><td>Tripode</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_PROTEGGERE_FOGNE" id="FLG_PROTEGGERE_FOGNE"></td><td>Proteggere fogne</td>
+																					<td><input type="checkbox" name="FLG_PONTEGGIO_PIANO_DI_LAVORO" id="FLG_PONTEGGIO_PIANO_DI_LAVORO"></td><td>Ponteggio - Piano di lavoro</td>
+																					<td><input type="checkbox" name="FLG_PIATTAFORMA" id="FLG_PIATTAFORMA"></td><td>Piattaforma</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_DELIMITARE_ZONA_LAVORO" id="FLG_DELIMITARE_ZONA_LAVORO"></td><td>Delimitare zona lavoro</td>
+																					<td><input type="checkbox" name="FLG_SQUADRA_DI_SOCCORSO_IN_STAND_BY" id="FLG_SQUADRA_DI_SOCCORSO_IN_STAND_BY"></td><td>Squadra di soccorso in stand-by</td>
+																					<td><input type="checkbox" name="FLG_INSUFFLARE_AZOTO" id="FLG_INSUFFLARE_AZOTO"></td><td>Insufflare azoto</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_INSUFFLARE_ARIA" id="FLG_INSUFFLARE_ARIA"></td><td>Insufflare aria</td>
+																					<td><input type="checkbox" name="FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N" id="FLG_ESEGUIRE_DOPO_COMPLETAMENTO_E_CHIUSURA_PERMESSI_N"></td><td id="colorata">Eseguire dopo completamento e chiusura permessi n°<br>
+																					<!-- <input type="text" id="PDL1_NR" name="PDL1_NR" class="form-control">-->
+																					<select class="form-control" id="LISTA_PDL1_NR" name="LISTA_PDL1_NR" multiple>
+																					</td>
+																					<td><input type="checkbox" name="FLG_CIECATURA" id="FLG_CIECATURA"></td><td>Ciecatura<br><input type="text" id="SCHEDA_CIECATURA_NR" name="SCHEDA_CIECATURA_NR" class="form-control"></td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_RIMOZIONE_TEMPORANEA_EIS" id="FLG_RIMOZIONE_TEMPORANEA_EIS"></td><td>Rimozione temporanea EIS<br><input type="text" id="SCHEDA_EIS_NR" name="SCHEDA_EIS_NR" class="form-control"></td>
+																					<td><input type="checkbox" name="FLG_MESSA_IN_SICUREZZA_ELETTRICA" id="FLG_MESSA_IN_SICUREZZA_ELETTRICA"></td><td>Messa in sicurezza elettrica<br><input type="text" id="MESSA_IN_SICUREZZA_ELETTRICA_TESTO" name="MESSA_IN_SICUREZZA_ELETTRICA_TESTO" class="form-control"></td>
+																					<td><input type="checkbox" name="FLG_PROVA_DI_ABITABILITA" id="FLG_PROVA_DI_ABITABILITA"></td><td>Prova di abitabilità</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_LOTO" id="FLG_LOTO"></td><td>Loto<br><input type="text" id="LOTO_TESTO" name="LOTO_TESTO" class="form-control"></td>
+																					<td><input type="checkbox" name="FLG_CONSEGNA_VERIFICA_ACCETTAZIONE" id="FLG_CONSEGNA_VERIFICA_ACCETTAZIONE"></td><td>Consegna - verifica - accettazione ponteggio</td>
+																					<td><input type="checkbox" name="FLG_INTERFERENZA_LI_MOD_40_LI_SR_MOD_89" id="FLG_INTERFERENZA_LI_MOD_40_LI_SR_MOD_89"></td><td>Interferenza</td>
+																				</tr>																				
+																				<tr>
+																					<td><input type="checkbox" name="FLG_PROVA_DI_ESPLOSIVITA" id="FLG_PROVA_DI_ESPLOSIVITA"></td><td>Prova di esplosività<br><input type="text" id="PROVA_DI_ESPLOSIVITA_TESTO" name="PROVA_DI_ESPLOSIVITA_TESTO" class="form-control"></td>
+																					<td><input type="checkbox" name="FLG_BONIFICARE_CON" id="FLG_BONIFICARE_CON"></td><td>Bonificare con<br><input type="text" id="BONIFICARE_CON_TESTO" name="BONIFICARE_CON_TESTO" class="form-control"></td>
+																					<td><input type="checkbox" name="FLG_PREDISPORRE_MANICHETTE_CON" id="FLG_PREDISPORRE_MANICHETTE_CON"></td><td>Predisporre manichette con<br><input type="text" id="PREDISPORRE_MANICHETTE_CON_TEST" name="PREDISPORRE_MANICHETTE_CON_TEST" class="form-control"></td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" name="FLG_LAVARE_CON" id="FLG_LAVARE_CON"></td><td>Lavare con<br><input type="text" id="LAVARE_CON_TESTO" name="LAVARE_CON_TESTO" class="form-control"></td>
+																					<td><input type="checkbox" name="FLG_PERMESSO_DI_ACCESSO" id="FLG_PERMESSO_DI_ACCESSO"></td><td>Permesso di accesso<br><input type="text" id="PROVA_DI_ABITABILITA_TESTO" name="PROVA_DI_ABITABILITA_TESTO" class="form-control"></td>																					
+																					<td><input type="checkbox" name="FLG_PERMESSO_ELETTRICO" id="FLG_PERMESSO_ELETTRICO"></td><td>Permesso di lavoro elettrico<br><input type="text" id="PERMESSO_ELETTRICO_TESTO" name="PERMESSO_ELETTRICO_TESTO" class="form-control"></td>
+																				</tr>
+																			</tbody>
+																		</table>											
+																	</div>
+																</div>
+															</div>
+																
+															<div class="form-group">
+																<label class="col-sm-2 control-label-left">Altri documenti sito</label>
+																<div class="col-sm-10">
+																<textarea class="form-control" id="ALTRI_DOCUMENTI_SITO" name="ALTRI_DOCUMENTI_SITO" rows="3" placeholder="max 200 caratteri" maxlength="200"></textarea>
+																</div>
+															</div>
+															
+															<div class="form-group">
+																<label class="col-sm-2 control-label-left">Altro/Note</label>
+																<div class="col-sm-10">
+																<textarea class="form-control" id="ALTRO_SEZ1_PRESCRIZIONI_SIC1_TESTO" name="ALTRO_SEZ1_PRESCRIZIONI_SIC1_TESTO" rows="3" placeholder="max 200 caratteri" maxlength="200"></textarea>
+																</div>
+															</div>
+															
+			
+															<div class="form-group">
+																<label class="col-sm-12"><h4><b>Aspetti ambientali</b></h4></label>
+															</div>					
+																									
+															<div class="form-group">
+																<label class="col-sm-12"><h5><b>Rischi specifici</b></h5></label>
+															</div>					
+																									
+															<div class="form-group">
+																<div class="col-sm-12">
+																	<div class="table-responsive">
+																		<table class="table table-bordered">
+																			<tbody>
+																				<tr>
+																					<td><input type="checkbox" id="FLG_PRODUZIONE_RIFIUTI_PERICOLOSI" name="FLG_PRODUZIONE_RIFIUTI_PERICOLOSI"></td><td>Produzione rifiuti pericolosi</td>
+																					<td><input type="checkbox" id="FLG_PRODUZIONE_RIFIUTI_NON_PERICOLOSI" name="FLG_PRODUZIONE_RIFIUTI_NON_PERICOLOSI"></td><td>Produzione rifiuti non pericolosi</td>
+																					<td><input type="checkbox" id="FLG_RISCHIO_SPANDIMENTO" name="FLG_RISCHIO_SPANDIMENTO"></td><td>Rischio spandimento</td>
+																					<td><input type="checkbox" id="FLG_EMISSIONI_IN_ATMOSFERA" name="FLG_EMISSIONI_IN_ATMOSFERA"></td><td>Emissioni in atmosfera</td>
+																				</tr>
+																			</tbody>
+																		</table>											
+																	</div>
+																</div>
+															</div>
+															
+															<div class="form-group">
+																<label class="col-sm-2 control-label-left">Precauzioni da adottare</label>
+																<div class="col-sm-10">
+																<textarea class="form-control" id="PRECAUZIONI_DA_ADOTTARE" name="PRECAUZIONI_DA_ADOTTARE" rows="3"  placeholder="max 100 caratteri" maxlength="100"></textarea>
+																</div>
+															</div>
+																
+															
+															<div class="form-group">
+																<label class="col-sm-12"><h4><b>Dispositivi di protezione individuale da adottare</b></h4></label>
+															</div>
+
+															<div class="form-group">
+																<label class="col-sm-12"><h5><b>Standard</b></h5></label>
+															</div>
+																									
+															<div class="form-group">
+																<div class="col-sm-12">
+											
+																	<div class="table-responsive">
+																		<table class="table table-bordered">
+																			<tbody>
+																				<tr>
+																					<td><input id="FLG_TUTA_DA_LAVORO" name="FLG_TUTA_DA_LAVORO" type="checkbox"></td><td>Tuta da lavoro</td>
+																					<td><input id="FLG_SCARPE_DI_SICUREZZA" name="FLG_SCARPE_DI_SICUREZZA" type="checkbox"></td><td>Scarpe di sicurezza</td>
+																					<td><input id="FLG_GUANTI" name="FLG_GUANTI" type="checkbox"></td><td>Guanti</td>
+																					<td><input id="FLG_OCCHIALI" name="FLG_OCCHIALI" type="checkbox"></td><td>Occhiali</td>
+																					<td><input id="FLG_ELMETTO" name="FLG_ELMETTO" type="checkbox"></td><td>Elmetto</td>
+																				</tr>
+																			</tbody>
+																		</table>											
+																	</div>
+																</div>
+															</div>
+			
+															<div class="form-group">
+																<label class="col-sm-12"><h5><b>Specifici (da descrivere in funzione delle attività)</b></h5></label>
+															</div>					
+																									
+															<div class="form-group">
+																<div class="col-sm-12">
+																	<div class="table-responsive">
+																		<table class="table table-bordered">
+																			<tbody>
+																				<tr>
+																					<td><input type="checkbox" id="FLG_MASCHERA_ANTIPOLVERE" name="FLG_MASCHERA_ANTIPOLVERE" ></td><td>Maschera antipolvere</td>
+																					<td><input type="checkbox" id="FLG_MASCHERA_ANTIGAS" name="FLG_MASCHERA_ANTIGAS" ></td><td>Maschera antigas</td>
+																					<td><input type="checkbox" id="FLG_AUTORESPIRATORE" name="FLG_AUTORESPIRATORE" ></td><td>Autorespiratore</td>
+																					<td><input type="checkbox" id="FLG_VISIERA_DI_PROTEZIONE" name="FLG_VISIERA_DI_PROTEZIONE" ></td><td>Visiera di protezione</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" id="FLG_PROTEZIONI_AURICOLARI" name="FLG_PROTEZIONI_AURICOLARI" ></td><td>Protezioni auricolari</td>
+																					<td><input type="checkbox" id="FLG_RILEVATORE_OSSIGENO" name="FLG_RILEVATORE_OSSIGENO" ></td><td>Rilevatore ossigeno</td>
+																					<td><input type="checkbox" id="FLG_ESPLOSIMETRO" name="FLG_ESPLOSIMETRO" ></td><td>Esplosimetro</td>
+																					<td><input type="checkbox" id="FLG_INDUMENTI_IGNIFUGHI_SPECIALI" name="FLG_INDUMENTI_IGNIFUGHI_SPECIALI" ></td><td>Indumenti ignifughi speciali</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" id="FLG_STIVALI_ANTIFORTUNISTICI" name="FLG_STIVALI_ANTIFORTUNISTICI" ></td><td>Stivali antifortunistici</td>
+																					<td><input type="checkbox" id="FLG_IMBRAC_CINTURA_DI_SICUREZZA" name="FLG_IMBRAC_CINTURA_DI_SICUREZZA" ></td><td>Imbrac/Cintura di sicurezza</td>
+																					<td><input type="checkbox" id="FLG_GUANTI_PROTETTIVI_PER_AGENTI_CHIMICI" name="FLG_GUANTI_PROTETTIVI_PER_AGENTI_CHIMICI" ></td><td>Guanti protettivi per agenti chimici</td>
+																					<td><input type="checkbox" id="FLG_PROTEZIONE_VISO_E_CORPO_PER_AGENTI_CHIMICI" name="FLG_PROTEZIONE_VISO_E_CORPO_PER_AGENTI_CHIMICI" ></td><td>Protezione viso e corpo per agenti chimici</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" id="FLG_GUANTI_PROTEZIONE_PER_ALTE_TEMPERATURE" name="FLG_GUANTI_PROTEZIONE_PER_ALTE_TEMPERATURE" ></td><td>Guanti protezione per alte temperature</td>
+																					<td><input type="checkbox" id="FLG_GUANTI_CRIOGENICI" name="FLG_GUANTI_CRIOGENICI" ></td><td>Guanti criogenici</td>
+																					<td><input type="checkbox" id="FLG_GUANTI_DIELETTRICI" name="FLG_GUANTI_DIELETTRICI" ></td><td>Guanti dielettrici</td>
+																					<td><input type="checkbox" id="FLG_ELMETTO_DIELETTRICO" name="FLG_ELMETTO_DIELETTRICO" ></td><td>Elmetto dielettrico</td>
+																				</tr>
+																			</tbody>
+																		</table>											
+																	</div>
+																</div>
+															</div>
+															
+															<div class="form-group">
+																<label class="col-sm-2 control-label-left">Ulteriori prescrizioni di sicurezza da adottare</label>
+																<div class="col-sm-10">
+																<textarea class="form-control" id="ULTERIORI_PRESCRIZIONI_DI_SICUREZZA_DA_ADOTTARE" name="ULTERIORI_PRESCRIZIONI_DI_SICUREZZA_DA_ADOTTARE" rows="3" placeholder="max 600 caratteri" maxlength="600"></textarea>
+																</div>
+															</div>
+
+															<div class="form-group">
+							                                	<label class="col-sm-2 control-label-left">Permit Issuer:</label>
+							                                    <div class="col-sm-4">
+								                                    <select id="RESPONSABILE_CENTRALE_DELEGATO" name="RESPONSABILE_CENTRALE_DELEGATO"  class="form-control" required >
+								                                    </select>
+																</div>
+															</div>
+															
+														</div>											
+														
+													</div>
+													
+												</div>	<!-- panel-body -->	
+															
+											</div>  <!-- tab-1 -->
+			
+											<div id="tab-2" class="tab-pane">
+													
+												<div class="panel-body">
+													
+													<div class="row">
+							                        	<div class="col-sm-12">
+			                        	
+			                        						<div class="form-group">
+																<label class="col-sm-12"><h4><b>Esecuzione lavori a cura di</b></h4></label>
+															</div>					
+			
+							                                <div class="form-group">
+							                                    <div class="col-sm-12">
+							                                        <div><label> <input type="checkbox" id='FLG_PERSONALE_INTERNO' name='FLG_PERSONALE_INTERNO'>&nbsp;&nbsp;Esecuzione lavori con personale interno Air Liquide</label></div>
+							                                    </div>
+															</div>					
+						                                    
+							                                <div class="form-group">
+							                                    <div class="col-sm-6">
+							                                        <div><label><input type="checkbox" id='FLG_PERSONALE_ESTERNO' name='FLG_PERSONALE_ESTERNO'>&nbsp;&nbsp;Incarico di esecuzione all'Impresa</label></div>
+							                                    </div>
+							                                    
+							                                	<label class="col-sm-2 control-label-left">Impresa:</label>
+							                                    <div class="col-sm-4">
+								                                    <select id="IMPRESA_TESTO" name="IMPRESA_TESTO"  class="form-control" required>
+								                                    </select>
+																</div>
+						                                    
+						                                	</div>
+						                                
+														
+															<div class="form-group">
+																<label class="col-sm-12"><h4><b>Attrezzi</b></h4></label>
+															</div>													
+														
+															<div class="form-group">
+																<div class="col-sm-12">
+											
+																	<div class="table-responsive">
+																		<table class="table table-bordered">
+																			<tbody>
+																				<tr>
+																					<td><input type="checkbox" id='FLG_CASSETTA_ATTREZZI' name='FLG_CASSETTA_ATTREZZI'></td><td> Cassetta attrezzi</td>
+																					<td><input type="checkbox" id='FLG_MOLA' name='FLG_MOLA'></td><td> Mola</td>
+																					<td><input type="checkbox" id='FLG_TAGLIA_TUBI' name='FLG_TAGLIA_TUBI'></td><td> Taglia tubi</td>
+																					<td><input type="checkbox" id='FLG_ELETTROSALDATRICE' name='FLG_ELETTROSALDATRICE'></td><td> Elettrosaldatrice</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" id='FLG_MOTOSALDATRICE' name='FLG_MOTOSALDATRICE'></td><td> Motosaldatrice</td>
+																					<td><input type="checkbox" id='FLG_PARANCO' name='FLG_PARANCO'></td><td> Paranco</td>
+																					<td><input type="checkbox" id='FLG_TRAPANO_ELETTRICO' name='FLG_TRAPANO_ELETTRICO'></td><td> Trapano elettrico</td>
+																					<td><input type="checkbox" id='FLG_TRAPANO_A_TENUTA' name='FLG_TRAPANO_A_TENUTA'></td><td> Trapano a tenuta</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" id='FLG_SABBIATRICE' name='FLG_SABBIATRICE'></td><td> Sabbiatrice</td>
+																					<td><input type="checkbox" id='FLG_ATTREZZI_ANTISCINTILLA' name='FLG_ATTREZZI_ANTISCINTILLA'></td><td> Attrezzi antiscintilla</td>
+																					<td><input type="checkbox" id='FLG_CARROPONTE' name='FLG_CARROPONTE'></td><td> Carroponte</td>
+																					<td><input type="checkbox" id='FLG_ESCAVATRICE' name='FLG_ESCAVATRICE'></td><td> Escavatrice</td>
+																				</tr>
+																				
+																				<tr>
+																					<td><input type="checkbox" id='FLG_LANCIA_ACQUA_IN_PRESSIONE' name='FLG_LANCIA_ACQUA_IN_PRESSIONE'></td><td> Lancia acqua in pressione</td>
+																					<td><input type="checkbox" id='FLG_TRAPANO_PNEUMATICO' name='FLG_TRAPANO_PNEUMATICO'></td><td> Trapano pneumatico</td>
+																					<td><input type="checkbox" id='FLG_CANNELLO_OSSIACETILENICO' name='FLG_CANNELLO_OSSIACETILENICO'></td><td> Cannello ossiacetilenico</td>
+																					<td><input type="checkbox" id='FLG_UTENSILI_A_TENSIONE_DI_SICUREZZA' name='FLG_UTENSILI_A_TENSIONE_DI_SICUREZZA'></td><td> Utensili a tensione di sicurezza</td>
+																				</tr>													
+																				
+																				<tr>
+																					<td><input type="checkbox" id='FLG_ATTREZZATURE_LAVAGGI_CHIMICI' name='FLG_ATTREZZATURE_LAVAGGI_CHIMICI'></td><td> Attrezzature lavaggi chimici</td>
+																					<td><input type="checkbox" id='FLG_ATTREZZATURE_PER_RADIOGRAFIE' name='FLG_ATTREZZATURE_PER_RADIOGRAFIE'></td><td> Attrezzature per radiografie</td>
+																				</tr>													
+																			</tbody>
+																		</table>											
+																	</div>
+																	
+																</div>																	
+															</div>																	
+			
+															<div class="form-group">
+																<label class="col-sm-12"><h4><b>Mezzi</b></h4></label>
+															</div>		
+														
+															<div class="form-group">
+																<div class="col-sm-12">
+											
+																	<div class="table-responsive">
+																		<table class="table table-bordered">
+																			<tbody>
+																				<tr>
+																					<td><input type="checkbox" id='FLG_AUTOGRU' name='FLG_AUTOGRU'></td><td> Autogr&ugrave;</td>
+																					<td><input type="checkbox" id='FLG_AUTOMEZZO' name='FLG_AUTOMEZZO'></td><td> Automezzo</td>
+																					<td><input type="checkbox" id='FLG_CARRELLO_ELEVATORE' name='FLG_CARRELLO_ELEVATORE'></td><td> Carrello elevatore</td>
+																					<td><input type="checkbox" id='FLG_MOTOPOMPA' name='FLG_MOTOPOMPA'></td><td> Motopompa</td>
+																				</tr>
+																				<tr>
+																					<td><input type="checkbox" id='FLG_AUTOSPURGO' name='FLG_AUTOSPURGO'></td><td> Autospurgo</td>
+																					<td><input type="checkbox" id='FLG_SCOVOLATRICE' name='FLG_SCOVOLATRICE'></td><td> Scovolatrice</td>
+																					<td><input type="checkbox" id='FLG_MOTOCOMPRESSORE' name='FLG_MOTOCOMPRESSORE'></td><td> Motocompressore</td>
+																				</tr>
+																			</tbody>
+																		</table>											
+																	</div>
+																	
+																</div>																	
+															</div>	
+														
+															<div class="form-group">
+																<label class="col-sm-2 control-label-left">Altra attrezzatura</label>
+																<div class="col-sm-10">
+																<textarea class="form-control" id="ALTRA_ATTREZZATURA" name="ALTRA_ATTREZZATURA" rows="3" placeholder="max 120 caratteri" maxlength="120"></textarea>
+																</div>
+															</div>			
+			
+															
+															<div class="form-group">
+																<label class="col-sm-2 control-label-left">Preparazione del lavoro e precauzioni previste durante l'esecuzione</label>
+																<div class="col-sm-10">
+																<textarea class="form-control" id="PREPARAZ_DEL_LAVORO_PRECAUZIONI_PREVISTE_DURANTE_LESECUZIONE" name="PREPARAZ_DEL_LAVORO_PRECAUZIONI_PREVISTE_DURANTE_LESECUZIONE" rows="3" placeholder="max 800 caratteri" maxlength="800"></textarea>
+																</div>
+															</div>
+
+															<div class="form-group">
+																<label class="col-sm-2 control-label-left">Rischi previsti dell'attività e indicazione dei mezzi di protezione previsti</label>
+																<div class="col-sm-10">
+																<textarea class="form-control" id="RISCHI_SPECIFICI_ATT_INDICAZ_DEI_MEZZI_PROTEZIONE_PREVISTI" name="RISCHI_SPECIFICI_ATT_INDICAZ_DEI_MEZZI_PROTEZIONE_PREVISTI" rows="3" placeholder="max 500 caratteri" maxlength="500"></textarea>
+																</div>
+															</div>
+			
+															<div class="form-group">
+							                                	<label class="col-sm-2 control-label-left">Nome e cognome preposto Impresa 1:</label>
+							                                    <div class="col-sm-4">
+								                                    <select id="NOME_COGNOME_PREPOSTO_IMPRESA" name="NOME_COGNOME_PREPOSTO_IMPRESA"  class="form-control" required>
+								                                    </select>
+																</div>
+																
+							                                	<label class="col-sm-2 control-label-left">Nome e cognome delegato Lavori 1:</label>
+							                                    <div class="col-sm-4">
+								                                    <select id="NOME_COGNOME_DELEGATO_LAVORI_AL" name="NOME_COGNOME_DELEGATO_LAVORI_AL"  class="form-control" required>
+								                                    </select>
+																</div>
+															</div>
+															
+															<div class="form-group">
+							                                	<label class="col-sm-2 control-label-left">Nome e cognome preposto Impresa 2:</label>
+							                                    <div class="col-sm-4">
+								                                    <select id="NOME_COGNOME_PREPOSTO_IMPRESA_2" name="NOME_COGNOME_PREPOSTO_IMPRESA_2"  class="form-control">
+								                                    </select>
+																</div>
+																
+							                                	<label class="col-sm-2 control-label-left">Nome e cognome delegato Lavori 2:</label>
+							                                    <div class="col-sm-4">
+								                                    <select id="NOME_COGNOME_DELEGATO_LAVORI_AL_2" name="NOME_COGNOME_DELEGATO_LAVORI_AL_2"  class="form-control">
+								                                    </select>
+																</div>
+															</div>
+														</div>													
+															
+													</div>
+												</div>
+													
+											</div>  <!-- tab-2 -->
+			
+											<div id="tab-3" class="tab-pane">
+											
+												<div class="panel-body">
+													
+													<div class="row">
+							                        	<div class="col-sm-12">
+							                        	
+															<div class="form-group">
+							                                	<label class="col-sm-2 control-label-left">Stato Permesso:</label>
+							                                    <div class="col-sm-4">
+								                                    <select id="STATO" name="STATO"  class="form-control" required>
+								                                    </select>
+																</div>
+																
+																<label class="col-sm-2 control-label-left">Data Chiusura</label>
+																<div class="col-sm-4">
+																	<div class="input-group date">
+																		<span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" id="DT_CHIUSURA" name="DT_CHIUSURA" class="form-control">
+																	</div>
+																</div>
+																
+															</div>
+															
+															<div class="form-group">
+																<label class="col-sm-2 control-label-left">Motivazione della sospensione</label>
+																<div class="col-sm-10">
+																<textarea class="form-control" id="DESCRIZIONE_DELLA_SOSPENSIONE" name="DESCRIZIONE_DELLA_SOSPENSIONE" rows="3"></textarea>
+																</div>
+															</div>
+															
+															
+														 	<#if !PROFILO?contains('CPT')>
+															<div class="form-group">
+							                                	<label class="col-sm-2 control-label-left">Permit Issuer:</label>
+							                                    <div class="col-sm-4">
+								                                    <select id="RESPONSABILE_CENTRALE_DELEGATO1" name="RESPONSABILE_CENTRALE_DELEGATO1"  class="form-control">
+								                                    </select>
+																</div>
+															</div>
+															</#if>															
+															
+														</div>
+													</div>
+												</div>
+											</div>  <!-- tab-3 -->
+												
+										</div>
+											
+									</div> <!-- tab container-->
+							
+								</form>
+								
+								<form action="astro" method="get" id="formPlanimetria" name="formPlanimetria">
+									<input type="hidden" id="FUNCTIONID_VIEW" name="FUNCTIONID" value="ModuloInterferenze">
+									<input type="hidden" id="INTERFERENZE" name="INTERFERENZE" value="<#if INTERFERENZE?exists>${INTERFERENZE}</#if>">
+									<input type="hidden" id="ID_AZIENDA" name="ID_AZIENDA"  value="<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>">
+									<input type="hidden" id="ID_IMPIANTO" name="ID_IMPIANTO"  value="<#if ID_IMPIANTO?exists>${ID_IMPIANTO}</#if>">
+								</form>
+								
+													
+	                        </div>
+						</div>
+                	</div>
+				</div>
+            </div>
+			
+			<#if INCLUDED_FOOTER_PDLWEB?exists><#include INCLUDED_FOOTER_PDLWEB></#if>
+		
+		</div>
+
+	</div>
+	
+
+</body>
+
+</html>

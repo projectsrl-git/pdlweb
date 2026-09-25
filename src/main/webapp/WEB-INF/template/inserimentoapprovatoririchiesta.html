@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+	
+		$(function(){
+			
+			$("#ID_APPROVATORE").val("<#if ID_APPROVATORE?exists>${ID_APPROVATORE}</#if>");
+			$("#ID_AZIENDA").trigger("loadDataSet",["DataSetAziende","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_TIPO_RICHIESTA").trigger("loadDataSet",["DataSetTipoRichiestaAzienda","ID_TIPO_RICHIESTA","DESCRIZIONE","<#if ID_TIPO_RICHIESTA?exists>${ID_TIPO_RICHIESTA}</#if>"," WHERE 1=1 "]);
+			$("#ID_DIREZIONE").trigger("loadDataSet",["DataSetDirezioni","ID_DIREZIONE","NOME_DIREZIONE","<#if ID_DIREZIONE?exists>${ID_DIREZIONE}</#if>"," WHERE 1=1 "]);
+			$("#ID_RISORSA").trigger("loadDataSet",["DSRisorseAziendaCombo","ID_RISORSA","AZIENDA_NOMINATIVO","<#if ID_RISORSA?exists>${ID_RISORSA}</#if>"," WHERE 1=1 "]);
+			
+			$('#ID_AZIENDA').on("select2:selecting", function(e) {
+				
+				var idAzienda= e.params.args.data.id;
+				$("#ID_TIPO_RICHIESTA").empty();
+				$("#ID_TIPO_RICHIESTA").select2("destroy");
+				$("#ID_TIPO_RICHIESTA").trigger("loadDataSet",["DataSetTipoRichiestaAzienda","ID_TIPO_RICHIESTA","DESCRIZIONE","<#if ID_TIPO_RICHIESTA?exists>${ID_TIPO_RICHIESTA}</#if>"," WHERE TRA.ID_AZIENDA="+idAzienda]);
+				
+				$("#ID_DIREZIONE").empty();
+				$("#ID_DIREZIONE").select2("destroy");
+				$("#ID_DIREZIONE").trigger("loadDataSet",["DataSetDirezioni","ID_DIREZIONE","NOME_DIREZIONE","<#if ID_DIREZIONE?exists>${ID_DIREZIONE}</#if>"," WHERE ID_AZIENDA="+idAzienda]);
+				
+				$("#ID_RISORSA").empty();
+				$("#ID_RISORSA").select2("destroy");
+				$("#ID_RISORSA").trigger("loadDataSet",["DSRisorseAziendaCombo","ID_RISORSA","AZIENDA_NOMINATIVO","<#if ID_RISORSA?exists>${ID_RISORSA}</#if>"," WHERE 1=1 "]);
+			});
+			
+			$("#formInserimento").validate();
+			
+			$("#formInserimento").submit(function(event) {
+
+				/* stop form from submitting normally */
+				event.preventDefault();
+				
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				document.getElementById("salva").style.display="none";
+				
+				if ($("#ID_APPROVATORE").val()!='') {
+					$("#OPERATION_TYPE").val("UPDATE");
+				} else {
+					$("#OPERATION_TYPE").val("INSERT");
+				}
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function(response) {
+					document.getElementById("salva").style.display="block";
+					var result = eval('('+response+')');
+					if (result.result) {
+						$("#ID_APPROVATORE").val(result.dao.ID_APPROVATORE);
+						$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+					} else {
+						$( ".alert-danger" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+					}					
+				});
+				
+			});
+
+		});
+		
+    </script> 
+
+</head>
+
+<body>
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row wrapper border-bottom page-heading">
+                <div class="col-lg-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- titolo form-->
+						<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+
+							<form action="astro" class="form-horizontal" method="post" id="formInserimento" name="formInserimento">
+								
+								<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoApprovatoriRichiesta">
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE" value="<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>">
+								<input type="hidden" id="ID_APPROVATORE" name="ID_APPROVATORE">
+								
+								
+								 <div class="form-group"><label class="col-sm-2 control-label">${label_sito}</label>
+                                    <div class="col-sm-10">
+										<select id="ID_AZIENDA" name="ID_AZIENDA" class="form-control" >
+										</select>
+                                    </div>
+                                </div>
+                                
+								<div class="form-group"><label class="col-sm-2 control-label">${label_tipo_richiesta}</label>
+                                    <div class="col-sm-10">
+										<select id="ID_TIPO_RICHIESTA" name="ID_TIPO_RICHIESTA" class="form-control" >
+										</select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_direzione}</label>
+                                    <div class="col-sm-10">
+										<select id="ID_DIREZIONE" name="ID_DIREZIONE" class="form-control" >
+										</select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_approvatore}</label>
+                                    <div class="col-sm-10">
+										<select id="ID_RISORSA" name="ID_RISORSA" class="form-control">
+										</select>
+                                    </div>
+                                </div>
+                                
+                                
+                                <div class="form-group"><label class="col-sm-2 control-label">${label_livello_approvazione}</label>
+                                    <div class="col-sm-1"><input type="text" class="form-control" name="LIVELLO_APPR" id="LIVELLO_APPR" value="<#if LIVELLO_APPR?exists>${LIVELLO_APPR}</#if>" required></div>
+                                </div>
+                                
+                                
+								
+								
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+                                        <button class="btn btn-primary btn-sm" id="salva" type="submit">${label_save}</button>
+                                    </div>
+                                </div>
+								
+                            </form>
+
+                        </div>
+						
+                    </div>
+                </div>
+            </div>
+			
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

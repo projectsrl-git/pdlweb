@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+	
+		$(function(){
+		
+			$("#ID_AZIENDA").trigger("loadDataSet",["DataSetAziende","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			
+			$("#NOME").val("<#if NOME?exists>${NOME}</#if>");
+			$("#COGNOME").val("<#if COGNOME?exists>${COGNOME}</#if>");
+			$("#CODICE_FISCALE").val("<#if CODICE_FISCALE?exists>${CODICE_FISCALE}</#if>");
+			$("#DT_INIZIO_RAPPORTO").val("<#if DT_INIZIO_RAPPORTO?exists>${DT_INIZIO_RAPPORTO}</#if>");
+			$("#DT_FINE_RAPPORTO").val("<#if DT_FINE_RAPPORTO?exists>${DT_FINE_RAPPORTO}</#if>");
+
+			$("#formInserimento").validate();
+
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+		
+			});
+
+		});
+		
+    </script> 
+
+</head>
+
+<body>
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row wrapper border-bottom page-heading">
+                <div class="col-lg-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- titolo form-->
+						<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+
+							<form action="astro"  method="post" id="formInserimento" name="formInserimento">
+								
+								<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoRisorse">
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE" value="<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>">
+								<input type="hidden" id="ID_UTENTE" name="ID_UTENTE">
+								
+								
+                                <div class="row">
+									<div class="form-group"><label class="col-sm-1 control-label">${label_company}</label>
+	                                    <div class="col-sm-10">
+											<select id="ID_AZIENDA" name="ID_AZIENDA" class="form-control" required>
+											</select>
+	                                    </div>
+	                                </div>
+                                </div>
+                                <br>
+								
+								<div class="row">
+		                            <div class="col-md-3">
+				                		<label class="font-normal">${label_nome}</label>
+			                	        <input type="text" class="form-control" name="NOME" id="NOME" value="<#if NOME?exists>${NOME}</#if>" required>                              
+						            </div>
+						             
+						            <div class="col-md-3">
+				                		<label class="font-normal">${label_cognome}</label>
+			                	        <input type="text" class="form-control" name="COGNOME" id="COGNOME" value="<#if COGNOME?exists>${COGNOME}</#if>" required>                              
+						            </div>
+				                </div>   
+				                
+				                
+				                
+				                <div class="row">
+		                            <div class="col-md-3">
+				                		<label class="font-normal">${label_fiscal_code}</label>
+			                	        <input type="text" class="form-control" name="CODICE_FISCALE" id="CODICE_FISCALE" value="<#if CODICE_FISCALE?exists>${CODICE_FISCALE}</#if>" required>                              
+						            </div>
+						            
+						            <div class="col-md-3">
+						            	<div class="form-group">
+					                		<label class="font-normal">${label_date_of_birth}</label>
+							                <div class="input-group date">
+			                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" name="DT_NASCITA" id="DT_NASCITA" value="<#if DT_NASCITA?exists>${DT_NASCITA}</#if>" required>
+			                                </div>
+			                            </div>
+						            </div>	
+				                </div>  
+				                
+				                
+				                
+				                <div class="row">
+		                            <div class="col-md-2">
+				                		<label class="font-normal">${label_cod_catastale_nascita}</label>
+			                	        <input type="text" class="form-control" name="COD_CATASTALE_NASCITA" id="COD_CATASTALE_NASCITA" value="<#if COD_CATASTALE_NASCITA?exists>${COD_CATASTALE_NASCITA}</#if>" required>                              
+						            </div>
+						             
+						            <div class="col-md-3">
+				                		<label class="font-normal">${label_comune_nazione_nascita}</label>
+			                	        <input type="text" class="form-control" name="COMUNE_NAZIONE_NASCITA" id="COMUNE_NAZIONE_NASCITA" value="<#if COMUNE_NAZIONE_NASCITA?exists>${COMUNE_NAZIONE_NASCITA}</#if>" required>                              
+						            </div>
+						            
+						            <div class="col-md-3">
+				                		<label class="font-normal">${label_prov_nascita}</label>
+			                	        <input type="text" class="form-control" name="PROV_NASCITA" id="PROV_NASCITA" value="<#if PROV_NASCITA?exists>${PROV_NASCITA}</#if>" required>                              
+						            </div>
+				                </div>   
+				                
+				                
+				                
+				                <div class="row">
+		                            <div class="col-md-2">
+				                		<label class="font-normal">${label_cod_catastale_residenza}</label>
+			                	        <input type="text" class="form-control" name="COD_CATASTALE_RES" id="COD_CATASTALE_RES" value="<#if COD_CATASTALE_RES?exists>${COD_CATASTALE_RES}</#if>" required>                              
+						            </div>
+						             
+						            <div class="col-md-3">
+				                		<label class="font-normal">${label_indirizzo_residenza}</label>
+			                	        <input type="text" class="form-control" name="INDIRIZZO_RES" id="INDIRIZZO_RES" value="<#if INDIRIZZO_RES?exists>${INDIRIZZO_RES}</#if>" required>                              
+						            </div>
+						            
+						            <div class="col-md-3">
+				                		<label class="font-normal">${label_comune_residenza}</label>
+			                	        <input type="text" class="form-control" name="COMUNE_RES" id="COMUNE_RES" value="<#if COMUNE_RES?exists>${COMUNE_RES}</#if>" required>                              
+						            </div>
+						            
+						            <div class="col-md-1">
+				                		<label class="font-normal">${label_provincia_residenza}</label>
+			                	        <input type="text" class="form-control" name="PROV_RES" id="PROV_RES" value="<#if PROV_RES?exists>${PROV_RES}</#if>" required>                              
+						            </div>
+						            
+						            <div class="col-md-1">
+				                		<label class="font-normal">${label_cap_residenza}</label>
+			                	        <input type="text" class="form-control" name="CAP_RES" id="CAP_RES" value="<#if CAP_RES?exists>${CAP_RES}</#if>" required>                              
+						            </div>
+				                </div>   
+				                           
+												                
+	                            
+				                
+				                <div class="row">
+						            <div class="col-md-3">
+						            	<div class="form-group">
+					                		<label class="font-normal">${label_data_inizio_rapporto}</label>
+							                <div class="input-group date">
+			                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" name="DT_INIZIO_RAPPORTO" id="DT_INIZIO_RAPPORTO" value="<#if DT_INIZIO_RAPPORTO?exists>${DT_INIZIO_RAPPORTO}</#if>" required>
+			                                </div>
+			                            </div>
+						            </div>		
+						            
+						            <div class="col-md-3">
+						            	<div class="form-group">
+					                		<label class="font-normal">${label_data_fine_rapporto}</label>
+							                <div class="input-group date">
+			                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="form-control" name="DT_FINE_RAPPORTO" id="DT_FINE_RAPPORTO" value="<#if DT_FINE_RAPPORTO?exists>${DT_FINE_RAPPORTO}</#if>" required>
+			                                </div>
+		                                </div>
+						            </div>		
+						        </div>
+                             
+								
+							 <div class="row">
+			                	<div class="hr-separator"></div>
+	                            <div class="form-group">
+	                                <div class="col-sm-12">
+                                    <button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+	                                </div>
+	                            </div>
+			                </div>
+								
+                            </form>
+
+                        </div>
+						
+                    </div>
+                </div>
+            </div>
+			
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

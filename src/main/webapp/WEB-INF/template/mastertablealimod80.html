@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	
+    <script type="text/javascript">
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSMasterTableALIMOD80&columns=cognome_nome,descr_sito,descr_bl,nr_modulo,dt_modulo,descr_stato,descrizione_evento,descrizione_azioni,descr_tipo_impianto,descr_natura_evento,descr_prodotto_pertinente,descr_ora_locale,descr_min_locale,descr_giorni_evento,descr_ora_evento,descr_min_evento,descr_aff_attrezzatura_interessata,descr_aff_comp_attr_interessata,descr_costi_euro,descr_livello_incidente,reclamo_cliente,forza_maggiore,descr_cliente,altri_clienti,descr_prodotto_rilasciato,descr_parte_interessata_pco2,descr_livello_incidente_2,quantita_rilasciata,descr_unita_rilasciata,quantita_max_permessa,descr_unita_max_permessa,descr_albero_cause,descr_categoria_principale,descr_sottocategoria_principale,descr_categoria_secondaria,descr_sottocategoria_secondaria,info_supplementari,cognome_nome,cellulare,mail,num_filiale,num_azienda&WHERECONDITION=AND 1=1";
+		var dtWhereCondition="<#if WHERECONDITION?exists>${WHERECONDITION}<#else> AND 1=0</#if>";
+		var flagRicerca=false;
+		
+		$(function(){
+			$("#DT_DA").val("<#if START_OF_YEAR?exists>${START_OF_YEAR}</#if>");
+			$("#DT_A").val("<#if TODAY?exists>${TODAY}</#if>");		
+			
+			$("#CODICE_BL").trigger("loadDataSet",["DSBusinessLine","CODICE","DESCRIZIONE","<#if CODICE_BL?exists>${CODICE_BL}</#if>"," WHERE 1=1 "]);
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiQHSE","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+	        $("#CHECKBOX_CODICE_BL").click(function(){
+	            if($("#CHECKBOX_CODICE_BL").is(':checked') ){
+	                $("#CODICE_BL > option").prop("selected","selected");
+	                $("#CODICE_BL").trigger("change");
+	            }else{
+	                $("#CODICE_BL > option").removeAttr("selected");
+	                 $("#CODICE_BL").trigger("change");
+	             }
+	        });
+	        $('#dt').DataTable({
+				ajax: dtAjax+dtWhereCondition,
+                dom: '<"html5buttons"B>lTfgitp',
+                language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+			    columnDefs: [
+					{
+						targets:4,
+						type: "date-euro"					
+					}
+				],			    
+                dom: '<"html5buttons"B>lTfgitp',
+                language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+                buttons: [
+                    {extend: 'csv', title: $(document).find("title").text()},
+                    {extend: 'excel', title: $(document).find("title").text()},
+                    {extend: 'pdf', title: $(document).find("title").text(), orientation: 'landscape'}
+                ],
+                "drawCallback": function( settings ) {
+                	$(".dataTables_filter").hide();    
+                	$(".html5buttons").hide();   
+    	    		
+                	var dataCount=$('#dt').DataTable().column( 0 ).data().length;
+    	    		if(dataCount==0 && flagRicerca) {
+    					$('.modal-title').html('Attenzione!');
+    					$('.modal-text').html('Nessun risultato ottenuto: controllare i filtri impostati per la ricerca...');
+    					$("#modalAlert").modal({backdrop: true});
+    					$('#modalAlert').collapse("show");	    			
+    	    		}
+    	    		
+                },
+				aaSorting: []
+
+            });
+		
+	        $('#free-text-search').keyup(function(){
+	        	$('#dt').DataTable().search($(this).val()).draw() ;
+	        })	        
+	        
+			
+		
+			
+			
+			$("#formSearch").validate();
+			
+			$("#formSearch").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+	
+				if (!$("#formSearch").valid()) {
+					return false;
+				}		
+				
+				dtWhereCondition="";
+	    		var idAzienda=$("#ID_AZIENDA").val();
+	    		if (idAzienda != null && idAzienda != "") {
+	    			dtWhereCondition+=" AND ID_AZIENDA = "+idAzienda+" ";
+	    		}
+	    		
+	    		var codiceBL=tokenizeInConditionFromOptionSelected("CODICE_BL","'");
+	    		if (codiceBL != "") {
+	    			dtWhereCondition+=" AND CODICE_BL IN ("+codiceBL+") ";
+	    		}
+	    		
+	    		var dtDa=$("#DT_DA").val();
+	    		if (dtDa != null && dtDa != "") {
+	    			dtWhereCondition+=" AND DT_MODULO >= '"+dtDa.substring(6, 10)+"/"+dtDa.substring(3, 5)+"/"+dtDa.substring(0, 2)+"' ";
+	    		}	    		
+	    		
+	    		var dtA=$("#DT_A").val();
+	    		if (dtA != null && dtA != "") {
+	    			dtWhereCondition+=" AND DT_MODULO <= '"+dtA.substring(6, 10)+"/"+dtA.substring(3,5)+"/"+dtA.substring(0, 2)+"' ";
+	    		}	    	    		
+	    		
+	    		$( "#dt" ).DataTable().ajax.url( dtAjax+dtWhereCondition ).load();
+				
+			});			
+		
+	    	$( "#excel" ).click(function() {
+	    		$('#dt').DataTable().button( 1 ).trigger();
+	    	});
+	    	
+	    	$( "#csv" ).click(function() {
+	    		$('#dt').DataTable().button( 0 ).trigger();
+	    	});	
+		});	
+		
+    </script> 
+
+</head>
+
+<body>
+
+		
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();" data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+			
+			<div class="row">
+                <div class="col-lg-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- titolo form-->
+						<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+
+						
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+							<div class="row">
+								<div class="col-sm-12">							
+							
+									<form action="astro" method="get" id="formSearch" name="formSearch" class="form-horizontal">
+										<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="MasterTableALIMOD20">
+										<input type="hidden" id="ID_UTENTE" name="ID_UTENTE">
+										
+										<div class="form-group">
+											<label class="col-sm-2 control-label-left">Business Line:</label>
+											<div class="col-sm-3">
+												<select class="form-control" id="CODICE_BL" name="CODICE_BL" multiple>
+												</select>
+												<input type="checkbox" id="CHECKBOX_CODICE_BL">${label_select_all}
+											</div>
+		
+		                                	<label class="col-sm-1 control-label-left">Sito:</label>
+		                                    <div class="col-sm-3">
+			                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control">
+			                                    </select>
+											</div>
+		                                </div>     
+		                                
+										<div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">Dal</label>
+		                                    <div class="col-sm-3">
+							                <div class="input-group date">
+			                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_DA" id="DT_DA" required>
+			                                </div>
+		                                    </div>		
+		
+		                                	<label class="col-sm-1 control-label-left">Al</label>
+		                                    <div class="col-sm-3">
+							                <div class="input-group date">
+			                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span><input type="text" class="Date1 paymentDateField form-control" name="DT_A" id="DT_A" required>
+			                                </div>
+		                                    </div>		
+
+		                                </div>                                  
+		
+		                                
+										<div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">Ricerca in linea:</label>
+		                                    <div class="col-sm-10">
+				                                <input type="text" id="free-text-search" name="free-text-search"  class="form-control" placeholder="digita il testo che vuoi cercare per aggiornare subito i risultati">
+											</div>
+										</div>
+										
+		                              	<div class="form-group">
+											<div class="col-sm-3">
+												<button class="btn btn-primary btn-sm" id="ricerca" type="submit" name="ricerca">${label_search}</button>
+												<button class="btn btn-primary btn-sm" type="button" id="report" name="report">PDF</button>
+												<button class="btn btn-primary btn-sm" type="button" id="excel" name="excel">XLS</button>
+												<button class="btn btn-primary btn-sm" type="button" id="csv" name="csv">CSV</button>
+											</div>
+										</div>				
+									
+									</form>
+									
+									<div class="hr-line-dashed"></div>
+						
+                        <div class="table-responsive">
+							<table id="dt" class="table table-striped table-bordered table-hover" >
+								<thead>
+									<tr>
+										<td>Redattore</td>
+										<td>Sito</td>
+										<td>Business Line</td>
+										<td># Modulo</td>
+										<td>Data</td>
+										<td>Stato</td>
+										<td>Descrizione/circostanze/conseguenze                      </td>
+										<td>Descrizione delle azioni immediate</td>
+										<td>Tipo di impianto</td>
+										<td>Natura dell'evento</td>
+										<td>Prodotto pertinente</td>
+										<td>Ora locale nel luogo dell'evento - Ore</td>
+										<td>Ora locale nel luogo dell'evento - Min</td>
+										<td>Durata stimata dell'evento - Giorni</td>
+										<td>Durata stimata dell'evento - Ore</td>
+										<td>Durata stimata dell'evento - Min</td>
+										<td>Attrezzatura interessata</td>
+										<td>Componente attr. interessata</td>
+										<td>Costi stimati in Euro</td>
+										<td>Livello incidente</td>
+										<td>Reclamo cliente</td>
+										<td>Forza maggiore</td>
+										<td>Cliente</td>
+										<td>Altri clienti</td>
+										<td>Parte interessata</td>
+										<td>Prodotto rilasciato</td>
+										<td>Livello incidente</td>
+										<td>Quantità rilasciata</td>
+										<td>Unità</td>
+										<td>Quantità max permessa</td>
+										<td>Unità</td>
+										<td>Albero della cause</td>
+										<td>Categoria causa principale</td>
+										<td>Sottocategoria</td>
+										<td>Categoria causa secondaria</td>
+										<td>Sottocategoria</td>
+										<td>Informazioni supplementari sull'analisi dell'infortunio, dell'incidente e/o del mancato incidente</td>
+										<td>Cognome nome</td>
+										<td>N° cellulare</td>
+										<td>Indirizzo e-mail</td>
+										<td>N° della filiale</td>
+										<td>N° dell'azienda</td> 
+									</tr>
+								</thead>
+						
+							</table>
+                        </div>
+
+                    </div>
+					
+                </div>
+						</div>
+            		</div>
+				</div>
+            </div>
+			
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+	</div>
+	
+
+</body>
+
+</html>

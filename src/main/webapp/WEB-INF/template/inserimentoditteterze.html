@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+	
+		$(function(){
+
+			$("#ID_PREPOSTO_IMPRESA").val("<#if ID_PREPOSTO_IMPRESA?exists>${ID_PREPOSTO_IMPRESA}</#if>");
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiPDL","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#NOME_IMPRESA").val("<#if NOME_IMPRESA?exists>${NOME_IMPRESA}</#if>");
+			$("#NOME_COGNOME_PREPOSTO_IMPRESA").val("<#if NOME_COGNOME_PREPOSTO_IMPRESA?exists>${NOME_COGNOME_PREPOSTO_IMPRESA}</#if>");
+
+			$("#formInserimento").validate();
+
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				$("#salva").hide();
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					$("#salva").show();
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+
+			});
+
+		});
+		
+    </script> 
+
+</head>
+
+<body>
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row wrapper border-bottom page-heading">
+                <div class="col-sm-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- titolo form-->
+						<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+
+							<form action="astro" class="form-horizontal" method="post" id="formInserimento" name="formInserimento">
+								
+								<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoDitteTerze">
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE" value="<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>">
+								<input type="hidden" id="ID_PREPOSTO_IMPRESA" name="ID_PREPOSTO_IMPRESA">
+								
+                                <div class="form-group"><label class="col-sm-2 control-label-left">${label_tabella}</label>
+                                    <div class="col-sm-10">
+										<select id="ID_AZIENDA" name="ID_AZIENDA" class="form-control" required>
+										</select>
+                                    </div>
+                                </div>
+								
+                                <div class="form-group"><label class="col-sm-2 control-label-left">Impresa:</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" name="NOME_IMPRESA" id="NOME_IMPRESA" required></div>
+                                </div>
+								
+                                <div class="form-group"><label class="col-sm-2 control-label-left">Nome e cognome preposto Impresa:</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" name="NOME_COGNOME_PREPOSTO_IMPRESA" id="NOME_COGNOME_PREPOSTO_IMPRESA" required></div>
+                                </div>
+								
+                                <div class="form-group">
+                                    <div class="col-sm-4 col-sm-offset-2">
+                                        <button class="btn btn-primary btn-sm" id="salva" type="submit">${label_save}</button>
+                                    </div>
+                                </div>
+								
+                            </form>
+
+                        </div>
+						
+                    </div>
+                </div>
+            </div>
+			
+			<#if INCLUDED_FOOTER_PDLWEB?exists><#include INCLUDED_FOOTER_PDLWEB></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

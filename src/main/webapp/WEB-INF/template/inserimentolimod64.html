@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+    
+		var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSLIMOD64Dettaglio&columns=id_dettaglio,descr_area,impresa_testo,nr_pdl,odl,nome_cognome_preposto_impresa_final,descr_attivita&WHERECONDITION=";
+		var dtWhereCondition="<#if ID_MODULO?exists && ID_MODULO!=''>WHERE ID_MODULO = ${ID_MODULO}<#else> WHERE 1=0 </#if>";
+    	var stato="<#if STATO?exists>${STATO}</#if>";
+		
+    	$(function(){
+
+			$("#STATO").attr("disabled", true);
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiPDL","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO","<#if ID_IMPIANTO?exists>${ID_IMPIANTO}</#if>"," WHERE 1=1 "]);
+			$("#ID_AREA").trigger("loadDataSet",["DSAreaLavoro","ID_AREA","DESCR_AREA","<#if ID_AREA?exists>${ID_AREA}</#if>"," WHERE 1=1 "]);
+			$("#CODICE_TURNO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if CODICE_TURNO?exists>${CODICE_TURNO}</#if>"," WHERE DOMINIO='CTU' "]);
+			$("#STATO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","<#if STATO?exists>${STATO}</#if>"," WHERE DOMINIO='SPA' "]);
+			$("#IMPRESA_TESTO").trigger("loadDataSet",["DSImprese","NOME_IMPRESA","NOME_IMPRESA","<#if IMPRESA_TESTO?exists>${IMPRESA_TESTO}</#if>"," WHERE 1=1 "]);
+			$("#ID_UTENTE_INS").trigger("loadDataSet",["DSResponsabileCentraleDelegato","NOME_COGNOME","NOME_COGNOME","<#if ID_UTENTE_INS?exists>${ID_UTENTE_INS}</#if>"," WHERE 1=1 ",false]);
+			
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			$("#ID_MODULO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			$("#CODICE_MODULO").val("<#if CODICE_MODULO?exists>${CODICE_MODULO}</#if>");
+			$("#DT_MODULO").val("<#if DT_MODULO?exists>${DT_MODULO}</#if>");
+			$("#NR_MODULO").val("<#if NR_MODULO?exists>${NR_MODULO}</#if>");
+			$("#NR_MODULO").attr("disabled", true);
+			$("#DT_MODULO").attr("disabled", true);
+			//$("#ID_UTENTE_INS").attr("disabled", true);
+			$("#ID_COORD_GEST_INT").trigger("loadDataSet",["DSResponsabileCentraleDelegato","ID_UTENTE","NOME_COGNOME","<#if ID_COORD_GEST_INT?exists>${ID_COORD_GEST_INT}</#if>","  WHERE 1=1 "]);
+			
+			$("#DT_REV").val("<#if DT_REV?exists>${DT_REV}</#if>");
+			$("#NR_REV").val("<#if NR_REV?exists>${NR_REV}</#if>");
+			$("#ODL").val("<#if ODL?exists>${ODL}</#if>");
+			$("#NOME_COGNOME_PREPOSTO_IMPRESA").val("<#if NOME_COGNOME_PREPOSTO_IMPRESA?exists>${NOME_COGNOME_PREPOSTO_IMPRESA}</#if>");
+			
+			$("#NR_PDL").attr("disabled", true);
+			$("#IMPRESA_TESTO").attr("disabled", true);
+			$("#DESCR_AREA").attr("disabled", true);
+			$("#ID_AZIENDA").attr("disabled", true);
+			$("#ID_IMPIANTO").attr("disabled", true);
+			$("#ID_AREA").attr("disabled", true);
+			$("#CODICE_TURNO").attr("disabled", true);
+			$("#DT_REV").attr("disabled", true);
+			$("#NR_REV").attr("disabled", true);
+			$("#DESCR_ATTIVITA").attr("disabled", true);			
+			
+			$("#ID_MODULO_DETTAGLIO").val("<#if ID_MODULO?exists>${ID_MODULO}</#if>");
+			$("#CODICE_TIPO_AZIONE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE",""," WHERE DOMINIO='ACT' "]);
+			$("#STATO_AZIONE").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","OPE"," WHERE DOMINIO='SAZ' "]);
+			
+			$("#ID_UTENTE_CON").trigger("loadDataSet",["DSContributor","ID_UTENTE","NOME_COGNOME","<#if ID_UTENTE_CON?exists>${ID_UTENTE_CON}</#if>",""]);
+			
+			
+			$("#NOTE_A_15").val("<#if NOTE_A_15?exists>${NOTE_A_15}</#if>");
+			$("#NOTE_B_18").val("<#if NOTE_B_18?exists>${NOTE_B_18}</#if>");
+			$("#NOTE_C1").val("<#if NOTE_C1?exists>${NOTE_C1}</#if>");
+			
+			$("#NOTE_C2_1").val("<#if NOTE_C2_1?exists>${NOTE_C2_1}</#if>");
+			$("#NOTE_C2_2").val("<#if NOTE_C2_2?exists>${NOTE_C2_2}</#if>");
+			$("#NOTE_C2_3").val("<#if NOTE_C2_3?exists>${NOTE_C2_3}</#if>");
+			$("#NOTE_C2_4").val("<#if NOTE_C2_4?exists>${NOTE_C2_4}</#if>");
+			
+			$("#NOTE_C3_3").val("<#if NOTE_C3_3?exists>${NOTE_C3_3}</#if>");
+			$("#NOTE_C3_4").val("<#if NOTE_C3_4?exists>${NOTE_C3_4}</#if>");
+			
+			
+			
+			
+			
+			
+			$("#FLG_A_1_1").prop('checked','<#if FLG_A_1_1?exists && FLG_A_1_1!=''>${FLG_A_1_1}<#else>false</#if>'==='true');
+	 		$("#FLG_A_1_2").prop('checked','<#if FLG_A_1_2?exists && FLG_A_1_2!=''>${FLG_A_1_2}<#else>false</#if>'==='true');
+	 		$("#FLG_A_1_3").prop('checked','<#if FLG_A_1_3?exists && FLG_A_1_3!=''>${FLG_A_1_3}<#else>false</#if>'==='true');
+	 		$("#FLG_A_1_4").prop('checked','<#if FLG_A_1_4?exists && FLG_A_1_4!=''>${FLG_A_1_4}<#else>false</#if>'==='true');
+	 		$("#FLG_A_1_5").prop('checked','<#if FLG_A_1_5?exists && FLG_A_1_5!=''>${FLG_A_1_5}<#else>false</#if>'==='true');
+	 		$("#FLG_A_1_6").prop('checked','<#if FLG_A_1_6?exists && FLG_A_1_6!=''>${FLG_A_1_6}<#else>false</#if>'==='true');
+	 		                                                                                  
+	        $("#FLG_A_2_1").prop('checked','<#if FLG_A_2_1?exists && FLG_A_2_1!=''>${FLG_A_2_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_2_2").prop('checked','<#if FLG_A_2_2?exists && FLG_A_2_2!=''>${FLG_A_2_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_2_3").prop('checked','<#if FLG_A_2_3?exists && FLG_A_2_3!=''>${FLG_A_2_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_2_4").prop('checked','<#if FLG_A_2_4?exists && FLG_A_2_4!=''>${FLG_A_2_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_2_5").prop('checked','<#if FLG_A_2_5?exists && FLG_A_2_5!=''>${FLG_A_2_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_2_6").prop('checked','<#if FLG_A_2_6?exists && FLG_A_2_6!=''>${FLG_A_2_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_A_3_1").prop('checked','<#if FLG_A_3_1?exists && FLG_A_3_1!=''>${FLG_A_3_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_3_2").prop('checked','<#if FLG_A_3_2?exists && FLG_A_3_2!=''>${FLG_A_3_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_3_3").prop('checked','<#if FLG_A_3_3?exists && FLG_A_3_3!=''>${FLG_A_3_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_3_4").prop('checked','<#if FLG_A_3_4?exists && FLG_A_3_4!=''>${FLG_A_3_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_3_5").prop('checked','<#if FLG_A_3_5?exists && FLG_A_3_5!=''>${FLG_A_3_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_3_6").prop('checked','<#if FLG_A_3_6?exists && FLG_A_3_6!=''>${FLG_A_3_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_A_4_1").prop('checked','<#if FLG_A_4_1?exists && FLG_A_4_1!=''>${FLG_A_4_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_4_2").prop('checked','<#if FLG_A_4_2?exists && FLG_A_4_2!=''>${FLG_A_4_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_4_3").prop('checked','<#if FLG_A_4_3?exists && FLG_A_4_3!=''>${FLG_A_4_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_4_4").prop('checked','<#if FLG_A_4_4?exists && FLG_A_4_4!=''>${FLG_A_4_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_4_5").prop('checked','<#if FLG_A_4_5?exists && FLG_A_4_5!=''>${FLG_A_4_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_4_6").prop('checked','<#if FLG_A_4_6?exists && FLG_A_4_6!=''>${FLG_A_4_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_A_5_1").prop('checked','<#if FLG_A_5_1?exists && FLG_A_5_1!=''>${FLG_A_5_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_5_2").prop('checked','<#if FLG_A_5_2?exists && FLG_A_5_2!=''>${FLG_A_5_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_5_3").prop('checked','<#if FLG_A_5_3?exists && FLG_A_5_3!=''>${FLG_A_5_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_5_4").prop('checked','<#if FLG_A_5_4?exists && FLG_A_5_4!=''>${FLG_A_5_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_5_5").prop('checked','<#if FLG_A_5_5?exists && FLG_A_5_5!=''>${FLG_A_5_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_5_6").prop('checked','<#if FLG_A_5_6?exists && FLG_A_5_6!=''>${FLG_A_5_6}<#else>false</#if>'==='true');
+	                                                                                          
+	                                                                                          
+	        $("#FLG_A_6_1").prop('checked','<#if FLG_A_6_1?exists && FLG_A_6_1!=''>${FLG_A_6_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_6_2").prop('checked','<#if FLG_A_6_2?exists && FLG_A_6_2!=''>${FLG_A_6_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_6_3").prop('checked','<#if FLG_A_6_3?exists && FLG_A_6_3!=''>${FLG_A_6_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_6_4").prop('checked','<#if FLG_A_6_4?exists && FLG_A_6_4!=''>${FLG_A_6_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_6_5").prop('checked','<#if FLG_A_6_5?exists && FLG_A_6_5!=''>${FLG_A_6_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_6_6").prop('checked','<#if FLG_A_6_6?exists && FLG_A_6_6!=''>${FLG_A_6_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_A_7_1").prop('checked','<#if FLG_A_7_1?exists && FLG_A_7_1!=''>${FLG_A_7_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_7_2").prop('checked','<#if FLG_A_7_2?exists && FLG_A_7_2!=''>${FLG_A_7_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_7_3").prop('checked','<#if FLG_A_7_3?exists && FLG_A_7_3!=''>${FLG_A_7_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_7_4").prop('checked','<#if FLG_A_7_4?exists && FLG_A_7_4!=''>${FLG_A_7_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_7_5").prop('checked','<#if FLG_A_7_5?exists && FLG_A_7_5!=''>${FLG_A_7_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_7_6").prop('checked','<#if FLG_A_7_6?exists && FLG_A_7_6!=''>${FLG_A_7_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_A_8_1").prop('checked','<#if FLG_A_8_1?exists && FLG_A_8_1!=''>${FLG_A_8_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_8_2").prop('checked','<#if FLG_A_8_2?exists && FLG_A_8_2!=''>${FLG_A_8_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_8_3").prop('checked','<#if FLG_A_8_3?exists && FLG_A_8_3!=''>${FLG_A_8_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_8_4").prop('checked','<#if FLG_A_8_4?exists && FLG_A_8_4!=''>${FLG_A_8_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_8_5").prop('checked','<#if FLG_A_8_5?exists && FLG_A_8_5!=''>${FLG_A_8_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_8_6").prop('checked','<#if FLG_A_8_6?exists && FLG_A_8_6!=''>${FLG_A_8_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_A_9_1").prop('checked','<#if FLG_A_9_1?exists && FLG_A_9_1!=''>${FLG_A_9_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_9_2").prop('checked','<#if FLG_A_9_2?exists && FLG_A_9_2!=''>${FLG_A_9_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_9_3").prop('checked','<#if FLG_A_9_3?exists && FLG_A_9_3!=''>${FLG_A_9_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_9_4").prop('checked','<#if FLG_A_9_4?exists && FLG_A_9_4!=''>${FLG_A_9_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_9_5").prop('checked','<#if FLG_A_9_5?exists && FLG_A_9_5!=''>${FLG_A_9_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_9_6").prop('checked','<#if FLG_A_9_6?exists && FLG_A_9_6!=''>${FLG_A_9_6}<#else>false</#if>'==='true');
+	                                         
+	        $("#FLG_A_10_1").prop('checked','<#if FLG_A_10_1?exists && FLG_A_10_1!=''>${FLG_A_10_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_10_2").prop('checked','<#if FLG_A_10_2?exists && FLG_A_10_2!=''>${FLG_A_10_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_10_3").prop('checked','<#if FLG_A_10_3?exists && FLG_A_10_3!=''>${FLG_A_10_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_10_4").prop('checked','<#if FLG_A_10_4?exists && FLG_A_10_4!=''>${FLG_A_10_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_10_5").prop('checked','<#if FLG_A_10_5?exists && FLG_A_10_5!=''>${FLG_A_10_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_10_6").prop('checked','<#if FLG_A_10_6?exists && FLG_A_10_6!=''>${FLG_A_10_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_A_11_1").prop('checked','<#if FLG_A_11_1?exists && FLG_A_11_1!=''>${FLG_A_11_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_11_2").prop('checked','<#if FLG_A_11_2?exists && FLG_A_11_2!=''>${FLG_A_11_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_11_3").prop('checked','<#if FLG_A_11_3?exists && FLG_A_11_3!=''>${FLG_A_11_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_11_4").prop('checked','<#if FLG_A_11_4?exists && FLG_A_11_4!=''>${FLG_A_11_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_11_5").prop('checked','<#if FLG_A_11_5?exists && FLG_A_11_5!=''>${FLG_A_11_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_11_6").prop('checked','<#if FLG_A_11_6?exists && FLG_A_11_6!=''>${FLG_A_11_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_A_12_1").prop('checked','<#if FLG_A_12_1?exists && FLG_A_12_1!=''>${FLG_A_12_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_12_2").prop('checked','<#if FLG_A_12_2?exists && FLG_A_12_2!=''>${FLG_A_12_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_12_3").prop('checked','<#if FLG_A_12_3?exists && FLG_A_12_3!=''>${FLG_A_12_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_12_4").prop('checked','<#if FLG_A_12_4?exists && FLG_A_12_4!=''>${FLG_A_12_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_12_5").prop('checked','<#if FLG_A_12_5?exists && FLG_A_12_5!=''>${FLG_A_12_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_12_6").prop('checked','<#if FLG_A_12_6?exists && FLG_A_12_6!=''>${FLG_A_12_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_A_13_1").prop('checked','<#if FLG_A_13_1?exists && FLG_A_13_1!=''>${FLG_A_13_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_13_2").prop('checked','<#if FLG_A_13_2?exists && FLG_A_13_2!=''>${FLG_A_13_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_13_3").prop('checked','<#if FLG_A_13_3?exists && FLG_A_13_3!=''>${FLG_A_13_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_13_4").prop('checked','<#if FLG_A_13_4?exists && FLG_A_13_4!=''>${FLG_A_13_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_13_5").prop('checked','<#if FLG_A_13_5?exists && FLG_A_13_5!=''>${FLG_A_13_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_13_6").prop('checked','<#if FLG_A_13_6?exists && FLG_A_13_6!=''>${FLG_A_13_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_A_14_1").prop('checked','<#if FLG_A_14_1?exists && FLG_A_14_1!=''>${FLG_A_14_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_14_2").prop('checked','<#if FLG_A_14_2?exists && FLG_A_14_2!=''>${FLG_A_14_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_14_3").prop('checked','<#if FLG_A_14_3?exists && FLG_A_14_3!=''>${FLG_A_14_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_14_4").prop('checked','<#if FLG_A_14_4?exists && FLG_A_14_4!=''>${FLG_A_14_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_14_5").prop('checked','<#if FLG_A_14_5?exists && FLG_A_14_5!=''>${FLG_A_14_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_14_6").prop('checked','<#if FLG_A_14_6?exists && FLG_A_14_6!=''>${FLG_A_14_6}<#else>false</#if>'==='true');
+	        		                                                                              
+	        $("#FLG_A_15_1").prop('checked','<#if FLG_A_15_1?exists && FLG_A_15_1!=''>${FLG_A_15_1}<#else>false</#if>'==='true');
+	        $("#FLG_A_15_2").prop('checked','<#if FLG_A_15_2?exists && FLG_A_15_2!=''>${FLG_A_15_2}<#else>false</#if>'==='true');
+	        $("#FLG_A_15_3").prop('checked','<#if FLG_A_15_3?exists && FLG_A_15_3!=''>${FLG_A_15_3}<#else>false</#if>'==='true');
+	        $("#FLG_A_15_4").prop('checked','<#if FLG_A_15_4?exists && FLG_A_15_4!=''>${FLG_A_15_4}<#else>false</#if>'==='true');
+	        $("#FLG_A_15_5").prop('checked','<#if FLG_A_15_5?exists && FLG_A_15_5!=''>${FLG_A_15_5}<#else>false</#if>'==='true');
+	        $("#FLG_A_15_6").prop('checked','<#if FLG_A_15_6?exists && FLG_A_15_6!=''>${FLG_A_15_6}<#else>false</#if>'==='true');
+	                                           
+	        $("#FLG_B_1_1").prop('checked','<#if FLG_B_1_1?exists && FLG_B_1_1!=''>${FLG_B_1_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_1_2").prop('checked','<#if FLG_B_1_2?exists && FLG_B_1_2!=''>${FLG_B_1_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_1_3").prop('checked','<#if FLG_B_1_3?exists && FLG_B_1_3!=''>${FLG_B_1_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_1_4").prop('checked','<#if FLG_B_1_4?exists && FLG_B_1_4!=''>${FLG_B_1_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_1_5").prop('checked','<#if FLG_B_1_5?exists && FLG_B_1_5!=''>${FLG_B_1_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_1_6").prop('checked','<#if FLG_B_1_6?exists && FLG_B_1_6!=''>${FLG_B_1_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_B_2_1").prop('checked','<#if FLG_B_2_1?exists && FLG_B_2_1!=''>${FLG_B_2_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_2_2").prop('checked','<#if FLG_B_2_2?exists && FLG_B_2_2!=''>${FLG_B_2_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_2_3").prop('checked','<#if FLG_B_2_3?exists && FLG_B_2_3!=''>${FLG_B_2_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_2_4").prop('checked','<#if FLG_B_2_4?exists && FLG_B_2_4!=''>${FLG_B_2_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_2_5").prop('checked','<#if FLG_B_2_5?exists && FLG_B_2_5!=''>${FLG_B_2_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_2_6").prop('checked','<#if FLG_B_2_6?exists && FLG_B_2_6!=''>${FLG_B_2_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_B_3_1").prop('checked','<#if FLG_B_3_1?exists && FLG_B_3_1!=''>${FLG_B_3_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_3_2").prop('checked','<#if FLG_B_3_2?exists && FLG_B_3_2!=''>${FLG_B_3_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_3_3").prop('checked','<#if FLG_B_3_3?exists && FLG_B_3_3!=''>${FLG_B_3_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_3_4").prop('checked','<#if FLG_B_3_4?exists && FLG_B_3_4!=''>${FLG_B_3_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_3_5").prop('checked','<#if FLG_B_3_5?exists && FLG_B_3_5!=''>${FLG_B_3_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_3_6").prop('checked','<#if FLG_B_3_6?exists && FLG_B_3_6!=''>${FLG_B_3_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_B_4_1").prop('checked','<#if FLG_B_4_1?exists && FLG_B_4_1!=''>${FLG_B_4_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_4_2").prop('checked','<#if FLG_B_4_2?exists && FLG_B_4_2!=''>${FLG_B_4_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_4_3").prop('checked','<#if FLG_B_4_3?exists && FLG_B_4_3!=''>${FLG_B_4_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_4_4").prop('checked','<#if FLG_B_4_4?exists && FLG_B_4_4!=''>${FLG_B_4_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_4_5").prop('checked','<#if FLG_B_4_5?exists && FLG_B_4_5!=''>${FLG_B_4_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_4_6").prop('checked','<#if FLG_B_4_6?exists && FLG_B_4_6!=''>${FLG_B_4_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_B_5_1").prop('checked','<#if FLG_B_5_1?exists && FLG_B_5_1!=''>${FLG_B_5_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_5_2").prop('checked','<#if FLG_B_5_2?exists && FLG_B_5_2!=''>${FLG_B_5_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_5_3").prop('checked','<#if FLG_B_5_3?exists && FLG_B_5_3!=''>${FLG_B_5_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_5_4").prop('checked','<#if FLG_B_5_4?exists && FLG_B_5_4!=''>${FLG_B_5_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_5_5").prop('checked','<#if FLG_B_5_5?exists && FLG_B_5_5!=''>${FLG_B_5_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_5_6").prop('checked','<#if FLG_B_5_6?exists && FLG_B_5_6!=''>${FLG_B_5_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_B_6_1").prop('checked','<#if FLG_B_6_1?exists && FLG_B_6_1!=''>${FLG_B_6_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_6_2").prop('checked','<#if FLG_B_6_2?exists && FLG_B_6_2!=''>${FLG_B_6_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_6_3").prop('checked','<#if FLG_B_6_3?exists && FLG_B_6_3!=''>${FLG_B_6_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_6_4").prop('checked','<#if FLG_B_6_4?exists && FLG_B_6_4!=''>${FLG_B_6_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_6_5").prop('checked','<#if FLG_B_6_5?exists && FLG_B_6_5!=''>${FLG_B_6_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_6_6").prop('checked','<#if FLG_B_6_6?exists && FLG_B_6_6!=''>${FLG_B_6_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_B_7_1").prop('checked','<#if FLG_B_7_1?exists && FLG_B_7_1!=''>${FLG_B_7_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_7_2").prop('checked','<#if FLG_B_7_2?exists && FLG_B_7_2!=''>${FLG_B_7_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_7_3").prop('checked','<#if FLG_B_7_3?exists && FLG_B_7_3!=''>${FLG_B_7_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_7_4").prop('checked','<#if FLG_B_7_4?exists && FLG_B_7_4!=''>${FLG_B_7_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_7_5").prop('checked','<#if FLG_B_7_5?exists && FLG_B_7_5!=''>${FLG_B_7_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_7_6").prop('checked','<#if FLG_B_7_6?exists && FLG_B_7_6!=''>${FLG_B_7_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_B_8_1").prop('checked','<#if FLG_B_8_1?exists && FLG_B_8_1!=''>${FLG_B_8_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_8_2").prop('checked','<#if FLG_B_8_2?exists && FLG_B_8_2!=''>${FLG_B_8_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_8_3").prop('checked','<#if FLG_B_8_3?exists && FLG_B_8_3!=''>${FLG_B_8_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_8_4").prop('checked','<#if FLG_B_8_4?exists && FLG_B_8_4!=''>${FLG_B_8_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_8_5").prop('checked','<#if FLG_B_8_5?exists && FLG_B_8_5!=''>${FLG_B_8_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_8_6").prop('checked','<#if FLG_B_8_6?exists && FLG_B_8_6!=''>${FLG_B_8_6}<#else>false</#if>'==='true');
+	                                                                                          
+	        $("#FLG_B_9_1").prop('checked','<#if FLG_B_9_1?exists && FLG_B_9_1!=''>${FLG_B_9_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_9_2").prop('checked','<#if FLG_B_9_2?exists && FLG_B_9_2!=''>${FLG_B_9_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_9_3").prop('checked','<#if FLG_B_9_3?exists && FLG_B_9_3!=''>${FLG_B_9_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_9_4").prop('checked','<#if FLG_B_9_4?exists && FLG_B_9_4!=''>${FLG_B_9_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_9_5").prop('checked','<#if FLG_B_9_5?exists && FLG_B_9_5!=''>${FLG_B_9_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_9_6").prop('checked','<#if FLG_B_9_6?exists && FLG_B_9_6!=''>${FLG_B_9_6}<#else>false</#if>'==='true');
+	        
+	        $("#FLG_B_10_1").prop('checked','<#if FLG_B_10_1?exists && FLG_B_10_1!=''>${FLG_B_10_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_10_2").prop('checked','<#if FLG_B_10_2?exists && FLG_B_10_2!=''>${FLG_B_10_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_10_3").prop('checked','<#if FLG_B_10_3?exists && FLG_B_10_3!=''>${FLG_B_10_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_10_4").prop('checked','<#if FLG_B_10_4?exists && FLG_B_10_4!=''>${FLG_B_10_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_10_5").prop('checked','<#if FLG_B_10_5?exists && FLG_B_10_5!=''>${FLG_B_10_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_10_6").prop('checked','<#if FLG_B_10_6?exists && FLG_B_10_6!=''>${FLG_B_10_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_B_11_1").prop('checked','<#if FLG_B_11_1?exists && FLG_B_11_1!=''>${FLG_B_11_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_11_2").prop('checked','<#if FLG_B_11_2?exists && FLG_B_11_2!=''>${FLG_B_11_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_11_3").prop('checked','<#if FLG_B_11_3?exists && FLG_B_11_3!=''>${FLG_B_11_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_11_4").prop('checked','<#if FLG_B_11_4?exists && FLG_B_11_4!=''>${FLG_B_11_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_11_5").prop('checked','<#if FLG_B_11_5?exists && FLG_B_11_5!=''>${FLG_B_11_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_11_6").prop('checked','<#if FLG_B_11_6?exists && FLG_B_11_6!=''>${FLG_B_11_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_B_12_1").prop('checked','<#if FLG_B_12_1?exists && FLG_B_12_1!=''>${FLG_B_12_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_12_2").prop('checked','<#if FLG_B_12_2?exists && FLG_B_12_2!=''>${FLG_B_12_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_12_3").prop('checked','<#if FLG_B_12_3?exists && FLG_B_12_3!=''>${FLG_B_12_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_12_4").prop('checked','<#if FLG_B_12_4?exists && FLG_B_12_4!=''>${FLG_B_12_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_12_5").prop('checked','<#if FLG_B_12_5?exists && FLG_B_12_5!=''>${FLG_B_12_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_12_6").prop('checked','<#if FLG_B_12_6?exists && FLG_B_12_6!=''>${FLG_B_12_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_B_13_1").prop('checked','<#if FLG_B_13_1?exists && FLG_B_13_1!=''>${FLG_B_13_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_13_2").prop('checked','<#if FLG_B_13_2?exists && FLG_B_13_2!=''>${FLG_B_13_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_13_3").prop('checked','<#if FLG_B_13_3?exists && FLG_B_13_3!=''>${FLG_B_13_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_13_4").prop('checked','<#if FLG_B_13_4?exists && FLG_B_13_4!=''>${FLG_B_13_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_13_5").prop('checked','<#if FLG_B_13_5?exists && FLG_B_13_5!=''>${FLG_B_13_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_13_6").prop('checked','<#if FLG_B_13_6?exists && FLG_B_13_6!=''>${FLG_B_13_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_B_14_1").prop('checked','<#if FLG_B_14_1?exists && FLG_B_14_1!=''>${FLG_B_14_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_14_2").prop('checked','<#if FLG_B_14_2?exists && FLG_B_14_2!=''>${FLG_B_14_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_14_3").prop('checked','<#if FLG_B_14_3?exists && FLG_B_14_3!=''>${FLG_B_14_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_14_4").prop('checked','<#if FLG_B_14_4?exists && FLG_B_14_4!=''>${FLG_B_14_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_14_5").prop('checked','<#if FLG_B_14_5?exists && FLG_B_14_5!=''>${FLG_B_14_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_14_6").prop('checked','<#if FLG_B_14_6?exists && FLG_B_14_6!=''>${FLG_B_14_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_B_15_1").prop('checked','<#if FLG_B_15_1?exists && FLG_B_15_1!=''>${FLG_B_15_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_15_2").prop('checked','<#if FLG_B_15_2?exists && FLG_B_15_2!=''>${FLG_B_15_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_15_3").prop('checked','<#if FLG_B_15_3?exists && FLG_B_15_3!=''>${FLG_B_15_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_15_4").prop('checked','<#if FLG_B_15_4?exists && FLG_B_15_4!=''>${FLG_B_15_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_15_5").prop('checked','<#if FLG_B_15_5?exists && FLG_B_15_5!=''>${FLG_B_15_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_15_6").prop('checked','<#if FLG_B_15_6?exists && FLG_B_15_6!=''>${FLG_B_15_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_B_16_1").prop('checked','<#if FLG_B_16_1?exists && FLG_B_16_1!=''>${FLG_B_16_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_16_2").prop('checked','<#if FLG_B_16_2?exists && FLG_B_16_2!=''>${FLG_B_16_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_16_3").prop('checked','<#if FLG_B_16_3?exists && FLG_B_16_3!=''>${FLG_B_16_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_16_4").prop('checked','<#if FLG_B_16_4?exists && FLG_B_16_4!=''>${FLG_B_16_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_16_5").prop('checked','<#if FLG_B_16_5?exists && FLG_B_16_5!=''>${FLG_B_16_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_16_6").prop('checked','<#if FLG_B_16_6?exists && FLG_B_16_6!=''>${FLG_B_16_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_B_17_1").prop('checked','<#if FLG_B_17_1?exists && FLG_B_17_1!=''>${FLG_B_17_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_17_2").prop('checked','<#if FLG_B_17_2?exists && FLG_B_17_2!=''>${FLG_B_17_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_17_3").prop('checked','<#if FLG_B_17_3?exists && FLG_B_17_3!=''>${FLG_B_17_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_17_4").prop('checked','<#if FLG_B_17_4?exists && FLG_B_17_4!=''>${FLG_B_17_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_17_5").prop('checked','<#if FLG_B_17_5?exists && FLG_B_17_5!=''>${FLG_B_17_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_17_6").prop('checked','<#if FLG_B_17_6?exists && FLG_B_17_6!=''>${FLG_B_17_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_B_18_1").prop('checked','<#if FLG_B_18_1?exists && FLG_B_18_1!=''>${FLG_B_18_1}<#else>false</#if>'==='true');
+	        $("#FLG_B_18_2").prop('checked','<#if FLG_B_18_2?exists && FLG_B_18_2!=''>${FLG_B_18_2}<#else>false</#if>'==='true');
+	        $("#FLG_B_18_3").prop('checked','<#if FLG_B_18_3?exists && FLG_B_18_3!=''>${FLG_B_18_3}<#else>false</#if>'==='true');
+	        $("#FLG_B_18_4").prop('checked','<#if FLG_B_18_4?exists && FLG_B_18_4!=''>${FLG_B_18_4}<#else>false</#if>'==='true');
+	        $("#FLG_B_18_5").prop('checked','<#if FLG_B_18_5?exists && FLG_B_18_5!=''>${FLG_B_18_5}<#else>false</#if>'==='true');
+	        $("#FLG_B_18_6").prop('checked','<#if FLG_B_18_6?exists && FLG_B_18_6!=''>${FLG_B_18_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_C1_1_1").prop('checked','<#if FLG_C1_1_1?exists && FLG_C1_1_1!=''>${FLG_C1_1_1}<#else>false</#if>'==='true');
+	        $("#FLG_C1_1_2").prop('checked','<#if FLG_C1_1_2?exists && FLG_C1_1_2!=''>${FLG_C1_1_2}<#else>false</#if>'==='true');
+	        $("#FLG_C1_1_3").prop('checked','<#if FLG_C1_1_3?exists && FLG_C1_1_3!=''>${FLG_C1_1_3}<#else>false</#if>'==='true');
+	        $("#FLG_C1_1_4").prop('checked','<#if FLG_C1_1_4?exists && FLG_C1_1_4!=''>${FLG_C1_1_4}<#else>false</#if>'==='true');
+	        $("#FLG_C1_1_5").prop('checked','<#if FLG_C1_1_5?exists && FLG_C1_1_5!=''>${FLG_C1_1_5}<#else>false</#if>'==='true');
+	        $("#FLG_C1_1_6").prop('checked','<#if FLG_C1_1_6?exists && FLG_C1_1_6!=''>${FLG_C1_1_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_C1_2_1").prop('checked','<#if FLG_C1_2_1?exists && FLG_C1_2_1!=''>${FLG_C1_2_1}<#else>false</#if>'==='true');
+	        $("#FLG_C1_2_2").prop('checked','<#if FLG_C1_2_2?exists && FLG_C1_2_2!=''>${FLG_C1_2_2}<#else>false</#if>'==='true');
+	        $("#FLG_C1_2_3").prop('checked','<#if FLG_C1_2_3?exists && FLG_C1_2_3!=''>${FLG_C1_2_3}<#else>false</#if>'==='true');
+	        $("#FLG_C1_2_4").prop('checked','<#if FLG_C1_2_4?exists && FLG_C1_2_4!=''>${FLG_C1_2_4}<#else>false</#if>'==='true');
+	        $("#FLG_C1_2_5").prop('checked','<#if FLG_C1_2_5?exists && FLG_C1_2_5!=''>${FLG_C1_2_5}<#else>false</#if>'==='true');
+	        $("#FLG_C1_2_6").prop('checked','<#if FLG_C1_2_6?exists && FLG_C1_2_6!=''>${FLG_C1_2_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_C1_3_1").prop('checked','<#if FLG_C1_3_1?exists && FLG_C1_3_1!=''>${FLG_C1_3_1}<#else>false</#if>'==='true');
+	        $("#FLG_C1_3_2").prop('checked','<#if FLG_C1_3_2?exists && FLG_C1_3_2!=''>${FLG_C1_3_2}<#else>false</#if>'==='true');
+	        $("#FLG_C1_3_3").prop('checked','<#if FLG_C1_3_3?exists && FLG_C1_3_3!=''>${FLG_C1_3_3}<#else>false</#if>'==='true');
+	        $("#FLG_C1_3_4").prop('checked','<#if FLG_C1_3_4?exists && FLG_C1_3_4!=''>${FLG_C1_3_4}<#else>false</#if>'==='true');
+	        $("#FLG_C1_3_5").prop('checked','<#if FLG_C1_3_5?exists && FLG_C1_3_5!=''>${FLG_C1_3_5}<#else>false</#if>'==='true');
+	        $("#FLG_C1_3_6").prop('checked','<#if FLG_C1_3_6?exists && FLG_C1_3_6!=''>${FLG_C1_3_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_C1_4_1").prop('checked','<#if FLG_C1_4_1?exists && FLG_C1_4_1!=''>${FLG_C1_4_1}<#else>false</#if>'==='true');
+	        $("#FLG_C1_4_2").prop('checked','<#if FLG_C1_4_2?exists && FLG_C1_4_2!=''>${FLG_C1_4_2}<#else>false</#if>'==='true');
+	        $("#FLG_C1_4_3").prop('checked','<#if FLG_C1_4_3?exists && FLG_C1_4_3!=''>${FLG_C1_4_3}<#else>false</#if>'==='true');
+	        $("#FLG_C1_4_4").prop('checked','<#if FLG_C1_4_4?exists && FLG_C1_4_4!=''>${FLG_C1_4_4}<#else>false</#if>'==='true');
+	        $("#FLG_C1_4_5").prop('checked','<#if FLG_C1_4_5?exists && FLG_C1_4_5!=''>${FLG_C1_4_5}<#else>false</#if>'==='true');
+	        $("#FLG_C1_4_6").prop('checked','<#if FLG_C1_4_6?exists && FLG_C1_4_6!=''>${FLG_C1_4_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_C1_5_1").prop('checked','<#if FLG_C1_5_1?exists && FLG_C1_5_1!=''>${FLG_C1_5_1}<#else>false</#if>'==='true');
+	        $("#FLG_C1_5_2").prop('checked','<#if FLG_C1_5_2?exists && FLG_C1_5_2!=''>${FLG_C1_5_2}<#else>false</#if>'==='true');
+	        $("#FLG_C1_5_3").prop('checked','<#if FLG_C1_5_3?exists && FLG_C1_5_3!=''>${FLG_C1_5_3}<#else>false</#if>'==='true');
+	        $("#FLG_C1_5_4").prop('checked','<#if FLG_C1_5_4?exists && FLG_C1_5_4!=''>${FLG_C1_5_4}<#else>false</#if>'==='true');
+	        $("#FLG_C1_5_5").prop('checked','<#if FLG_C1_5_5?exists && FLG_C1_5_5!=''>${FLG_C1_5_5}<#else>false</#if>'==='true');
+	        $("#FLG_C1_5_6").prop('checked','<#if FLG_C1_5_6?exists && FLG_C1_5_6!=''>${FLG_C1_5_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_C1_6_1").prop('checked','<#if FLG_C1_6_1?exists && FLG_C1_6_1!=''>${FLG_C1_6_1}<#else>false</#if>'==='true');
+	        $("#FLG_C1_6_2").prop('checked','<#if FLG_C1_6_2?exists && FLG_C1_6_2!=''>${FLG_C1_6_2}<#else>false</#if>'==='true');
+	        $("#FLG_C1_6_3").prop('checked','<#if FLG_C1_6_3?exists && FLG_C1_6_3!=''>${FLG_C1_6_3}<#else>false</#if>'==='true');
+	        $("#FLG_C1_6_4").prop('checked','<#if FLG_C1_6_4?exists && FLG_C1_6_4!=''>${FLG_C1_6_4}<#else>false</#if>'==='true');
+	        $("#FLG_C1_6_5").prop('checked','<#if FLG_C1_6_5?exists && FLG_C1_6_5!=''>${FLG_C1_6_5}<#else>false</#if>'==='true');
+	        $("#FLG_C1_6_6").prop('checked','<#if FLG_C1_6_6?exists && FLG_C1_6_6!=''>${FLG_C1_6_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_C2_1_1").prop('checked','<#if FLG_C2_1_1?exists && FLG_C2_1_1!=''>${FLG_C2_1_1}<#else>false</#if>'==='true');
+	        $("#FLG_C2_1_2").prop('checked','<#if FLG_C2_1_2?exists && FLG_C2_1_2!=''>${FLG_C2_1_2}<#else>false</#if>'==='true');
+	        $("#FLG_C2_1_3").prop('checked','<#if FLG_C2_1_3?exists && FLG_C2_1_3!=''>${FLG_C2_1_3}<#else>false</#if>'==='true');
+	        $("#FLG_C2_1_4").prop('checked','<#if FLG_C2_1_4?exists && FLG_C2_1_4!=''>${FLG_C2_1_4}<#else>false</#if>'==='true');
+	        $("#FLG_C2_1_5").prop('checked','<#if FLG_C2_1_5?exists && FLG_C2_1_5!=''>${FLG_C2_1_5}<#else>false</#if>'==='true');
+	        $("#FLG_C2_1_6").prop('checked','<#if FLG_C2_1_6?exists && FLG_C2_1_6!=''>${FLG_C2_1_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_C2_2_1").prop('checked','<#if FLG_C2_2_1?exists && FLG_C2_2_1!=''>${FLG_C2_2_1}<#else>false</#if>'==='true');
+	        $("#FLG_C2_2_2").prop('checked','<#if FLG_C2_2_2?exists && FLG_C2_2_2!=''>${FLG_C2_2_2}<#else>false</#if>'==='true');
+	        $("#FLG_C2_2_3").prop('checked','<#if FLG_C2_2_3?exists && FLG_C2_2_3!=''>${FLG_C2_2_3}<#else>false</#if>'==='true');
+	        $("#FLG_C2_2_4").prop('checked','<#if FLG_C2_2_4?exists && FLG_C2_2_4!=''>${FLG_C2_2_4}<#else>false</#if>'==='true');
+	        $("#FLG_C2_2_5").prop('checked','<#if FLG_C2_2_5?exists && FLG_C2_2_5!=''>${FLG_C2_2_5}<#else>false</#if>'==='true');
+	        $("#FLG_C2_2_6").prop('checked','<#if FLG_C2_2_6?exists && FLG_C2_2_6!=''>${FLG_C2_2_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_C2_3_1").prop('checked','<#if FLG_C2_3_1?exists && FLG_C2_3_1!=''>${FLG_C2_3_1}<#else>false</#if>'==='true');
+	        $("#FLG_C2_3_2").prop('checked','<#if FLG_C2_3_2?exists && FLG_C2_3_2!=''>${FLG_C2_3_2}<#else>false</#if>'==='true');
+	        $("#FLG_C2_3_3").prop('checked','<#if FLG_C2_3_3?exists && FLG_C2_3_3!=''>${FLG_C2_3_3}<#else>false</#if>'==='true');
+	        $("#FLG_C2_3_4").prop('checked','<#if FLG_C2_3_4?exists && FLG_C2_3_4!=''>${FLG_C2_3_4}<#else>false</#if>'==='true');
+	        $("#FLG_C2_3_5").prop('checked','<#if FLG_C2_3_5?exists && FLG_C2_3_5!=''>${FLG_C2_3_5}<#else>false</#if>'==='true');
+	        $("#FLG_C2_3_6").prop('checked','<#if FLG_C2_3_6?exists && FLG_C2_3_6!=''>${FLG_C2_3_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_C2_4_1").prop('checked','<#if FLG_C2_4_1?exists && FLG_C2_4_1!=''>${FLG_C2_4_1}<#else>false</#if>'==='true');
+	        $("#FLG_C2_4_2").prop('checked','<#if FLG_C2_4_2?exists && FLG_C2_4_2!=''>${FLG_C2_4_2}<#else>false</#if>'==='true');
+	        $("#FLG_C2_4_3").prop('checked','<#if FLG_C2_4_3?exists && FLG_C2_4_3!=''>${FLG_C2_4_3}<#else>false</#if>'==='true');
+	        $("#FLG_C2_4_4").prop('checked','<#if FLG_C2_4_4?exists && FLG_C2_4_4!=''>${FLG_C2_4_4}<#else>false</#if>'==='true');
+	        $("#FLG_C2_4_5").prop('checked','<#if FLG_C2_4_5?exists && FLG_C2_4_5!=''>${FLG_C2_4_5}<#else>false</#if>'==='true');
+	        $("#FLG_C2_4_6").prop('checked','<#if FLG_C2_4_6?exists && FLG_C2_4_6!=''>${FLG_C2_4_6}<#else>false</#if>'==='true');		                                       
+	                                                                                              
+	        $("#FLG_C3_1_1").prop('checked','<#if FLG_C3_1_1?exists && FLG_C3_1_1!=''>${FLG_C3_1_1}<#else>false</#if>'==='true');
+	        $("#FLG_C3_1_2").prop('checked','<#if FLG_C3_1_2?exists && FLG_C3_1_2!=''>${FLG_C3_1_2}<#else>false</#if>'==='true');
+	        $("#FLG_C3_1_3").prop('checked','<#if FLG_C3_1_3?exists && FLG_C3_1_3!=''>${FLG_C3_1_3}<#else>false</#if>'==='true');
+	        $("#FLG_C3_1_4").prop('checked','<#if FLG_C3_1_4?exists && FLG_C3_1_4!=''>${FLG_C3_1_4}<#else>false</#if>'==='true');
+	        $("#FLG_C3_1_5").prop('checked','<#if FLG_C3_1_5?exists && FLG_C3_1_5!=''>${FLG_C3_1_5}<#else>false</#if>'==='true');
+	        $("#FLG_C3_1_6").prop('checked','<#if FLG_C3_1_6?exists && FLG_C3_1_6!=''>${FLG_C3_1_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_C3_2_1").prop('checked','<#if FLG_C3_2_1?exists && FLG_C3_2_1!=''>${FLG_C3_2_1}<#else>false</#if>'==='true');
+	        $("#FLG_C3_2_2").prop('checked','<#if FLG_C3_2_2?exists && FLG_C3_2_2!=''>${FLG_C3_2_2}<#else>false</#if>'==='true');
+	        $("#FLG_C3_2_3").prop('checked','<#if FLG_C3_2_3?exists && FLG_C3_2_3!=''>${FLG_C3_2_3}<#else>false</#if>'==='true');
+	        $("#FLG_C3_2_4").prop('checked','<#if FLG_C3_2_4?exists && FLG_C3_2_4!=''>${FLG_C3_2_4}<#else>false</#if>'==='true');
+	        $("#FLG_C3_2_5").prop('checked','<#if FLG_C3_2_5?exists && FLG_C3_2_5!=''>${FLG_C3_2_5}<#else>false</#if>'==='true');
+	        $("#FLG_C3_2_6").prop('checked','<#if FLG_C3_2_6?exists && FLG_C3_2_6!=''>${FLG_C3_2_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_C3_3_1").prop('checked','<#if FLG_C3_3_1?exists && FLG_C3_3_1!=''>${FLG_C3_3_1}<#else>false</#if>'==='true');
+	        $("#FLG_C3_3_2").prop('checked','<#if FLG_C3_3_2?exists && FLG_C3_3_2!=''>${FLG_C3_3_2}<#else>false</#if>'==='true');
+	        $("#FLG_C3_3_3").prop('checked','<#if FLG_C3_3_3?exists && FLG_C3_3_3!=''>${FLG_C3_3_3}<#else>false</#if>'==='true');
+	        $("#FLG_C3_3_4").prop('checked','<#if FLG_C3_3_4?exists && FLG_C3_3_4!=''>${FLG_C3_3_4}<#else>false</#if>'==='true');
+	        $("#FLG_C3_3_5").prop('checked','<#if FLG_C3_3_5?exists && FLG_C3_3_5!=''>${FLG_C3_3_5}<#else>false</#if>'==='true');
+	        $("#FLG_C3_3_6").prop('checked','<#if FLG_C3_3_6?exists && FLG_C3_3_6!=''>${FLG_C3_3_6}<#else>false</#if>'==='true');
+	                                                                                              
+	        $("#FLG_C3_4_1").prop('checked','<#if FLG_C3_4_1?exists && FLG_C3_4_1!=''>${FLG_C3_4_1}<#else>false</#if>'==='true');
+	        $("#FLG_C3_4_2").prop('checked','<#if FLG_C3_4_2?exists && FLG_C3_4_2!=''>${FLG_C3_4_2}<#else>false</#if>'==='true');
+	        $("#FLG_C3_4_3").prop('checked','<#if FLG_C3_4_3?exists && FLG_C3_4_3!=''>${FLG_C3_4_3}<#else>false</#if>'==='true');
+	        $("#FLG_C3_4_4").prop('checked','<#if FLG_C3_4_4?exists && FLG_C3_4_4!=''>${FLG_C3_4_4}<#else>false</#if>'==='true');
+	        $("#FLG_C3_4_5").prop('checked','<#if FLG_C3_4_5?exists && FLG_C3_4_5!=''>${FLG_C3_4_5}<#else>false</#if>'==='true');
+	        $("#FLG_C3_4_6").prop('checked','<#if FLG_C3_4_6?exists && FLG_C3_4_6!=''>${FLG_C3_4_6}<#else>false</#if>'==='true');
+			
+						
+			
+			$("#ID_AZIENDA").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_IMPIANTO").empty();
+				$("#ID_IMPIANTO").select2("destroy");
+				$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO",""," WHERE ID_AZIENDA="+id+" "]);
+			});		     
+			
+			
+			var operationType=$("#OPERATION_TYPE").val();
+			
+			if (operationType=="INSERT") {
+				//$("#dettagli").hide();
+				$("#dettagli").show();
+			}
+
+			
+
+			$("#formInserimento").validate();
+						
+			var nrPDL=$("#NR_PDL").val();
+			if (nrPDL!='') {
+				$("#aggiungi").show();
+			}else{
+				$("#aggiungi").hide();	
+			}
+			
+			
+			
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				$("#salva-group").hide();
+				
+				var nrModulo=$("#NR_MODULO").val();
+				var turno=$("#CODICE_TURNO").val();
+				
+				
+				var idModulo=$("#ID_MODULO").val();
+				if (idModulo!='') {
+					$("#OPERATION_TYPE").val("UPDATE");
+				}				
+				
+				$("#FLG_A_1_1").val($("#FLG_A_1_1").is(':checked'));
+		 		$("#FLG_A_1_2").val($("#FLG_A_1_2").is(':checked'));
+		 		$("#FLG_A_1_3").val($("#FLG_A_1_3").is(':checked'));
+		 		$("#FLG_A_1_4").val($("#FLG_A_1_4").is(':checked'));
+		 		$("#FLG_A_1_5").val($("#FLG_A_1_5").is(':checked'));
+		 		$("#FLG_A_1_6").val($("#FLG_A_1_6").is(':checked'));
+		 		
+		        $("#FLG_A_2_1").val($("#FLG_A_2_1").is(':checked'));
+		        $("#FLG_A_2_2").val($("#FLG_A_2_2").is(':checked'));
+		        $("#FLG_A_2_3").val($("#FLG_A_2_3").is(':checked'));
+		        $("#FLG_A_2_4").val($("#FLG_A_2_4").is(':checked'));
+		        $("#FLG_A_2_5").val($("#FLG_A_2_5").is(':checked'));
+		        $("#FLG_A_2_6").val($("#FLG_A_2_6").is(':checked'));
+		                                         
+		        $("#FLG_A_3_1").val($("#FLG_A_3_1").is(':checked'));
+		        $("#FLG_A_3_2").val($("#FLG_A_3_2").is(':checked'));
+		        $("#FLG_A_3_3").val($("#FLG_A_3_3").is(':checked'));
+		        $("#FLG_A_3_4").val($("#FLG_A_3_4").is(':checked'));
+		        $("#FLG_A_3_5").val($("#FLG_A_3_5").is(':checked'));
+		        $("#FLG_A_3_6").val($("#FLG_A_3_6").is(':checked'));
+		                                         
+		        $("#FLG_A_4_1").val($("#FLG_A_4_1").is(':checked'));
+		        $("#FLG_A_4_2").val($("#FLG_A_4_2").is(':checked'));
+		        $("#FLG_A_4_3").val($("#FLG_A_4_3").is(':checked'));
+		        $("#FLG_A_4_4").val($("#FLG_A_4_4").is(':checked'));
+		        $("#FLG_A_4_5").val($("#FLG_A_4_5").is(':checked'));
+		        $("#FLG_A_4_6").val($("#FLG_A_4_6").is(':checked'));
+		                                         
+		        $("#FLG_A_5_1").val($("#FLG_A_5_1").is(':checked'));
+		        $("#FLG_A_5_2").val($("#FLG_A_5_2").is(':checked'));
+		        $("#FLG_A_5_3").val($("#FLG_A_5_3").is(':checked'));
+		        $("#FLG_A_5_4").val($("#FLG_A_5_4").is(':checked'));
+		        $("#FLG_A_5_5").val($("#FLG_A_5_5").is(':checked'));
+		        $("#FLG_A_5_6").val($("#FLG_A_5_6").is(':checked'));
+		                                         
+		        
+		        $("#FLG_A_6_1").val($("#FLG_A_6_1").is(':checked'));
+		        $("#FLG_A_6_2").val($("#FLG_A_6_2").is(':checked'));
+		        $("#FLG_A_6_3").val($("#FLG_A_6_3").is(':checked'));
+		        $("#FLG_A_6_4").val($("#FLG_A_6_4").is(':checked'));
+		        $("#FLG_A_6_5").val($("#FLG_A_6_5").is(':checked'));
+		        $("#FLG_A_6_6").val($("#FLG_A_6_6").is(':checked'));
+		                                         
+		        $("#FLG_A_7_1").val($("#FLG_A_7_1").is(':checked'));
+		        $("#FLG_A_7_2").val($("#FLG_A_7_2").is(':checked'));
+		        $("#FLG_A_7_3").val($("#FLG_A_7_3").is(':checked'));
+		        $("#FLG_A_7_4").val($("#FLG_A_7_4").is(':checked'));
+		        $("#FLG_A_7_5").val($("#FLG_A_7_5").is(':checked'));
+		        $("#FLG_A_7_6").val($("#FLG_A_7_6").is(':checked'));
+		                                         
+		        $("#FLG_A_8_1").val($("#FLG_A_8_1").is(':checked'));
+		        $("#FLG_A_8_2").val($("#FLG_A_8_2").is(':checked'));
+		        $("#FLG_A_8_3").val($("#FLG_A_8_3").is(':checked'));
+		        $("#FLG_A_8_4").val($("#FLG_A_8_4").is(':checked'));
+		        $("#FLG_A_8_5").val($("#FLG_A_8_5").is(':checked'));
+		        $("#FLG_A_8_6").val($("#FLG_A_8_6").is(':checked'));
+		                                         
+		        $("#FLG_A_9_1").val($("#FLG_A_9_1").is(':checked'));
+		        $("#FLG_A_9_2").val($("#FLG_A_9_2").is(':checked'));
+		        $("#FLG_A_9_3").val($("#FLG_A_9_3").is(':checked'));
+		        $("#FLG_A_9_4").val($("#FLG_A_9_4").is(':checked'));
+		        $("#FLG_A_9_5").val($("#FLG_A_9_5").is(':checked'));
+		        $("#FLG_A_9_6").val($("#FLG_A_9_6").is(':checked'));
+		                                         
+		        $("#FLG_A_10_1").val($("#FLG_A_10_1").is(':checked'));
+		        $("#FLG_A_10_2").val($("#FLG_A_10_2").is(':checked'));
+		        $("#FLG_A_10_3").val($("#FLG_A_10_3").is(':checked'));
+		        $("#FLG_A_10_4").val($("#FLG_A_10_4").is(':checked'));
+		        $("#FLG_A_10_5").val($("#FLG_A_10_5").is(':checked'));
+		        $("#FLG_A_10_6").val($("#FLG_A_10_6").is(':checked'));
+		                                           
+		        $("#FLG_A_11_1").val($("#FLG_A_11_1").is(':checked'));
+		        $("#FLG_A_11_2").val($("#FLG_A_11_2").is(':checked'));
+		        $("#FLG_A_11_3").val($("#FLG_A_11_3").is(':checked'));
+		        $("#FLG_A_11_4").val($("#FLG_A_11_4").is(':checked'));
+		        $("#FLG_A_11_5").val($("#FLG_A_11_5").is(':checked'));
+		        $("#FLG_A_11_6").val($("#FLG_A_11_6").is(':checked'));
+		                                           
+		        $("#FLG_A_12_1").val($("#FLG_A_12_1").is(':checked'));
+		        $("#FLG_A_12_2").val($("#FLG_A_12_2").is(':checked'));
+		        $("#FLG_A_12_3").val($("#FLG_A_12_3").is(':checked'));
+		        $("#FLG_A_12_4").val($("#FLG_A_12_4").is(':checked'));
+		        $("#FLG_A_12_5").val($("#FLG_A_12_5").is(':checked'));
+		        $("#FLG_A_12_6").val($("#FLG_A_12_6").is(':checked'));
+		                                           
+		        $("#FLG_A_13_1").val($("#FLG_A_13_1").is(':checked'));
+		        $("#FLG_A_13_2").val($("#FLG_A_13_2").is(':checked'));
+		        $("#FLG_A_13_3").val($("#FLG_A_13_3").is(':checked'));
+		        $("#FLG_A_13_4").val($("#FLG_A_13_4").is(':checked'));
+		        $("#FLG_A_13_5").val($("#FLG_A_13_5").is(':checked'));
+		        $("#FLG_A_13_6").val($("#FLG_A_13_6").is(':checked'));
+		                                           
+		        $("#FLG_A_14_1").val($("#FLG_A_14_1").is(':checked'));
+		        $("#FLG_A_14_2").val($("#FLG_A_14_2").is(':checked'));
+		        $("#FLG_A_14_3").val($("#FLG_A_14_3").is(':checked'));
+		        $("#FLG_A_14_4").val($("#FLG_A_14_4").is(':checked'));
+		        $("#FLG_A_14_5").val($("#FLG_A_14_5").is(':checked'));
+		        $("#FLG_A_14_6").val($("#FLG_A_14_6").is(':checked'));
+		        		                           
+		        $("#FLG_A_15_1").val($("#FLG_A_15_1").is(':checked'));
+		        $("#FLG_A_15_2").val($("#FLG_A_15_2").is(':checked'));
+		        $("#FLG_A_15_3").val($("#FLG_A_15_3").is(':checked'));
+		        $("#FLG_A_15_4").val($("#FLG_A_15_4").is(':checked'));
+		        $("#FLG_A_15_5").val($("#FLG_A_15_5").is(':checked'));
+		        $("#FLG_A_15_6").val($("#FLG_A_15_6").is(':checked'));
+		                                           
+		        $("#FLG_B_1_1").val($("#FLG_B_1_1").is(':checked'));
+		        $("#FLG_B_1_2").val($("#FLG_B_1_2").is(':checked'));
+		        $("#FLG_B_1_3").val($("#FLG_B_1_3").is(':checked'));
+		        $("#FLG_B_1_4").val($("#FLG_B_1_4").is(':checked'));
+		        $("#FLG_B_1_5").val($("#FLG_B_1_5").is(':checked'));
+		        $("#FLG_B_1_6").val($("#FLG_B_1_6").is(':checked'));
+		                                         
+		        $("#FLG_B_2_1").val($("#FLG_B_2_1").is(':checked'));
+		        $("#FLG_B_2_2").val($("#FLG_B_2_2").is(':checked'));
+		        $("#FLG_B_2_3").val($("#FLG_B_2_3").is(':checked'));
+		        $("#FLG_B_2_4").val($("#FLG_B_2_4").is(':checked'));
+		        $("#FLG_B_2_5").val($("#FLG_B_2_5").is(':checked'));
+		        $("#FLG_B_2_6").val($("#FLG_B_2_6").is(':checked'));
+		                                       
+		        $("#FLG_B_3_1").val($("#FLG_B_3_1").is(':checked'));
+		        $("#FLG_B_3_2").val($("#FLG_B_3_2").is(':checked'));
+		        $("#FLG_B_3_3").val($("#FLG_B_3_3").is(':checked'));
+		        $("#FLG_B_3_4").val($("#FLG_B_3_4").is(':checked'));
+		        $("#FLG_B_3_5").val($("#FLG_B_3_5").is(':checked'));
+		        $("#FLG_B_3_6").val($("#FLG_B_3_6").is(':checked'));
+		                                         
+		        $("#FLG_B_4_1").val($("#FLG_B_4_1").is(':checked'));
+		        $("#FLG_B_4_2").val($("#FLG_B_4_2").is(':checked'));
+		        $("#FLG_B_4_3").val($("#FLG_B_4_3").is(':checked'));
+		        $("#FLG_B_4_4").val($("#FLG_B_4_4").is(':checked'));
+		        $("#FLG_B_4_5").val($("#FLG_B_4_5").is(':checked'));
+		        $("#FLG_B_4_6").val($("#FLG_B_4_6").is(':checked'));
+		                                       
+		        $("#FLG_B_5_1").val($("#FLG_B_5_1").is(':checked'));
+		        $("#FLG_B_5_2").val($("#FLG_B_5_2").is(':checked'));
+		        $("#FLG_B_5_3").val($("#FLG_B_5_3").is(':checked'));
+		        $("#FLG_B_5_4").val($("#FLG_B_5_4").is(':checked'));
+		        $("#FLG_B_5_5").val($("#FLG_B_5_5").is(':checked'));
+		        $("#FLG_B_5_6").val($("#FLG_B_5_6").is(':checked'));
+		                     
+		        $("#FLG_B_6_1").val($("#FLG_B_6_1").is(':checked'));
+		        $("#FLG_B_6_2").val($("#FLG_B_6_2").is(':checked'));
+		        $("#FLG_B_6_3").val($("#FLG_B_6_3").is(':checked'));
+		        $("#FLG_B_6_4").val($("#FLG_B_6_4").is(':checked'));
+		        $("#FLG_B_6_5").val($("#FLG_B_6_5").is(':checked'));
+		        $("#FLG_B_6_6").val($("#FLG_B_6_6").is(':checked'));
+		                                         
+		        $("#FLG_B_7_1").val($("#FLG_B_7_1").is(':checked'));
+		        $("#FLG_B_7_2").val($("#FLG_B_7_2").is(':checked'));
+		        $("#FLG_B_7_3").val($("#FLG_B_7_3").is(':checked'));
+		        $("#FLG_B_7_4").val($("#FLG_B_7_4").is(':checked'));
+		        $("#FLG_B_7_5").val($("#FLG_B_7_5").is(':checked'));
+		        $("#FLG_B_7_6").val($("#FLG_B_7_6").is(':checked'));
+		        
+		        $("#FLG_B_8_1").val($("#FLG_B_8_1").is(':checked'));
+		        $("#FLG_B_8_2").val($("#FLG_B_8_2").is(':checked'));
+		        $("#FLG_B_8_3").val($("#FLG_B_8_3").is(':checked'));
+		        $("#FLG_B_8_4").val($("#FLG_B_8_4").is(':checked'));
+		        $("#FLG_B_8_5").val($("#FLG_B_8_5").is(':checked'));
+		        $("#FLG_B_8_6").val($("#FLG_B_8_6").is(':checked'));
+		                                         
+		        $("#FLG_B_9_1").val($("#FLG_B_9_1").is(':checked'));
+		        $("#FLG_B_9_2").val($("#FLG_B_9_2").is(':checked'));
+		        $("#FLG_B_9_3").val($("#FLG_B_9_3").is(':checked'));
+		        $("#FLG_B_9_4").val($("#FLG_B_9_4").is(':checked'));
+		        $("#FLG_B_9_5").val($("#FLG_B_9_5").is(':checked'));
+		        $("#FLG_B_9_6").val($("#FLG_B_9_6").is(':checked'));
+		        
+		        $("#FLG_B_10_1").val($("#FLG_B_10_1").is(':checked'));
+		        $("#FLG_B_10_2").val($("#FLG_B_10_2").is(':checked'));
+		        $("#FLG_B_10_3").val($("#FLG_B_10_3").is(':checked'));
+		        $("#FLG_B_10_4").val($("#FLG_B_10_4").is(':checked'));
+		        $("#FLG_B_10_5").val($("#FLG_B_10_5").is(':checked'));
+		        $("#FLG_B_10_6").val($("#FLG_B_10_6").is(':checked'));
+		                                           
+		        $("#FLG_B_11_1").val($("#FLG_B_11_1").is(':checked'));
+		        $("#FLG_B_11_2").val($("#FLG_B_11_2").is(':checked'));
+		        $("#FLG_B_11_3").val($("#FLG_B_11_3").is(':checked'));
+		        $("#FLG_B_11_4").val($("#FLG_B_11_4").is(':checked'));
+		        $("#FLG_B_11_5").val($("#FLG_B_11_5").is(':checked'));
+		        $("#FLG_B_11_6").val($("#FLG_B_11_6").is(':checked'));
+		        
+		        $("#FLG_B_12_1").val($("#FLG_B_12_1").is(':checked'));
+		        $("#FLG_B_12_2").val($("#FLG_B_12_2").is(':checked'));
+		        $("#FLG_B_12_3").val($("#FLG_B_12_3").is(':checked'));
+		        $("#FLG_B_12_4").val($("#FLG_B_12_4").is(':checked'));
+		        $("#FLG_B_12_5").val($("#FLG_B_12_5").is(':checked'));
+		        $("#FLG_B_12_6").val($("#FLG_B_12_6").is(':checked'));
+		                                           
+		        $("#FLG_B_13_1").val($("#FLG_B_13_1").is(':checked'));
+		        $("#FLG_B_13_2").val($("#FLG_B_13_2").is(':checked'));
+		        $("#FLG_B_13_3").val($("#FLG_B_13_3").is(':checked'));
+		        $("#FLG_B_13_4").val($("#FLG_B_13_4").is(':checked'));
+		        $("#FLG_B_13_5").val($("#FLG_B_13_5").is(':checked'));
+		        $("#FLG_B_13_6").val($("#FLG_B_13_6").is(':checked'));
+		        
+		        $("#FLG_B_14_1").val($("#FLG_B_14_1").is(':checked'));
+		        $("#FLG_B_14_2").val($("#FLG_B_14_2").is(':checked'));
+		        $("#FLG_B_14_3").val($("#FLG_B_14_3").is(':checked'));
+		        $("#FLG_B_14_4").val($("#FLG_B_14_4").is(':checked'));
+		        $("#FLG_B_14_5").val($("#FLG_B_14_5").is(':checked'));
+		        $("#FLG_B_14_6").val($("#FLG_B_14_6").is(':checked'));
+		                                           
+		        $("#FLG_B_15_1").val($("#FLG_B_15_1").is(':checked'));
+		        $("#FLG_B_15_2").val($("#FLG_B_15_2").is(':checked'));
+		        $("#FLG_B_15_3").val($("#FLG_B_15_3").is(':checked'));
+		        $("#FLG_B_15_4").val($("#FLG_B_15_4").is(':checked'));
+		        $("#FLG_B_15_5").val($("#FLG_B_15_5").is(':checked'));
+		        $("#FLG_B_15_6").val($("#FLG_B_15_6").is(':checked'));
+		        
+		        $("#FLG_B_16_1").val($("#FLG_B_16_1").is(':checked'));
+		        $("#FLG_B_16_2").val($("#FLG_B_16_2").is(':checked'));
+		        $("#FLG_B_16_3").val($("#FLG_B_16_3").is(':checked'));
+		        $("#FLG_B_16_4").val($("#FLG_B_16_4").is(':checked'));
+		        $("#FLG_B_16_5").val($("#FLG_B_16_5").is(':checked'));
+		        $("#FLG_B_16_6").val($("#FLG_B_16_6").is(':checked'));
+		                                           
+		        $("#FLG_B_17_1").val($("#FLG_B_17_1").is(':checked'));
+		        $("#FLG_B_17_2").val($("#FLG_B_17_2").is(':checked'));
+		        $("#FLG_B_17_3").val($("#FLG_B_17_3").is(':checked'));
+		        $("#FLG_B_17_4").val($("#FLG_B_17_4").is(':checked'));
+		        $("#FLG_B_17_5").val($("#FLG_B_17_5").is(':checked'));
+		        $("#FLG_B_17_6").val($("#FLG_B_17_6").is(':checked'));
+		        
+		        $("#FLG_B_18_1").val($("#FLG_B_18_1").is(':checked'));
+		        $("#FLG_B_18_2").val($("#FLG_B_18_2").is(':checked'));
+		        $("#FLG_B_18_3").val($("#FLG_B_18_3").is(':checked'));
+		        $("#FLG_B_18_4").val($("#FLG_B_18_4").is(':checked'));
+		        $("#FLG_B_18_5").val($("#FLG_B_18_5").is(':checked'));
+		        $("#FLG_B_18_6").val($("#FLG_B_18_6").is(':checked'));
+		         
+		        $("#FLG_C1_1_1").val($("#FLG_C1_1_1").is(':checked'));
+		        $("#FLG_C1_1_2").val($("#FLG_C1_1_2").is(':checked'));
+		        $("#FLG_C1_1_3").val($("#FLG_C1_1_3").is(':checked'));
+		        $("#FLG_C1_1_4").val($("#FLG_C1_1_4").is(':checked'));
+		        $("#FLG_C1_1_5").val($("#FLG_C1_1_5").is(':checked'));
+		        $("#FLG_C1_1_6").val($("#FLG_C1_1_6").is(':checked'));
+		                                           
+		        $("#FLG_C1_2_1").val($("#FLG_C1_2_1").is(':checked'));
+		        $("#FLG_C1_2_2").val($("#FLG_C1_2_2").is(':checked'));
+		        $("#FLG_C1_2_3").val($("#FLG_C1_2_3").is(':checked'));
+		        $("#FLG_C1_2_4").val($("#FLG_C1_2_4").is(':checked'));
+		        $("#FLG_C1_2_5").val($("#FLG_C1_2_5").is(':checked'));
+		        $("#FLG_C1_2_6").val($("#FLG_C1_2_6").is(':checked'));
+		                                           
+		        $("#FLG_C1_3_1").val($("#FLG_C1_3_1").is(':checked'));
+		        $("#FLG_C1_3_2").val($("#FLG_C1_3_2").is(':checked'));
+		        $("#FLG_C1_3_3").val($("#FLG_C1_3_3").is(':checked'));
+		        $("#FLG_C1_3_4").val($("#FLG_C1_3_4").is(':checked'));
+		        $("#FLG_C1_3_5").val($("#FLG_C1_3_5").is(':checked'));
+		        $("#FLG_C1_3_6").val($("#FLG_C1_3_6").is(':checked'));
+		        
+		        $("#FLG_C1_4_1").val($("#FLG_C1_4_1").is(':checked'));
+		        $("#FLG_C1_4_2").val($("#FLG_C1_4_2").is(':checked'));
+		        $("#FLG_C1_4_3").val($("#FLG_C1_4_3").is(':checked'));
+		        $("#FLG_C1_4_4").val($("#FLG_C1_4_4").is(':checked'));
+		        $("#FLG_C1_4_5").val($("#FLG_C1_4_5").is(':checked'));
+		        $("#FLG_C1_4_6").val($("#FLG_C1_4_6").is(':checked'));
+		                                           
+		        $("#FLG_C1_5_1").val($("#FLG_C1_5_1").is(':checked'));
+		        $("#FLG_C1_5_2").val($("#FLG_C1_5_2").is(':checked'));
+		        $("#FLG_C1_5_3").val($("#FLG_C1_5_3").is(':checked'));
+		        $("#FLG_C1_5_4").val($("#FLG_C1_5_4").is(':checked'));
+		        $("#FLG_C1_5_5").val($("#FLG_C1_5_5").is(':checked'));
+		        $("#FLG_C1_5_6").val($("#FLG_C1_5_6").is(':checked'));
+		                                           
+		        $("#FLG_C1_6_1").val($("#FLG_C1_6_1").is(':checked'));
+		        $("#FLG_C1_6_2").val($("#FLG_C1_6_2").is(':checked'));
+		        $("#FLG_C1_6_3").val($("#FLG_C1_6_3").is(':checked'));
+		        $("#FLG_C1_6_4").val($("#FLG_C1_6_4").is(':checked'));
+		        $("#FLG_C1_6_5").val($("#FLG_C1_6_5").is(':checked'));
+		        $("#FLG_C1_6_6").val($("#FLG_C1_6_6").is(':checked'));
+		                                       
+		        $("#FLG_C2_1_1").val($("#FLG_C2_1_1").is(':checked'));
+		        $("#FLG_C2_1_2").val($("#FLG_C2_1_2").is(':checked'));
+		        $("#FLG_C2_1_3").val($("#FLG_C2_1_3").is(':checked'));
+		        $("#FLG_C2_1_4").val($("#FLG_C2_1_4").is(':checked'));
+		        $("#FLG_C2_1_5").val($("#FLG_C2_1_5").is(':checked'));
+		        $("#FLG_C2_1_6").val($("#FLG_C2_1_6").is(':checked'));
+		                                           
+		        $("#FLG_C2_2_1").val($("#FLG_C2_2_1").is(':checked'));
+		        $("#FLG_C2_2_2").val($("#FLG_C2_2_2").is(':checked'));
+		        $("#FLG_C2_2_3").val($("#FLG_C2_2_3").is(':checked'));
+		        $("#FLG_C2_2_4").val($("#FLG_C2_2_4").is(':checked'));
+		        $("#FLG_C2_2_5").val($("#FLG_C2_2_5").is(':checked'));
+		        $("#FLG_C2_2_6").val($("#FLG_C2_2_6").is(':checked'));
+		                                           
+		        $("#FLG_C2_3_1").val($("#FLG_C2_3_1").is(':checked'));
+		        $("#FLG_C2_3_2").val($("#FLG_C2_3_2").is(':checked'));
+		        $("#FLG_C2_3_3").val($("#FLG_C2_3_3").is(':checked'));
+		        $("#FLG_C2_3_4").val($("#FLG_C2_3_4").is(':checked'));
+		        $("#FLG_C2_3_5").val($("#FLG_C2_3_5").is(':checked'));
+		        $("#FLG_C2_3_6").val($("#FLG_C2_3_6").is(':checked'));
+		        
+		        $("#FLG_C2_4_1").val($("#FLG_C2_4_1").is(':checked'));
+		        $("#FLG_C2_4_2").val($("#FLG_C2_4_2").is(':checked'));
+		        $("#FLG_C2_4_3").val($("#FLG_C2_4_3").is(':checked'));
+		        $("#FLG_C2_4_4").val($("#FLG_C2_4_4").is(':checked'));
+		        $("#FLG_C2_4_5").val($("#FLG_C2_4_5").is(':checked'));
+		        $("#FLG_C2_4_6").val($("#FLG_C2_4_6").is(':checked'));		                                       
+		                                           
+		        $("#FLG_C3_1_1").val($("#FLG_C3_1_1").is(':checked'));
+		        $("#FLG_C3_1_2").val($("#FLG_C3_1_2").is(':checked'));
+		        $("#FLG_C3_1_3").val($("#FLG_C3_1_3").is(':checked'));
+		        $("#FLG_C3_1_4").val($("#FLG_C3_1_4").is(':checked'));
+		        $("#FLG_C3_1_5").val($("#FLG_C3_1_5").is(':checked'));
+		        $("#FLG_C3_1_6").val($("#FLG_C3_1_6").is(':checked'));
+		                                           
+		        $("#FLG_C3_2_1").val($("#FLG_C3_2_1").is(':checked'));
+		        $("#FLG_C3_2_2").val($("#FLG_C3_2_2").is(':checked'));
+		        $("#FLG_C3_2_3").val($("#FLG_C3_2_3").is(':checked'));
+		        $("#FLG_C3_2_4").val($("#FLG_C3_2_4").is(':checked'));
+		        $("#FLG_C3_2_5").val($("#FLG_C3_2_5").is(':checked'));
+		        $("#FLG_C3_2_6").val($("#FLG_C3_2_6").is(':checked'));
+		        
+		        $("#FLG_C3_3_1").val($("#FLG_C3_3_1").is(':checked'));
+		        $("#FLG_C3_3_2").val($("#FLG_C3_3_2").is(':checked'));
+		        $("#FLG_C3_3_3").val($("#FLG_C3_3_3").is(':checked'));
+		        $("#FLG_C3_3_4").val($("#FLG_C3_3_4").is(':checked'));
+		        $("#FLG_C3_3_5").val($("#FLG_C3_3_5").is(':checked'));
+		        $("#FLG_C3_3_6").val($("#FLG_C3_3_6").is(':checked'));
+		                                           
+		        $("#FLG_C3_4_1").val($("#FLG_C3_4_1").is(':checked'));
+		        $("#FLG_C3_4_2").val($("#FLG_C3_4_2").is(':checked'));
+		        $("#FLG_C3_4_3").val($("#FLG_C3_4_3").is(':checked'));
+		        $("#FLG_C3_4_4").val($("#FLG_C3_4_4").is(':checked'));
+		        $("#FLG_C3_4_5").val($("#FLG_C3_4_5").is(':checked'));
+		        $("#FLG_C3_4_6").val($("#FLG_C3_4_6").is(':checked'));
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					
+					$("#salva-group").show();
+					var result = eval('('+response+')');
+					
+		    		var operationType=$("#OPERATION_TYPE").val();
+		    		if (operationType != "" && operationType=="INSERT") {
+		    			var idModulo=result.id;
+		    			var nrModulo=result.nr;
+		    			if (idModulo != null && idModulo != "") {
+							$("#ID_MODULO").val(idModulo);
+							$("#NR_MODULO").val(nrModulo);
+							$("#ID_MODULO_DETTAGLIO").val(idModulo);
+							$("#dettagli").show();
+						}
+		    		}
+		    		
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+				
+				
+			});
+					
+			
+			
+
+			
+			var t = $('#dt').DataTable({
+	            "paging":   false,
+	            "ordering": false,
+	            "info":     false,
+				"autoWidth": false,	  
+	            "ajax": dtAjax+dtWhereCondition,				
+				dom: '<"html5buttons"B>lTgitp',
+	            language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+	
+	            buttons: [
+	            ],
+				aaSorting: []
+	
+	        });
+			
+			t.on( 'order.dt search.dt', function () {
+		        t.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+		            cell.innerHTML = i+1;
+		        } );
+		    } ).draw();
+	        
+	        
+	        
+	   
+		});
+
+		function disableFieldsReadOnly() {
+			$("#formInserimento :input").attr("disabled", true);
+			$("#formAggiungiDettaglio :input:visible").attr("disabled", true);
+			$("#salva").hide();
+			$("#aggiungi").hide();
+		}
+
+		
+    </script> 
+
+</head>
+
+<body>
+
+
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1"
+		role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal"
+						class="btn btn-white btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm"
+						onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();"
+						data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists>
+		<#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row">
+                <div class="col-sm-12">
+					<form action="astro" method="post" id="formInserimento" name="formInserimento" class="form-horizontal">
+                    <div class="ibox">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+						
+						
+                        <div class="ibox-content">
+                        	
+							<div class="row">
+                        	<div class="col-sm-12">
+                        
+                            
+								<input type="hidden" name="FUNCTIONID" value="InserimentoLIMOD64"> 
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+								<input type="hidden" id="ID_MODULO" name="ID_MODULO">
+								<input type="hidden" id="CODICE_MODULO" name="CODICE_MODULO">
+								<input type="hidden" id="ID_UTENTE" name="ID_UTENTE">
+								<input type="hidden" id="STATO" name="STATO">
+								<input type="hidden" id="CODICE_TURNO" name="CODICE_TURNO">
+
+												
+								<div class="form-group">
+                                	<label class="col-sm-1 control-label-left">Sito:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control" required>
+	                                    </select>
+									</div>
+									
+									<label class="col-sm-1 control-label-left">Impianto:</label>
+                                    <div class="col-sm-3">
+	                                    <select id="ID_IMPIANTO" name="ID_IMPIANTO"  class="form-control" required>
+	                                    </select>
+									</div>   
+									
+									<label class="col-sm-1 control-label-left">Area:</label>
+									<div class="col-sm-3">
+										<select class="form-control" id="ID_AREA" name="ID_AREA" required>
+										</select>
+									</div> 
+									
+									
+                                </div>                                  
+											         
+                                <div class="form-group">
+                                	<label class="col-sm-1 control-label-left">Id Modulo</label>
+                                    <div class="col-sm-3"><input type="text" class="form-control" id="NR_MODULO" name="NR_MODULO"></div>
+
+                                	<label class="col-sm-1 control-label-left">Data</label>
+                                    <div class="col-sm-3">
+	                                    <input type="text" class="form-control" name="DT_MODULO" id="DT_MODULO" required>
+                                    </div>
+                                </div>    	
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-1 control-label-left">Revisione n°</label>
+                                    <div class="col-sm-3"><input type="text" class="form-control" id="NR_REV" name="NR_REV"></div>
+
+                                	<label class="col-sm-1 control-label-left">Data revisione</label>
+                                    <div class="col-sm-3">
+	                                    <input type="text" class="form-control" name="DT_REV" id="DT_REV" required>
+                                    </div>
+
+									<label class="col-sm-1 control-label-left">Coord. gestore interferenze:</label>
+									<div class="col-sm-3">
+										<select class="form-control" id="ID_COORD_GEST_INT" name="ID_COORD_GEST_INT" required>
+										</select>
+									</div>                      	
+                                </div>    												         
+							
+								<div class="form-group" id="salva-group">
+									<div class="col-sm-12">
+										<button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+									</div>
+								</div>                                 
+                                
+                            <!-- </form>  -->
+                            </div>
+                            </div>
+						</div>
+					</div>
+						
+                    <div class="ibox"  id="dettagli">					
+                            
+	                    <div class="ibox-title">
+	                        <div>
+								<h4><strong>Dettagli</strong></h4>
+	                        </div>                    
+	                    </div>	
+	                                                
+                        <div class="ibox-content">
+                        
+							<div class="row">
+							
+								
+							
+								<div class="col-sm-12">
+								
+								<div class="form-group">
+									<div class="table-responsive">
+										<table id="dt" class="table table-bordered">
+			                                <thead>
+			                                <tr>
+												<th>Attività</th>
+												<th>Area</th>
+												<th>Impresa</th>
+												<th>Nr. PDL</th>
+												<th>Odl</th>
+												<th>Preposto</th>
+												<th>Descrizione attività</th>
+			                                </tr>
+			                                </thead>
+			                            </table>											
+			                        </div>
+			                    </div>
+                            
+								 
+                                
+	                             
+	                                
+	                               
+												
+												
+									
+									
+									<div class="form-group">
+										<div class="col-sm-12">
+											<div class="table-responsive">
+												<table class="table table-bordered">
+													<tbody>
+														<tr>
+															<td><h4><b>A. Tipologia lavori</b></h4></td>
+															<td class="align-center">Attività 1</td>
+															<td class="align-center">Attività 2</td>
+															<td class="align-center">Attività 3</td>
+															<td class="align-center">Attività 4</td>
+															<td class="align-center">Attività 5</td>
+															<td class="align-center">Attività 6</td>
+														</tr>
+														<tr>
+															<td>Lavoro a caldo</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_1_1" id="FLG_A_1_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_1_2" id="FLG_A_1_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_1_3" id="FLG_A_1_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_1_4" id="FLG_A_1_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_1_5" id="FLG_A_1_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_1_6" id="FLG_A_1_6"></td>
+														</tr>
+														<tr>		
+															<td>Sollevamento e movimentazione carichi</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_2_1" id="FLG_A_2_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_2_2" id="FLG_A_2_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_2_3" id="FLG_A_2_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_2_4" id="FLG_A_2_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_2_5" id="FLG_A_2_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_2_6" id="FLG_A_2_6"></td>
+														</tr>
+														<tr>
+															<td>Lavoro in spazi confinati</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_3_1" id="FLG_A_3_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_3_2" id="FLG_A_3_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_3_3" id="FLG_A_3_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_3_4" id="FLG_A_3_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_3_5" id="FLG_A_3_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_3_6" id="FLG_A_3_6"></td>
+														</tr>
+														<tr>
+															<td>Lavoro meccanico</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_4_1" id="FLG_A_4_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_4_2" id="FLG_A_4_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_4_3" id="FLG_A_4_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_4_4" id="FLG_A_4_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_4_5" id="FLG_A_4_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_4_6" id="FLG_A_4_6"></td>
+														</tr>
+														<tr>
+															<td>Lavoro elettrico</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_5_1" id="FLG_A_5_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_5_2" id="FLG_A_5_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_5_3" id="FLG_A_5_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_5_4" id="FLG_A_5_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_5_5" id="FLG_A_5_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_5_6" id="FLG_A_5_6"></td>
+														</tr>
+														<tr>
+															<td>Lavoro strumentale</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_6_1" id="FLG_A_6_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_6_2" id="FLG_A_6_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_6_3" id="FLG_A_6_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_6_4" id="FLG_A_6_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_6_5" id="FLG_A_6_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_6_6" id="FLG_A_6_6"></td>
+														</tr>
+														<tr>
+															<td>Lavoro di sabbiatura</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_7_1" id="FLG_A_7_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_7_2" id="FLG_A_7_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_7_3" id="FLG_A_7_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_7_4" id="FLG_A_7_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_7_5" id="FLG_A_7_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_7_6" id="FLG_A_7_6"></td>
+														</tr>
+														<tr>
+															<td>Lavoro di verniciatura</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_8_1" id="FLG_A_8_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_8_2" id="FLG_A_8_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_8_3" id="FLG_A_8_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_8_4" id="FLG_A_8_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_8_5" id="FLG_A_8_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_8_6" id="FLG_A_8_6"></td>
+														</tr>
+														<tr>
+															<td>Lavoro di scavo</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_9_1" id="FLG_A_9_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_9_2" id="FLG_A_9_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_9_3" id="FLG_A_9_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_9_4" id="FLG_A_9_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_9_5" id="FLG_A_9_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_9_6" id="FLG_A_9_6"></td>
+														</tr>
+														<tr>
+															<td>Montaggio/smontaggio ponteggi</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_10_1" id="FLG_A_10_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_10_2" id="FLG_A_10_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_10_3" id="FLG_A_10_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_10_4" id="FLG_A_10_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_10_5" id="FLG_A_10_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_10_6" id="FLG_A_10_6"></td>
+														</tr>
+														<tr>
+															<td>Coibentazione/scoibentazione</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_11_1" id="FLG_A_11_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_11_2" id="FLG_A_11_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_11_3" id="FLG_A_11_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_11_4" id="FLG_A_11_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_11_5" id="FLG_A_11_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_11_6" id="FLG_A_11_6"></td>
+														</tr>
+														<tr>
+															<td>Lavoro edile</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_12_1" id="FLG_A_12_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_12_2" id="FLG_A_12_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_12_3" id="FLG_A_12_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_12_4" id="FLG_A_12_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_12_5" id="FLG_A_12_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_12_6" id="FLG_A_12_6"></td>
+														</tr>
+														<tr>
+															<td>Controllo radiografico saldature</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_13_1" id="FLG_A_13_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_13_2" id="FLG_A_13_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_13_3" id="FLG_A_13_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_13_4" id="FLG_A_13_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_13_5" id="FLG_A_13_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_13_6" id="FLG_A_13_6"></td>
+														</tr>
+														<tr>
+															<td>Pressature pneumatiche</td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_14_1" id="FLG_A_14_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_14_2" id="FLG_A_14_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_14_3" id="FLG_A_14_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_14_4" id="FLG_A_14_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_14_5" id="FLG_A_14_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_14_6" id="FLG_A_14_6"></td>
+														</tr>
+														<tr>
+															<td>Altro <input type="text" class="form-control" id="NOTE_A_15" name="NOTE_A_15"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_15_1" id="FLG_A_15_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_15_2" id="FLG_A_15_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_15_3" id="FLG_A_15_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_15_4" id="FLG_A_15_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_15_5" id="FLG_A_15_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_A_15_6" id="FLG_A_15_6"></td>
+														</tr>
+														<tr><td style="border-color:white" colspan="7"></td></tr>
+														<tr><td style="border-left-color:white;border-right-color:white" colspan="7"></td></tr>
+													
+														<tr>
+															<td><h4><b>B. Rischi concomitanti che possono generare interferenze</b></h4></td>
+															<td class="align-center">Attività 1</td>
+															<td class="align-center">Attività 2</td>
+															<td class="align-center">Attività 3</td>
+															<td class="align-center">Attività 4</td>
+															<td class="align-center">Attività 5</td>
+															<td class="align-center">Attività 6</td>
+														</tr>
+														<tr>
+															<td>Proiezione scorie incandescenti</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_1_1" id="FLG_B_1_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_1_2" id="FLG_B_1_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_1_3" id="FLG_B_1_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_1_4" id="FLG_B_1_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_1_5" id="FLG_B_1_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_1_6" id="FLG_B_1_6"></td>
+														</tr>
+														<tr>
+															<td>Presenza di polveri</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_2_1" id="FLG_B_2_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_2_2" id="FLG_B_2_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_2_3" id="FLG_B_2_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_2_4" id="FLG_B_2_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_2_5" id="FLG_B_2_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_2_6" id="FLG_B_2_6"></td>
+														</tr>
+														<tr>
+															<td>Presenza di sostanza tossica</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_3_1" id="FLG_B_3_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_3_2" id="FLG_B_3_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_3_3" id="FLG_B_3_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_3_4" id="FLG_B_3_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_3_5" id="FLG_B_3_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_3_6" id="FLG_B_3_6"></td>
+														</tr>
+														<tr>
+															<td>Presenza di spandimenti</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_4_1" id="FLG_B_4_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_4_2" id="FLG_B_4_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_4_3" id="FLG_B_4_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_4_4" id="FLG_B_4_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_4_5" id="FLG_B_4_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_4_6" id="FLG_B_4_6"></td>
+														</tr>
+														<tr>
+															<td>Pressature pneumatiche</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_5_1" id="FLG_B_5_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_5_2" id="FLG_B_5_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_5_3" id="FLG_B_5_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_5_4" id="FLG_B_5_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_5_5" id="FLG_B_5_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_5_6" id="FLG_B_5_6"></td>
+														</tr>
+														<tr>
+															<td>Radiazioni ionizzanti</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_6_1" id="FLG_B_6_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_6_2" id="FLG_B_6_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_6_3" id="FLG_B_6_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_6_4" id="FLG_B_6_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_6_5" id="FLG_B_6_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_6_6" id="FLG_B_6_6"></td>
+														</tr>
+														<tr>
+															<td>Sollevamento di materiale</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_7_1" id="FLG_B_7_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_7_2" id="FLG_B_7_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_7_3" id="FLG_B_7_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_7_4" id="FLG_B_7_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_7_5" id="FLG_B_7_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_7_6" id="FLG_B_7_6"></td>
+														</tr>
+														<tr>
+															<td>Materiali ingombranti</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_8_1" id="FLG_B_8_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_8_2" id="FLG_B_8_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_8_3" id="FLG_B_8_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_8_4" id="FLG_B_8_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_8_5" id="FLG_B_8_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_8_6" id="FLG_B_8_6"></td>
+														</tr>
+														<tr>
+															<td>Moto/elettrosaldatrice (elettrocuzione)</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_9_1" id="FLG_B_9_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_9_2" id="FLG_B_9_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_9_3" id="FLG_B_9_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_9_4" id="FLG_B_9_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_9_5" id="FLG_B_9_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_9_6" id="FLG_B_9_6"></td>
+														</tr>
+														<tr>
+															<td>Saldatura (rischioi agli occhi, rischio elettrico)</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_10_1" id="FLG_B_10_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_10_2" id="FLG_B_10_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_10_3" id="FLG_B_10_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_10_4" id="FLG_B_10_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_10_5" id="FLG_B_10_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_10_6" id="FLG_B_10_6"></td>
+														</tr>
+														<tr>
+															<td>Presenza di carrelli elevatori</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_11_1" id="FLG_B_11_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_11_2" id="FLG_B_11_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_11_3" id="FLG_B_11_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_11_4" id="FLG_B_11_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_11_5" id="FLG_B_11_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_11_6" id="FLG_B_11_6"></td>
+														</tr>
+														<tr>
+															<td>Scavi/aperture</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_12_1" id="FLG_B_12_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_12_2" id="FLG_B_12_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_12_3" id="FLG_B_12_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_12_4" id="FLG_B_12_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_12_5" id="FLG_B_12_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_12_6" id="FLG_B_12_6"></td>
+														</tr>
+														<tr>
+															<td>Caduta acc. di gravi (lavori in quota e sollevamenti)</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_13_1" id="FLG_B_13_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_13_2" id="FLG_B_13_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_13_3" id="FLG_B_13_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_13_4" id="FLG_B_13_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_13_5" id="FLG_B_13_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_13_6" id="FLG_B_13_6"></td>
+														</tr>
+														<tr>
+															<td>Mater. di lavor. pericol. (ferri e chiodi sporgenti)</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_14_1" id="FLG_B_14_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_14_2" id="FLG_B_14_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_14_3" id="FLG_B_14_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_14_4" id="FLG_B_14_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_14_5" id="FLG_B_14_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_14_6" id="FLG_B_14_6"></td>
+														</tr>
+														<tr>
+															<td>Rumore</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_15_1" id="FLG_B_15_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_15_2" id="FLG_B_15_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_15_3" id="FLG_B_15_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_15_4" id="FLG_B_15_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_15_5" id="FLG_B_15_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_15_6" id="FLG_B_15_6"></td>
+														</tr>
+														<tr>
+															<td>Cavi elettrici (elettrocuzione)</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_16_1" id="FLG_B_16_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_16_2" id="FLG_B_16_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_16_3" id="FLG_B_16_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_16_4" id="FLG_B_16_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_16_5" id="FLG_B_16_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_16_6" id="FLG_B_16_6"></td>
+														</tr>
+														<tr>
+															<td>Spazi confinati</td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_17_1" id="FLG_B_17_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_17_2" id="FLG_B_17_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_17_3" id="FLG_B_17_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_17_4" id="FLG_B_17_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_17_5" id="FLG_B_17_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_17_6" id="FLG_B_17_6"></td>
+														</tr>
+														<tr>
+															<td>Altro <input type="text" class="form-control" id="NOTE_B_18" name="NOTE_B_18"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_18_1" id="FLG_B_18_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_18_2" id="FLG_B_18_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_18_3" id="FLG_B_18_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_18_4" id="FLG_B_18_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_18_5" id="FLG_B_18_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_B_18_6" id="FLG_B_18_6"></td>
+														</tr>
+														
+														<tr><td style="border-color:white" colspan="7"></td></tr>
+														<tr><td style="border-color:white" colspan="7"></td></tr>
+														
+														<tr>
+															<td style="border-left-color:white;border-right-color:white;border-top-color:white" colspan="7">
+																<h4><b>C. Azione di coordinamento per eliminare o ridurre i rischi da interferenza tra le diverse imprese</b></h4>
+															</td>
+														</tr>
+														
+													
+														<tr>
+															<td><h4><b>C1. Coordinamento di tipo temporale</b></h4></td>
+															<td class="align-center">Attività 1</td>
+															<td class="align-center">Attività 2</td>
+															<td class="align-center">Attività 3</td>
+															<td class="align-center">Attività 4</td>
+															<td class="align-center">Attività 5</td>
+															<td class="align-center">Attività 6</td>
+														</tr>
+														<tr>
+															<td>Impresa/e lavora per I°</td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_1_1" id="FLG_C1_1_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_1_2" id="FLG_C1_1_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_1_3" id="FLG_C1_1_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_1_4" id="FLG_C1_1_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_1_5" id="FLG_C1_1_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_1_6" id="FLG_C1_1_6"></td>
+														</tr>
+														<tr>
+															<td>Impresa/e lavora per II°</td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_2_1" id="FLG_C1_2_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_2_2" id="FLG_C1_2_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_2_3" id="FLG_C1_2_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_2_4" id="FLG_C1_2_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_2_5" id="FLG_C1_2_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_2_6" id="FLG_C1_2_6"></td>
+														</tr>
+														<tr>
+															<td>Impresa/e lavora per III°</td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_3_1" id="FLG_C1_3_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_3_2" id="FLG_C1_3_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_3_3" id="FLG_C1_3_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_3_4" id="FLG_C1_3_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_3_5" id="FLG_C1_3_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_3_6" id="FLG_C1_3_6"></td>
+														</tr>
+														<tr>
+															<td>Impresa/e lavora per IV°</td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_4_1" id="FLG_C1_4_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_4_2" id="FLG_C1_4_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_4_3" id="FLG_C1_4_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_4_4" id="FLG_C1_4_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_4_5" id="FLG_C1_4_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_4_6" id="FLG_C1_4_6"></td>
+														</tr>
+														<tr>
+															<td>Impresa/e lavora per V°</td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_5_1" id="FLG_C1_5_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_5_2" id="FLG_C1_5_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_5_3" id="FLG_C1_5_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_5_4" id="FLG_C1_5_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_5_5" id="FLG_C1_5_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_5_6" id="FLG_C1_5_6"></td>
+														</tr>
+														<tr>
+															<td>Impresa/e lavora per VI°</td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_6_1" id="FLG_C1_6_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_6_2" id="FLG_C1_6_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_6_3" id="FLG_C1_6_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_6_4" id="FLG_C1_6_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_6_5" id="FLG_C1_6_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C1_6_6" id="FLG_C1_6_6"></td>
+														</tr>
+														<tr>
+															<td>Nota coordinamento temporale</td>
+															<td colspan="6"><input type="text" class="form-control" id="NOTE_C1" name="NOTE_C1"></td>
+														</tr>
+														
+														<tr><td style="border-color:white" colspan="7"></td></tr>
+														<tr><td style="border-left-color:white;border-right-color:white" colspan="7"></td></tr>
+														
+														<tr>
+															<td><h4><b>C2. Coordinamento di tipo spaziale</b></h4></td>
+															<td class="align-center">Attività 1</td>
+															<td class="align-center">Attività 2</td>
+															<td class="align-center">Attività 3</td>
+															<td class="align-center">Attività 4</td>
+															<td class="align-center">Attività 5</td>
+															<td class="align-center">Attività 6</td>
+														</tr>
+														<tr>
+															<td>Delimitazione area <input type="text" class="form-control" id="NOTE_C2_1" name="NOTE_C2_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_1_1" id="FLG_C2_1_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_1_2" id="FLG_C2_1_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_1_3" id="FLG_C2_1_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_1_4" id="FLG_C2_1_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_1_5" id="FLG_C2_1_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_1_6" id="FLG_C2_1_6"></td>
+														</tr>
+														<tr>
+															<td>Recinzione area <input type="text" class="form-control" id="NOTE_C2_2" name="NOTE_C2_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_2_1" id="FLG_C2_2_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_2_2" id="FLG_C2_2_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_2_3" id="FLG_C2_2_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_2_4" id="FLG_C2_2_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_2_5" id="FLG_C2_2_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_2_6" id="FLG_C2_2_6"></td>
+														</tr>
+														<tr>
+															<td>Coperture <input type="text" class="form-control" id="NOTE_C2_3" name="NOTE_C2_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_3_1" id="FLG_C2_3_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_3_2" id="FLG_C2_3_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_3_3" id="FLG_C2_3_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_3_4" id="FLG_C2_3_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_3_5" id="FLG_C2_3_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_3_6" id="FLG_C2_3_6"></td>
+														</tr>
+														<tr>
+															<td>Paratie <input type="text" class="form-control" id="NOTE_C2_4" name="NOTE_C2_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_4_1" id="FLG_C2_4_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_4_2" id="FLG_C2_4_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_4_3" id="FLG_C2_4_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_4_4" id="FLG_C2_4_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_4_5" id="FLG_C2_4_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C2_4_6" id="FLG_C2_4_6"></td>
+														</tr>
+													
+														<tr><td style="border-color:white" colspan="7"></td></tr>
+														<tr><td style="border-left-color:white;border-right-color:white" colspan="7"></td></tr>
+														
+														<tr>
+															<td><h4><b>C3. Coordinamento di tipo organizzativo/procedurale</b></h4></td>
+															<td class="align-center">Attività 1</td>
+															<td class="align-center">Attività 2</td>
+															<td class="align-center">Attività 3</td>
+															<td class="align-center">Attività 4</td>
+															<td class="align-center">Attività 5</td>
+															<td class="align-center">Attività 6</td>
+														</tr>
+														<tr>				
+															<td>Uso alternato del ponteggio</td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_1_1" id="FLG_C3_1_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_1_2" id="FLG_C3_1_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_1_3" id="FLG_C3_1_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_1_4" id="FLG_C3_1_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_1_5" id="FLG_C3_1_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_1_6" id="FLG_C3_1_6"></td>
+														</tr>
+														<tr>
+															<td>Uso di mascherine antipolvere</td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_2_1" id="FLG_C32_2_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_2_2" id="FLG_C32_2_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_2_3" id="FLG_C32_2_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_2_4" id="FLG_C32_2_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_2_5" id="FLG_C32_2_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_2_6" id="FLG_C32_2_6"></td>
+														</tr>
+														<tr>
+															<td>Uso di DPI <input type="text" class="form-control" id="NOTE_C3_3" name="NOTE_C3_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_3_1" id="FLG_C3_3_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_3_2" id="FLG_C3_3_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_3_3" id="FLG_C3_3_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_3_4" id="FLG_C3_3_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_3_5" id="FLG_C3_3_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_3_6" id="FLG_C3_3_6"></td>
+														</tr>
+														<tr>
+															<td>Nota operativa n° <input type="text" class="form-control" id="NOTE_C3_4" name="NOTE_C3_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_4_1" id="FLG_C3_4_1"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_4_2" id="FLG_C3_4_2"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_4_3" id="FLG_C3_4_3"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_4_4" id="FLG_C3_4_4"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_4_5" id="FLG_C3_4_5"></td>
+															<td class="align-center"><input type="checkbox" name="FLG_C3_4_6" id="FLG_C3_4_6"></td>
+														</tr>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+													
+												
+								
+	                                
+	                              
+								
+								</form>
+
+		                        <!--  posizionamento precedente tabella riepilogo -->
+					                        
+	                                                                
+                                </div>
+                            </div>
+                                
+                        </div>
+                    </div>
+                </div>
+            </div>		
+
+			
+			<#if INCLUDED_FOOTER_PDLWEB?exists><#include INCLUDED_FOOTER_PDLWEB></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

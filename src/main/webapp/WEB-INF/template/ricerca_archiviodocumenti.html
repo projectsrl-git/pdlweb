@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DAFNE | Archivio documenti</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="font-awesome/css/font-awesome.css" rel="stylesheet">
+
+    <link href="css/plugins/jasny/jasny-bootstrap.min.css" rel="stylesheet">
+
+    <link href="css/plugins/datapicker/datepicker3.css" rel="stylesheet">
+
+    <link href="css/plugins/daterangepicker/daterangepicker-bs3.css" rel="stylesheet">
+
+    <link href="css/plugins/select2/select2.min.css" rel="stylesheet">
+
+    <link href="css/plugins/touchspin/jquery.bootstrap-touchspin.min.css" rel="stylesheet">
+
+    <link href="css/plugins/jsTree/style.min.css" rel="stylesheet">
+
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link href="css/dafne.css" rel="stylesheet">
+    
+    <script type="text/javascript">
+	
+		$(function(){
+			
+			$("#LISTA_AZIENDE").trigger("loadDataSet",["DataSetAziende","CODICE","RAGSOC","<#if AZIENDA_TENDINA?exists>${AZIENDA_TENDINA}</#if>"]);
+			$("#LISTA_DIPENDENTI").trigger("loadDataSet",["DataSetDipendentiAzienda","ID_DIPENDENTE","NOMINATIVO","<#if DIPENDENTE?exists>${DIPENDENTE}</#if>"]);
+			
+
+			$("#Ricerca").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+			
+				if (!$("#Ricerca").valid()) {
+					return false;
+				}
+				
+				
+				tokenizeOptionSelected("LISTA_AZIENDE","AZIENDA_TENDINA");
+				tokenizeOptionSelected("LISTA_DIPENDENTI","DIPENDENTE");
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+
+			});
+
+		});
+		
+    </script>     
+
+</head>
+
+<body>
+
+    <div id="wrapper">
+
+    <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element"> <span>
+                            <img alt="image" src="img/croda-logo.png" />
+                             </span>
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                            <span class="clear"> <span class="block m-t-xs"> <strong class="font-bold">David Williams</strong>
+                             </span> <span class="text-muted text-xs block">Art Director <b class="caret"></b></span> </span> </a>
+                        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                            <li><a href="profile.html">Profile</a></li>
+                            <li><a href="contacts.html">Contacts</a></li>
+                            <li><a href="mailbox.html">Mailbox</a></li>
+                            <li class="divider"></li>
+                                <li><a href="astro?FUNCTIONID=Logout">Logout</a></li>
+                        </ul>
+                    </div>
+                    <div class="logo-element">
+                        DAFNE
+                    </div>
+                </li>
+                <li>
+                    <a href="index.html"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span> <span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level collapse">
+                        <li><a href="index.html">Dashboard v.1</a></li>
+                        <li><a href="dashboard_2.html">Dashboard v.2</a></li>
+                        <li><a href="dashboard_3.html">Dashboard v.3</a></li>
+                        <li><a href="dashboard_4_1.html">Dashboard v.4</a></li>
+                        <li><a href="dashboard_5.html">Dashboard v.5 <span class="label label-primary pull-right">NEW</span></a></li>
+                    </ul>
+                </li>
+                
+                
+                 <#list voci_menu as elenco2>
+                    <li>
+                        <a href="#">${elenco2.getImmagine()} <span class="nav-label">${elenco2.getCaption()}</span><span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level collapse">
+                        	<#list dett_voci_menu as elenco>
+                        		<#if elenco2.getItemLevel()[0]==elenco.getItemLevel()[0] && elenco.getMenuId()!='HOME'>
+	                            	<li class="<#if PAGE_NAME?upper_case==elenco.getMenuId()>active</#if>"><a href="${elenco.getURL()}">${elenco.getCaption()}</a></li>
+	                            </#if>
+                            </#list>
+                        </ul>
+                     </li>
+                  </#list>
+        </div>
+    </nav>
+
+        <div id="page-wrapper" class="gray-bg">
+        <div class="row border-bottom">
+        <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+        <div class="navbar-header">
+            <a class="navbar-minimalize minimalize-styl-2 btn btn-primary btn-sm " href="#"><i class="fa fa-bars"></i> </a>
+            
+        </div>
+            <ul class="nav navbar-top-links navbar-right">
+                <li>
+                    <span class="m-r-sm text-muted welcome-message">Benvenuto su DAFNE.</span>
+                </li>
+
+                <li>
+                    <a href="astro?FUNCTIONID=Logout">
+                        <i class="fa fa-sign-out"></i> Log out
+                    </a>
+                </li>
+            </ul>
+
+        </nav>
+        </div>
+        	<div class="wrapper wrapper-content animated fadeInRight">
+            	<div class="row">
+            		<div class="col-lg-12">
+
+	                	<div class="ibox float-e-margins">
+		            	    <div class="ibox-title">
+		            	    <h5>
+		            	        <ol class="breadcrumb">
+			                        <li>
+			                            <a href="index.html">Home</a>
+			                        </li>
+			                        <li>
+			                            <a>Archivio</a>
+			                        </li>
+			                        <li class="active">
+			                            <strong>Archivio documenti</strong>
+			                        </li>
+			                    </ol>
+		            	   </h5>
+		            	        <div class="ibox-tools">
+		            	            <a class="collapse-link">
+		            	                <i class="fa fa-chevron-up"></i>
+		            	            </a>
+		            	        </div>
+		            	    </div>
+		            
+		            	    
+			            	<div class="ibox-content">
+			            		<form action="astro" method="post" id="Ricerca">
+			            	    	<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="RicercaArchivioDocumenti" />
+									
+				        	        <div class="row">
+		                	            <div class="col-md-4">
+				        	        		<label class="font-normal">${label_company}</label>
+							                <div class="input-group">
+								                <select id="LISTA_AZIENDE" name="LISTA_AZIENDE" class="form-control" multiple></select>
+							                </div>
+							            </div>
+							             
+							            <div class="col-md-4">
+				        	        		<label class="font-normal">${label_nominative}</label>
+							                <div class="input-group">
+								                <select id="LISTA_DIPENDENTI" name="LISTA_DIPENDENTI" class="form-control" multiple></select>
+							                </div>
+							            </div>				             
+				        	        </div>             <!-- chiude row -->
+				        	        	
+				        	    </form>
+				        	        			        	        
+			        	        <div class="row">
+			        	        	<div class="hr-separator"></div>
+	                	            <div class="form-group">
+	                	                <div class="col-sm-12">
+	                	                <!--<div class="col-sm-12 col-sm-offset-4">--> <!-- per centrare i tasti -->
+	                	                    <button class="btn btn-primary btn-sm" id="cerca" type="submit" name="cerca">Cerca</button>
+	                	                </div>
+	                	            </div>
+			        	        </div>
+			        	        
+		            	    </div>   <!-- chiude box content -->
+	                	</div>       <!-- chiude ibox float-e-margins -->     
+					</div> <!-- chiude col-lg-12 -->
+				</div> <!-- chiude row -->
+            
+                
+            
+                                
+                
+            
+            
+            	<!-- inizia la tabella-->
+            
+            
+            	<div class="row">
+            	    <div class="col-lg-12">
+            	    	<div class="ibox float-e-margins">
+            	    	    <div class="ibox-content">
+            	    	       <div class="ibox-content">
+
+				                    <div id="using_json"></div>
+				
+				                </div>
+            	    	
+            	    	    </div> <!-- chiude ibox-content -->
+            	    	</div>	<!-- ibox float-e-margins -->
+            	    </div>	<!-- chiude col 12 lg -->
+            	</div>	<!-- chiude row -->
+            	
+            	<!-- finisce la tabella -->                    
+                    
+        	</div>	<!-- chiude wrapper wrapper-content animated fadeInRight -->
+        
+        
+        	<div class="footer">
+        	    <div class="pull-right">
+        	        <strong>Dafne Data Flow Network System</strong> powered by Project srl
+        	    </div>
+        	    <div>
+        	        <strong>Copyright</strong> Studio Nebbiolo &copy; 2014-2017
+        	    </div>
+        	</div>
+        	
+        </div>
+	</div>
+
+    <!-- Mainly scripts -->
+    <script src="js/jquery-2.1.1.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    
+    <script src="js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+    <script src="js/plugins/jeditable/jquery.jeditable.js"></script>
+    
+    <!-- Custom and plugin javascript -->
+    <script src="js/inspinia.js"></script>
+    <script src="js/plugins/pace/pace.min.js"></script>
+    <script src="js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+
+    <!-- Input Mask-->
+    <script src="js/plugins/jasny/jasny-bootstrap.min.js"></script>
+
+    <!-- Data picker -->
+    <script src="js/plugins/datapicker/bootstrap-datepicker.js"></script>
+
+    <!-- MENU -->
+    <script src="js/plugins/metisMenu/jquery.metisMenu.js"></script>
+
+    <!-- Select2 -->
+    <script src="js/plugins/select2/select2.full.min.js"></script>
+    
+    <script src="js/plugins/jsTree/jstree.min.js"></script>
+
+
+    
+    <style>
+	    .jstree-open > .jstree-anchor > .fa-folder:before {
+	        content: "\f07c";
+	    }
+	
+	    .jstree-default .jstree-icon.none {
+	        width: 0;
+	    }
+	</style>
+
+	<script>
+	    $(document).ready(function(){
+	
+	        $('#jstree1').jstree({
+	            'core' : {
+	                'check_callback' : true
+	            },
+	            'plugins' : [ 'types', 'dnd' ],
+	            'types' : {
+	                'default' : {
+	                    'icon' : 'fa fa-folder'
+	                },
+	                'html' : {
+	                    'icon' : 'fa fa-file-code-o'
+	                },
+	                'svg' : {
+	                    'icon' : 'fa fa-file-picture-o'
+	                },
+	                'css' : {
+	                    'icon' : 'fa fa-file-code-o'
+	                },
+	                'img' : {
+	                    'icon' : 'fa fa-file-image-o'
+	                },
+	                'js' : {
+	                    'icon' : 'fa fa-file-text-o'
+	                }
+	
+	            }
+	        });
+	
+	        $('#using_json').jstree({
+	            'core' : {
+	            'data' : [
+	                {
+	                    'text': 'Curricula',
+	                    'state': {
+	                        'opened': true
+	                    },
+	                    'children': [
+	                        {
+	                            'text': 'Informativa privacy',
+	                            'children': [
+	                               {
+	                                    'text': 'doc1.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc2.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc3.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc4.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc5.html', 'icon': 'none'
+	                                }
+	                            ],
+	                            'state': {
+	                                'opened': true
+	                            }
+	                        },
+	                        {
+	                            'text': 'Informativa lavoratrici madri',
+	                            'children': [
+	                                {
+	                                    'text': 'doc1.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc2.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc3.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc4.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc5.html', 'icon': 'none'
+	                                }
+	                            ],
+	                            'state': {
+	                                'opened': true
+	                            }
+	                        },
+	                        {
+	                            'text': 'Contratto di lavoro',
+	                            'children': [
+	                                {
+	                                    'text': 'doc1.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc2.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc3.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc4.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc5.html', 'icon': 'none'
+	                                }
+	                            ],
+	                            'state': {
+	                                'opened': true
+	                            }
+	                        }
+	                    ]
+	                },
+	                
+	                
+	                {
+	                    'text': 'Richieste',
+	                    'state': {
+	                        'opened': true
+	                    },
+	                    'children': [
+	                        {
+	                            'text': 'Ferie e permessi',
+	                            'children': [
+	                                {
+	                                    'text': 'doc1.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc2.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc3.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc4.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc5.html', 'icon': 'none'
+	                                }
+	                            ],
+	                            'state': {
+	                                'opened': true
+	                            }
+	                        },
+	                        {
+	                            'text': 'Malattie e infortuni',
+	                            'children': [
+	                                {
+	                                    'text': 'doc1.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc2.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc3.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc4.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc5.html', 'icon': 'none'
+	                                }
+	                            ],
+	                            'state': {
+	                                'opened': true
+	                            }
+	                        },
+	                        {
+	                            'text': 'Trasferte',
+	                            'children': [
+	                                {
+	                                    'text': 'doc1.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc2.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc3.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc4.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc5.html', 'icon': 'none'
+	                                }
+	                            ],
+	                            'state': {
+	                                'opened': true
+	                            }
+	                        },
+	                        {
+	                            'text': 'Rendicontazioni',
+	                            'children': [
+	                                {
+	                                    'text': 'doc1.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc2.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc3.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc4.html', 'icon': 'none'
+	                                },
+	                                {
+	                                    'text': 'doc5.html', 'icon': 'none'
+	                                }
+	                            ],
+	                            'state': {
+	                                'opened': true
+	                            }
+	                        }
+	                    ]
+	                },
+	                
+	                
+	                'Modulistica / vari',
+	            ]
+	        } });
+	
+	    });
+	</script>
+	
+	
+	<script type="text/javascript">
+
+    	$(function(){
+			$('#cerca').click(function() {
+			      $("#Ricerca").submit();
+			});
+		});
+    </script> 
+    
+
+</body>
+
+</html>

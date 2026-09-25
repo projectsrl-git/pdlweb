@@ -1,0 +1,1 @@
+﻿ALTER TABLE PDL ADD column DT_PRIMA_ATTIVAZIONE character (10);

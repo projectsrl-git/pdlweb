@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+	
+		$(function(){
+			
+			<!--
+			$("#OPERATION_TYPE").val("<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>");
+			$("#ID_PRODOTTI_GAS").val("<#if ID_PRODOTTI_GAS?exists>${ID_PRODOTTI_GAS}</#if>");
+			$("#NOME_COMMERCIALE").val("<#if NOME_COMMERCIALE?exists>${NOME_COMMERCIALE}</#if>");
+			-->
+			
+			
+			$("#formInserimento").validate();
+
+			$("#formInserimento").submit(function(event) 
+					
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				document.getElementById("salva").style.display="none";
+				
+				<!--
+				var idRichiesta=$("#ID_PRODOTTI_GAS").val();
+				if (idRichiesta!='') {
+					$("#OPERATION_TYPE").val("UPDATE");
+				} else {
+					$("#OPERATION_TYPE").val("INSERT");
+				}	
+				-->
+				
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					document.getElementById("salva").style.display="block";
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+				});
+				
+				
+			});
+
+		});
+		
+    </script> 
+
+</head>
+
+<body>
+	
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();" data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row wrapper border-bottom page-heading">
+			<div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox float-e-margins">
+						<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+						
+						<!-- inizio contenuto pagina -->
+						
+                        <div class="ibox-content">
+                        
+                            <form action="astro" method="post" id="formInserimento" name="formInserimento" class="form-horizontal">
+			            		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoParametri" />
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE">
+								<input type="hidden" id="ID_PRODOTTI_GAS" name="ID_PRODOTTI_GAS">
+																
+                                <div class="form-group">
+                                	<label class="col-sm-2">Codice</label>
+                                    <div class="col-sm-1">
+                                    <input type="text" class="form-control" required id="CODICE" name="CODICE">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2">${label_lingua}</label>
+                                    <div class="col-sm-10">
+                                    <input type="text" class="form-control" required id="LINGUA" name="LINGUA">
+                                    </div>
+                                </div>
+                                
+                                <div class="hr-line-dashed"></div>                                
+
+                                <div class="form-group">
+                                    <div class="col-sm-4">
+                                        <button class="btn btn-white btn-sm" type="reset">${label_cancel}</button>
+										<button class="btn btn-primary btn-sm" id="salva" type="submit" name="salva">${label_save}</button>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                        </div>
+                        
+						<!-- inizio contenuto pagina -->
+                        
+                    </div>
+                </div>
+            </div>		
+
+            </div>
+            
+			
+			<#if INCLUDED_FOOTER?exists><#include INCLUDED_FOOTER></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

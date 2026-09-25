@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	<#if INCLUDED_HEAD_INSERT_FORM?exists><#include INCLUDED_HEAD_INSERT_FORM></#if>
+		
+    <script type="text/javascript">
+	
+		$(function(){
+
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiPDL","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO","<#if ID_IMPIANTO?exists>${ID_IMPIANTO}</#if>"," WHERE 1=1 "]);
+			$("#ID_AREA_COLLEGATA_TUTTO_IMPIANTO").trigger("loadDataSet",["DSAreaLavoro","ID_AREA","DESCR_AREA","<#if ID_AREA_COLLEGATA_TUTTO_IMPIANTO?exists>${ID_AREA_COLLEGATA_TUTTO_IMPIANTO}</#if>"," <#if ID_IMPIANTO?exists>WHERE ID_IMPIANTO=${ID_IMPIANTO}<#else>WHERE 1=0</#if> "]);
+
+			$("#ID_AREA").val("<#if ID_AREA?exists>${ID_AREA}</#if>");
+			$("#DESCR_AREA").val("<#if DESCR_AREA?exists>${DESCR_AREA}</#if>");
+			
+			$("#RECT_X").val("<#if RECT_X?exists>${RECT_X}</#if>");
+			$("#RECT_Y").val("<#if RECT_Y?exists>${RECT_Y}</#if>");
+			$("#RECT_W").val("<#if RECT_W?exists>${RECT_W}</#if>");
+			$("#RECT_H").val("<#if RECT_H?exists>${RECT_H}</#if>");
+			$("#TESTO_X").val("<#if TESTO_X?exists>${TESTO_X}</#if>");
+			$("#TESTO_Y").val("<#if TESTO_Y?exists>${TESTO_Y}</#if>");
+			$("#A_CAPO").val("<#if A_CAPO?exists>${A_CAPO}</#if>");
+			
+			$("#RECT_X_STAMPA").val("<#if RECT_X_STAMPA?exists>${RECT_X_STAMPA}</#if>");
+			$("#RECT_Y_STAMPA").val("<#if RECT_Y_STAMPA?exists>${RECT_Y_STAMPA}</#if>");
+			$("#RECT_W_STAMPA").val("<#if RECT_W_STAMPA?exists>${RECT_W_STAMPA}</#if>");
+			$("#RECT_H_STAMPA").val("<#if RECT_H_STAMPA?exists>${RECT_H_STAMPA}</#if>");
+			$("#TESTO_X_STAMPA").val("<#if TESTO_X_STAMPA?exists>${TESTO_X_STAMPA}</#if>");
+			$("#TESTO_Y_STAMPA").val("<#if TESTO_Y_STAMPA?exists>${TESTO_Y_STAMPA}</#if>");
+			$("#A_CAPO_STAMPA").val("<#if A_CAPO_STAMPA?exists>${A_CAPO_STAMPA}</#if>");
+			
+			
+			$('#FL_TUTTO_IMPIANTO').prop('checked','<#if FL_TUTTO_IMPIANTO?exists && FL_TUTTO_IMPIANTO!=''>${FL_TUTTO_IMPIANTO}<#else>false</#if>'==='true');
+			$('#AREA_SIMULABILE_TUTTO_IMPIANTO').prop('checked','<#if AREA_SIMULABILE_TUTTO_IMPIANTO?exists && AREA_SIMULABILE_TUTTO_IMPIANTO!=''>${AREA_SIMULABILE_TUTTO_IMPIANTO}<#else>false</#if>'==='true');
+			
+			var flagDisattivato="<#if FL_DISATTIVO?exists>${FL_DISATTIVO}</#if>";
+			$('#CHECK_DISATTIVATO').prop('checked',flagDisattivato==="true");
+			
+			$("#ID_AZIENDA").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				$("#ID_IMPIANTO").empty();
+				$("#ID_IMPIANTO").select2("destroy");
+				$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO",""," WHERE ID_AZIENDA="+id+" "]);
+				
+			});		    
+
+
+			$("#ID_IMPIANTO").on("select2:selecting", function(e) { 
+				var id= e.params.args.data.id;
+				if(id=='' || id==null){
+					id='0';
+				}
+				$("#ID_AREA_COLLEGATA_TUTTO_IMPIANTO").empty();
+				$("#ID_AREA_COLLEGATA_TUTTO_IMPIANTO").select2("destroy");
+				$("#ID_AREA_COLLEGATA_TUTTO_IMPIANTO").trigger("loadDataSet",["DSAreaLavoro","ID_AREA","DESCR_AREA","<#if ID_AREA_COLLEGATA_TUTTO_IMPIANTO?exists>${ID_AREA_COLLEGATA_TUTTO_IMPIANTO}</#if>"," WHERE ID_IMPIANTO="+id+" "]);
+
+			});	
+			
+			
+			if ($("#OPERATION_TYPE").val()=="UPDATE"){
+				$('#modalDisclaimer').collapse("hide");
+			}else{
+				$("#modalDisclaimer").modal({backdrop: 'static'});
+				$('#modalDisclaimer').collapse("show");
+			}
+			
+			
+			$("#formInserimento").validate();
+
+			$("#formInserimento").submit(function(event) {
+				/* stop form from submitting normally */
+				event.preventDefault();			
+
+				if (!$("#formInserimento").valid()) {
+					return false;
+				}
+				
+				document.getElementById("salva").style.display="none";
+				
+				/* Send the data using post */
+				$("#FL_DISATTIVO").val($("#CHECK_DISATTIVATO").is(':checked'));
+				
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					document.getElementById("salva").style.display="block";
+					var result = eval('('+response+')');
+					$( ".alert-success" ).text( result.message ).fadeIn( "slow").delay( 1500 ).fadeOut("slow" );
+					var now = new Date();
+					$("#IMG_IMPIANTO").attr("src", result.fileNamePlanimetria+"?"+now.getTime());
+					$("#ID_AREA").val(result.idRow);
+					$("#OPERATION_TYPE").val("UPDATE");
+				});
+				
+				
+
+			});
+
+		});
+		
+    </script> 
+
+</head>
+
+<body>
+<div class="modal inmodal fade" id="modalDisclaimer"	tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title">ATTENZIONE</span>
+				</div>
+				<div class="modal-body">
+				
+				<p>
+					Per gestire dinamicamente la nuova AREA che si sta per creare, è necessario che venga riportata sulla <b>Planimetria di Sito relativa alla verifica eventuali interferenze</b>.
+					<br><br>
+                	In caso contrario l'area NON potrà essere gestita. 
+                	<br><br>
+                	Dopo aver emesso la Planimetria Interferenze con la nuova area, contattare il supporto tecnico PdLWEB per l'aggiornamento della Planimetria all'interno del Tool di gestione.
+				</p>
+					
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-primary btn-sm" onclick="$('#modalSelectWorkshift').collapse('toggle');" data-dismiss="modal" type="submit">Continua</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+
+			<div class="row wrapper border-bottom page-heading">
+                <div class="col-sm-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- titolo form-->
+						<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+
+							<form action="astro" class="form-horizontal" method="post" id="formInserimento" name="formInserimento">
+								
+								<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="InserimentoAreaLavoro">
+								<input type="hidden" id="OPERATION_TYPE" name="OPERATION_TYPE" value="<#if OPERATION_TYPE?exists>${OPERATION_TYPE}</#if>">
+								<input type="hidden" id="ID_AREA" name="ID_AREA">
+								<input type="hidden" id="FL_DISATTIVO" name="FL_DISATTIVO">
+								
+								
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">${label_sito}</label>
+                                    <div class="col-sm-10">
+	                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control" required>
+	                                    </select>
+									</div>
+                                </div>
+									
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Impianto:</label>
+                                    <div class="col-sm-10">
+	                                    <select id="ID_IMPIANTO" name="ID_IMPIANTO"  class="form-control" required>
+	                                    </select>
+									</div>
+                                </div>
+									
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Area di lavoro:</label>
+                                    <div class="col-sm-10"><input type="text" class="form-control" name="DESCR_AREA" id="DESCR_AREA" required></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Tutto l'impianto:</label>
+                                    <div class="col-sm-10"><input type="checkbox" name="FL_TUTTO_IMPIANTO" id="FL_TUTTO_IMPIANTO"></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Segnalazione interferenza se vi è interferenza su area impostata come "Tutto l'impianto":</label>
+                                    <div class="col-sm-10"><input type="checkbox" name="AREA_SIMULABILE_TUTTO_IMPIANTO" id="AREA_SIMULABILE_TUTTO_IMPIANTO"></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                	<label class="col-sm-2 control-label-left">Area "Tutto l'impianto" associata (solo su impianti suddivisi in reparti):</label>
+                                    <div class="col-sm-10">
+	                                    <select id="ID_AREA_COLLEGATA_TUTTO_IMPIANTO" name="ID_AREA_COLLEGATA_TUTTO_IMPIANTO"  class="form-control">
+	                                    </select>
+									</div>
+                                </div>
+                                
+                                 <div class="form-group"><label class="col-sm-2 control-label-left">${label_utente_disattivato}</label>
+                                    <div class="col-sm-10">
+                                        <div class="i-checks"><label> <input name="CHECK_DISATTIVATO" id="CHECK_DISATTIVATO" type="checkbox" value=""><i></i></label></div>
+                                    </div>
+                                </div>
+                                
+                                
+                                
+                                <#if PROFILO?contains('ADM') || PROFILO?contains('PLA')>
+	                                <div class="col-lg-3">
+	                                	<div class="row">
+	                                		<div class="form-group">
+			                                	<label class="col-sm-8 control-label-left">Coordinate area mappa X:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="RECT_X" id="RECT_X"></div>
+			                                </div>
+			                            </div>
+			                            <div class="row">
+	                                		<div class="form-group">
+			                                    <label class="col-sm-8 control-label-left">Coordinate area mappa Y:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="RECT_Y" id="RECT_Y"></div>
+		                                    </div>
+			                            </div>
+			                            <div class="row">
+	                                		<div class="form-group">
+			                                    <label class="col-sm-8 control-label-left">Coordinate area mappa W:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="RECT_W" id="RECT_W"></div>
+		                                    </div>
+			                            </div>
+			                            <div class="row">
+	                                		<div class="form-group">
+			                                    <label class="col-sm-8 control-label-left">Coordinate area mappa H:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="RECT_H" id="RECT_H"></div>
+		                                    </div>
+			                            </div>
+		                                
+		                                <div class="row">
+	                                		<div class="form-group">    
+			                                    <label class="col-sm-8 control-label-left">Coordinate testo mappa X:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="TESTO_X" id="TESTO_X"></div>
+		                                    </div>
+			                            </div>
+			                            <div class="row">
+	                                		<div class="form-group">
+			                                    <label class="col-sm-8 control-label-left">Coordinate testo mappa Y:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="TESTO_Y" id="TESTO_Y"></div>
+		                                    </div>
+			                            </div>
+			                            <div class="row">
+	                                		<div class="form-group">
+			                                    <label class="col-sm-8 control-label-left">Ritorno a capo testo mappa:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="A_CAPO" id="A_CAPO"></div>
+		                                    </div>
+			                            </div>
+			                            
+			                            <div class="row">
+			                            	<div class="form-group">
+			                                    <label class="col-sm-8 control-label-left">Stampa/PDF</label>
+		                                    </div>
+			                            </div>
+	                                
+	                                	<div class="row">
+	                                		<div class="form-group">
+			                                	<label class="col-sm-8 control-label-left">Coordinate area mappa X:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="RECT_X_STAMPA" id="RECT_X_STAMPA"></div>
+			                                </div>
+			                            </div>
+			                            <div class="row">
+	                                		<div class="form-group">
+			                                    <label class="col-sm-8 control-label-left">Coordinate area mappa Y:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="RECT_Y_STAMPA" id="RECT_Y_STAMPA"></div>
+		                                    </div>
+			                            </div>
+			                            <div class="row">
+	                                		<div class="form-group">
+			                                    <label class="col-sm-8 control-label-left">Coordinate area mappa W:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="RECT_W_STAMPA" id="RECT_W_STAMPA"></div>
+		                                    </div>
+			                            </div>
+			                            <div class="row">
+	                                		<div class="form-group">
+			                                    <label class="col-sm-8 control-label-left">Coordinate area mappa H:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="RECT_H_STAMPA" id="RECT_H_STAMPA"></div>
+		                                    </div>
+			                            </div>
+		                                
+		                                <div class="row">
+	                                		<div class="form-group">    
+			                                    <label class="col-sm-8 control-label-left">Coordinate testo mappa X:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="TESTO_X_STAMPA" id="TESTO_X_STAMPA"></div>
+		                                    </div>
+			                            </div>
+			                            <div class="row">
+	                                		<div class="form-group">
+			                                    <label class="col-sm-8 control-label-left">Coordinate testo mappa Y:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="TESTO_Y_STAMPA" id="TESTO_Y_STAMPA"></div>
+		                                    </div>
+			                            </div>
+			                            <div class="row">
+	                                		<div class="form-group">
+			                                    <label class="col-sm-8 control-label-left">Ritorno a capo testo mappa:</label>
+			                                    <div class="col-sm-4"><input type="number" class="form-control" name="A_CAPO_STAMPA" id="A_CAPO_STAMPA"></div>
+		                                    </div>
+			                            </div>
+	                                </div>    
+                                </#if>
+                                
+                                <div class="col-lg-9">
+	                                <div class="ibox-content">
+                                		<img id="IMG_IMPIANTO" class="img-responsive">
+				                    </div>
+			                    </div>
+                                
+                                <div class="form-group">
+                                    <div class="col-sm-12 ">
+                                        <button class="btn btn-primary btn-sm" id="salva" type="submit">${label_save}</button>
+                                    </div>
+                                </div>
+								
+                            </form>
+
+                        </div>
+						
+                    </div>
+                </div>
+            </div>
+			
+			<#if INCLUDED_FOOTER_PDLWEB?exists><#include INCLUDED_FOOTER_PDLWEB></#if>
+		
+		</div>
+
+	</div>
+	
+		
+
+</body>
+
+</html>

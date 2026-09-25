@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<#if INCLUDED_HEAD?exists><#include INCLUDED_HEAD></#if>
+	
+    <script type="text/javascript">
+
+		var flagRicerca=false;
+	
+    	var dtAjax="astro?FUNCTIONID=AJAXArray&dataset=DSPDL&columns=ID_PDL,ID_PDL,ID_PDL,ID_PDL,ID_PDL,DESCR_STATO,NR_PDL,DT_PDL,FLG_TA,DT_CHIUSURA,UTENTE_CHIUSURA,DESCR_IMPIANTO,DESCR_AREA,DESCR_EQUIPMENT,DESCRIZIONE_LAVORO,RESPONSABILE_CENTRALE_DELEGATO,IMPRESA_TESTO,NOME_COGNOME_PREPOSTO_IMPRESA,FLG_PERSONALE_INTERNO,NOME_COGNOME_DELEGATO_LAVORI_AL,UTENTE_PRIMA_ATTIVAZIONE,DT_PRIMA_ATTIVAZIONE,UTENTE_ULTIMA_ATTIVAZIONE,DATA_ULTIMA_ATTIVAZIONE,ORA_UTLIMA_ATTIVAZIONE,CODICE_TURNO_ATTIVAZIONE,MESSA_IN_SICUREZZA_ELETTRICA_TESTO,FLG_MESSA_IN_SICUREZZA_ELETTRICA,LOTO_TESTO,FLG_LOTO,PERMESSO_ELETTRICO_TESTO,FLG_PERMESSO_ELETTRICO,STATO,DT_SOSPENSIONE,MOTIVO_SOSPENSIONE,MOTIVO_SCADENZA,ODL&JOLLY_CHAR=*&WHERECONDITION=";
+		var dtWhereCondition=" AND STATO = 'OPE' AND FLG_TA=false ";
+		
+		$(function(){
+			
+			$("#STATO").trigger("loadDataSet",["DSParametri","CODICE","DESCRIZIONE","OPE"," WHERE DOMINIO='SPL' "]);
+			$("#ANNO").trigger("loadDataSet",["OpzioneAnno","CODICE","DESCR","",""]);
+			$("#ID_AZIENDA").trigger("loadDataSet",["DSSitiPDL","ID_AZIENDA","RAGSOC","<#if ID_AZIENDA?exists>${ID_AZIENDA}</#if>"," WHERE 1=1 "]);
+			$("#ID_IMPIANTO").trigger("loadDataSet",["DSImpianti","ID_IMPIANTO","DESCR_IMPIANTO","<#if ID_IMPIANTO?exists>${ID_IMPIANTO}</#if>"," WHERE 1=1 "]);
+			$("#ID_AREA").trigger("loadDataSet",["DSAreaLavoro","ID_AREA","DESCR_AREA","<#if ID_AREA?exists>${ID_AREA}</#if>"," WHERE 1=1 "]);
+			$("#ID_EQUIPMENT").trigger("loadDataSet",["DSEquipment","ID_EQUIPMENT","DESCR_EQUIPMENT","<#if ID_EQUIPMENT?exists>${ID_EQUIPMENT}</#if>"," WHERE 1=1 "]);
+			
+			
+			$("#STATO").change(function(){
+				var allOption=0;
+				$("#STATO > option").each(function() {
+					allOption=allOption+1;
+				});
+				selectedValue=$(this).val();
+			    if (allOption!=selectedValue.length){
+			    	$("#CHECKBOX_STATO").prop('checked',false);
+			    }else{
+			    	$("#CHECKBOX_STATO").prop('checked',true);
+			    }
+			});
+			
+	        $("#CHECKBOX_STATO").click(function(){
+	            if($("#CHECKBOX_STATO").is(':checked') ){
+	                $("#STATO > option").prop("selected","selected");
+	                $("#STATO").trigger("change");
+	            }else{
+	                $("#STATO > option").removeAttr("selected");
+	                 $("#STATO").trigger("change");
+	             }
+	        });
+			
+			
+			
+	        $('#dt').DataTable({
+				ajax: dtAjax+dtWhereCondition,
+				pageLength:25,
+				columnDefs: [
+					{
+						width:"1%",
+						targets:0,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="editRow" title="Visualizza"><i class="fa fa-search fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						targets:1,
+						orderable: false,
+						data:null,
+		            	render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data[4]==='Scaduto') {
+									data = '';
+								} else {
+									data = '<a href="#" class="activateRow" title="Attiva PdL"><i class="fa fa-play fa-color-auto" aria-hidden="true"></i></a>';
+								}
+							}
+
+							return data;
+						}
+			            
+					},
+					{
+						width:"1%",
+						targets:2,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="suspendRow" title="Sospendi PdL"><i class="fa fa-pause fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						targets:3,
+						orderable: false,
+						data:null,
+			            defaultContent: '<a href="#" class="closeRow" title="Chiudi PdL"><i class="fa fa-stop fa-color-auto" aria-hidden="true"></i></a>'
+					},
+					{
+						width:"1%",
+						visible: <#if PROFILO?contains('PLA') || PROFILO?contains('RCD') || PROFILO?contains('ADM') || PROFILO?contains('INT') || PROFILO?contains('SPL')>true<#else>false</#if>,
+						targets:4,
+						orderable: false,
+						data:null,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data[30]=="CLO" || data[9]=="ACT") {
+									data = '<a href="#" class="openRow" title="Ri-Apri PdL"><i class="fa fa-repeat fa-color-auto" aria-hidden="true"></i></a>';
+								} else {
+									data = '';
+								}
+							}
+
+							return data;
+						}							
+					},
+					{
+						targets:8,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data=="false") {
+									data = '';
+								} else {
+									data = '<i class="fa fa-check" aria-hidden="true"></i>';
+								}
+							}
+
+							return data;
+						}	
+					},					
+					{
+						targets:18,
+						render: function ( data, type, row, meta ) {
+							if(type === 'display' ) {
+								if (data=="false") {
+									data = '';
+								} else {
+									data = '<i class="fa fa-check" aria-hidden="true"></i>';
+								}
+							}
+
+							return data;
+						}	
+					},
+					{
+						targets:19,
+						visible: <#if PROFILO?contains('PLA') || PROFILO?contains('SPL') || PROFILO?contains('ADM')>true<#else>false</#if>
+					},
+					{
+						targets:20,
+						visible: <#if PROFILO?contains('PLA') || PROFILO?contains('SPL') || PROFILO?contains('ADM')>true<#else>false</#if>
+					},
+					{
+						targets:21,
+						visible: <#if PROFILO?contains('PLA') || PROFILO?contains('SPL') || PROFILO?contains('ADM')>true<#else>false</#if>
+					},
+					{
+						targets:22,
+						visible: <#if PROFILO?contains('PLA') || PROFILO?contains('SPL') || PROFILO?contains('ADM')>true<#else>false</#if>
+					},
+					{
+						targets:23,
+						visible: <#if PROFILO?contains('PLA') || PROFILO?contains('SPL') || PROFILO?contains('ADM')>true<#else>false</#if>
+					},
+					{
+						targets:24,
+						visible: <#if PROFILO?contains('PLA') || PROFILO?contains('SPL') || PROFILO?contains('ADM')>true<#else>false</#if>
+					},
+					{
+						targets:25,
+						visible: <#if PROFILO?contains('PLA') || PROFILO?contains('SPL') || PROFILO?contains('ADM')>true<#else>false</#if>
+					}
+
+				],
+				
+                dom: '<"html5buttons"B>lTfgitp',
+                language: {
+			        url: 'locales/${CURRENT_SELECTED_ISO_LANGUAGE}.json'
+			    },
+    
+                buttons: [
+                    {extend: 'csv'},
+                    {extend: 'excel', title: $(document).find("title").text()},
+                    {extend: 'pdf', name: 'pdf', title:"REPORT ", orientation: 'landscape'},
+                    {extend: 'print',
+                     customize: function (win){
+                            $(win.document.body).addClass('white-bg');
+                            $(win.document.body).css('font-size', '10px');
+
+                            $(win.document.body).find('table')
+                                    .addClass('compact')
+                                    .css('font-size', 'inherit');
+                    }
+                    }
+                ],
+                "drawCallback": function( settings ) {
+                	$(".dataTables_filter").hide();    
+                	$(".html5buttons").hide();  
+                	
+                	var dataCount=$('#dt').DataTable().column( 0 ).data().length;
+    	    		if(dataCount==0 && flagRicerca) {
+    					$('.modal-title').html('Attenzione!');
+    					$('.modal-text').html('Nessun risultato ottenuto: controllare i filtri impostati per la ricerca...');
+    					$("#modalAlert").modal({backdrop: true});
+    					$('#modalAlert').collapse("show");	    			
+    	    		}
+                	
+                },                
+				aaSorting: []
+
+            });
+
+
+        	$('#free-text-search').keyup(function(){
+	        	$('#dt').DataTable().search($(this).val()).draw() ;
+	        })	        
+		
+			$("#formDelete").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});					
+			
+			$("#formSearch").validate();
+			
+			$("#formSearch").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();			
+	
+				if (!$("#formSearch").valid()) {
+					return false;
+				}		
+
+				flagRicerca=true;
+
+				dtWhereCondition="";
+				
+	    		var anno=$("#ANNO").val();
+	    		if (anno != "") {
+	    			dtWhereCondition+=" AND SUBSTRING(DT_PDL,1,4) = '"+anno+"' ";
+	    		}
+	    		
+	    		var stato=tokenizeInConditionFromOptionSelected("STATO","'");
+	    		if (stato != "") {
+	    			dtWhereCondition+=" AND STATO IN ("+stato+") ";
+	    		}
+	    		
+	    		var nrPdl=$("#NR_PDL").val();
+	    		if (nrPdl != "") {
+	    			dtWhereCondition+=" AND NR_PDL LIKE '"+nrPdl+"*' ";
+	    		}
+	    		
+	    		var flagTA=$("#FLG_TA").is(':checked');
+	    		if (flagTA == false) {
+	    			dtWhereCondition+=" AND FLG_TA = false ";
+	    		}
+	    		
+	    		
+	    		var idAzienda=$("#ID_AZIENDA").val();
+	    		if (idAzienda != null && idAzienda != "") {
+	    			dtWhereCondition+=" AND ID_AZIENDA = "+idAzienda+" ";
+	    			data = $('#ID_AZIENDA').select2('data');
+	    			filtriStampa+=" - Sito: "+data[0].text;
+	    		}
+	    		
+	    		var idImpianto=$("#ID_IMPIANTO").val();
+	    		if (idImpianto != null && idImpianto != "") {
+	    			dtWhereCondition+=" AND ID_IMPIANTO = "+idImpianto+" ";
+	    			data = $('#ID_IMPIANTO').select2('data');
+	    			filtriStampa+=" - Impianto: "+data[0].text;
+	    		}
+
+	    		var idArea=$("#ID_AREA").val();
+	    		if (idArea!=null && idArea != "") {
+	    			dtWhereCondition+=" AND ID_AREA = "+idArea+" ";
+	    			data = $('#ID_AREA').select2('data');
+	    			filtriStampa+=" - Area: "+data[0].text;
+	    		}
+
+	    		var idEquipment=$("#ID_EQUIPMENT").val();
+	    		if (idEquipment !=null && idEquipment != "") {
+	    			dtWhereCondition+=" AND ID_EQUIPMENT = "+idEquipment+" ";
+	    			data = $('#ID_EQUIPMENT').select2('data');
+	    			filtriStampa+=" - Equipment: "+data[0].text;
+	    		}
+	    		
+	    		
+	    		
+	    		$( "#dt" ).DataTable().ajax.url( dtAjax+dtWhereCondition ).load();
+				
+			});			
+			
+	        $('#dt tbody').on( 'click', '.editRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_PDL').val(data[0]);
+				$('#FUNCTIONID_EDIT').val("InserimentoPDL");
+				$("#forEdit").submit();
+	        } );
+	        
+	        
+	        $('#dt tbody').on( 'click', '.deleteRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#keyField').val("ID_PDL");
+				$('#keyValue').val(data[0]);
+				$('#FUNCTIONID_DELETE').val("InserimentoPDL");
+				$('.modal-title').html('${label_delete_title_message}');
+				$('.modal-text').html('${label_delete_text_message}');
+				$("#modalQuestionDialog").modal({backdrop: true});
+				$('#modalQuestionDialog').collapse("show");
+	        } );	
+	        
+	        $('#dt tbody').on( 'click', '.openRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_PDL_AVANZAMENTO').val(data[1]);
+				$('#STATO_AVANZAMENTO').val("OPE");
+				$('.modal-title').html('Attivazione PdL');
+				$('.modal-text').html('Confermi la ri-apertura del permesso selezionato?');
+				$("#modalQuestionDialogAvanzamento").modal({backdrop: true});
+				$('#modalQuestionDialogAvanzamento').collapse("show");
+	        } );	 
+	        
+	    	
+	    	$( "#report" ).click(function() {
+		        $("#WHERECONDITION").val(dtWhereCondition);				
+				$('.modal-title').html('Stampa Registro');
+				$('.modal-text').html('Confermi la stampa PDF del Registro Giornaliero Lavori?');
+				$("#modalQuestionDialogPrint").modal({backdrop: true});
+				$('#modalQuestionDialogPrint').collapse("show");
+	    	});
+	    	
+	    	
+	        $('#dt tbody').on( 'click', '.activateRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_PDL_AVANZAMENTO').val(data[0]);
+				$('#DESCR_IMPIANTO_AVANZAMENTO').val(data[11]);
+				$('#DESCR_AREA_AVANZAMENTO').val(data[12]);
+				$('#STATO_AVANZAMENTO').val("ACT");
+				$('.modal-title').html('Attivazione PdL');
+				$('.modal-text').html('Confermi l\'attivazione del permesso selezionato?');
+				$("#modalQuestionDialogAvanzamento").modal({backdrop: true});
+				$('#modalQuestionDialogAvanzamento').collapse("show");
+	        } );
+	        
+	        
+	        $('#dt tbody').on( 'click', '.suspendRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_PDL_AVANZAMENTO').val(data[0]);
+				$('#STATO_AVANZAMENTO').val("SUS");
+				$('.modal-title').html('Sospensione PdL');
+				$('.modal-text').html('Motivo della sospensione<br/><textarea class="form-control" id="DESCRIZIONE_DELLA_SOSPENSIONE" name="DESCRIZIONE_DELLA_SOSPENSIONE" rows="3"></textarea><br/>Confermi la sospensione del permesso selezionato?');
+				$("#modalQuestionDialogAvanzamento").modal({backdrop: true});
+				$('#modalQuestionDialogAvanzamento').collapse("show");
+	        } );
+	        
+	        
+	        
+	        $('#dt tbody').on( 'click', '.closeRow', function () {
+	        	var table = $('#dt').DataTable();
+	            var data = table.row( $(this).parents('tr') ).data();
+				$('#ID_PDL_AVANZAMENTO').val(data[0]);
+				$('#STATO_AVANZAMENTO').val("CLO");
+				$('.modal-title').html('Chiusura PdL');
+				if (data[24]!='' || data[25]=='true' || data[26]!='' || data[27]=='true' || data[28]!='' || data[29]=='true'){
+					if (data[24]!='' || data[25]=='true'){
+						$('.modal-text').html('Attenzione, al PdL che si sta chiudendo &egrave; associata una Messa in Sicurezza Elettrica DMCE (LI-MOD 26).</br>Confermi la chiusura del permesso selezionato?');
+					}
+					if (data[26]!='' || data[27]=='true'){
+						$('.modal-text').html('Attenzione, al PdL che si sta chiudendo &egrave; associato una Messa in Sicurezza LOTO (LI-MOD 71).</br>Confermi la chiusura del permesso selezionato?');
+					}
+					if (data[28]!='' || data[29]=='true'){
+						$('.modal-text').html('Attenzione, al PdL che si sta chiudendo &egrave; associato un Permesso di Lavoro Elettrico (LI-MOD 120).</br>Confermi la chiusura del permesso selezionato?');
+					}
+					
+					if ((data[24]!='' || data[25]=='true') && (data[26]!='' || data[27]=='true')){
+						$('.modal-text').html('Attenzione, al PdL che si sta chiudendo &egrave; associata una Messa in Sicurezza Elettrica DMCE (LI-MOD 26) ed una Messa in Sicurezza LOTO (LI-MOD 71).</br>Confermi la chiusura del permesso selezionato?');
+					}
+					if ((data[24]!='' || data[25]=='true') && (data[26]!='' || data[27]=='true')){
+						$('.modal-text').html('Attenzione, al PdL che si sta chiudendo &egrave; associata una Messa in Sicurezza Elettrica DMCE (LI-MOD 26) ed un Permesso di Lavoro Elettrico (LI-MOD 120).</br>Confermi la chiusura del permesso selezionato?');
+					}
+					if ((data[26]!='' || data[27]=='true') && (data[28]!='' || data[29]=='true')){
+						$('.modal-text').html('Attenzione, al PdL che si sta chiudendo &egrave; associata una Messa in Sicurezza LOTO (LI-MOD 71) ed un Permesso di Lavoro Elettrico (LI-MOD 120).</br>Confermi la chiusura del permesso selezionato?');
+					}
+					
+					if ((data[24]!='' || data[25]=='true') && (data[26]!='' || data[27]=='true')  && (data[28]!='' || data[29]=='true') ){
+						$('.modal-text').html('Attenzione, al PdL che si sta chiudendo &egrave; associata una Messa in Sicurezza Elettrica DMCE (LI-MOD 26) ed una Messa in Sicurezza LOTO (LI-MOD 71) ed un Permesso di Lavoro Elettrico (LI-MOD 120).</br>Confermi la chiusura del permesso selezionato?');
+					}
+					
+	            }else{
+	            	$('.modal-text').html('Confermi la chiusura del permesso selezionato?');
+	            }
+				$("#modalQuestionDialogAvanzamento").modal({backdrop: true});
+				$('#modalQuestionDialogAvanzamento').collapse("show");
+	        } );	        
+	        
+			$("#formAvanza").submit(function(event) {
+				
+				/* stop form from submitting normally */
+				event.preventDefault();
+				
+				
+		        var idPDL=$("#ID_PDL_AVANZAMENTO").val();
+		        var stato=$("#STATO_AVANZAMENTO").val();
+		        var dataAvanzamento=$('#DATA_AVANZAMENTO').val();
+		        var descrizioneSospensione=$('#DESCRIZIONE_DELLA_SOSPENSIONE').val();
+		        var idUtenteSessione=<#if ID_UTENTE?exists>${ID_UTENTE}<#else>0</#if>;
+		        var dataOraFineTurnoAttivazione="<#if DATA_FINE_TURNO?exists>${DATA_FINE_TURNO}</#if><#if ORA_FINE_TURNO?exists>${ORA_FINE_TURNO}</#if>";
+		        
+		        var codiceTurno="<#if CODICE_TURNO?exists>${CODICE_TURNO}</#if>";
+		        		
+		        if (stato=="ACT") {
+					$("#SQL_STATEMENT").val("update PDL set STATO='"+stato+"',DT_PRIMA_ATTIVAZIONE= CASE WHEN DT_PRIMA_ATTIVAZIONE IS NULL OR DT_PRIMA_ATTIVAZIONE='' THEN '"+dataAvanzamento+"' ELSE DT_PRIMA_ATTIVAZIONE END ,DT_ATTIVAZIONE='"+dataAvanzamento+"', ID_UTENTE_PRIMA_ATTIVAZIONE=CASE WHEN DT_PRIMA_ATTIVAZIONE IS NULL OR DT_PRIMA_ATTIVAZIONE='' THEN '"+idUtenteSessione+"' ELSE	ID_UTENTE_PRIMA_ATTIVAZIONE end,TS_ATTIVAZIONE = CURRENT_TIMESTAMP, ID_UTENTE_ATTIVAZIONE="+idUtenteSessione+", CODICE_TURNO_ATTIVAZIONE='"+codiceTurno+"', TS_FINE_TURNO_ATTIVAZIONE=to_timestamp('"+dataOraFineTurnoAttivazione+"', 'yyyy/mm/ddHH24:MI') where ID_PDL="+idPDL+" ");
+				} else if (stato=="SUS") {
+					$("#SQL_STATEMENT").val("update PDL set STATO='"+stato+"',DT_SOSPENSIONE='"+dataAvanzamento+"',DESCRIZIONE_DELLA_SOSPENSIONE='"+descrizioneSospensione+"' where ID_PDL="+idPDL+" ");
+				} else if (stato=="CLO") {
+					$("#SQL_STATEMENT").val("update PDL set STATO='"+stato+"',DT_CHIUSURA='"+dataAvanzamento+"', ID_UTENTE_CHIUSURA="+idUtenteSessione+" where ID_PDL="+idPDL+" ");
+				} else if (stato=="OPE") {
+					$("#SQL_STATEMENT").val("update PDL set STATO='"+stato+"',dt_apertura=to_char(now(),'yyyy/mm/dd') where ID_PDL="+idPDL+" ");
+				}
+
+				/* Send the data using post */
+				$.post( $( this ).attr( 'action' ), $(this).serialize(),function( response ) { 
+					var result = eval('('+response+')');
+					$( "#dt" ).DataTable().ajax.reload();					
+					$( ".alert-success" ).text( result.message ).fadeIn("slow").delay(1500).fadeOut("slow");
+				});
+			});					
+
+			
+		});	        
+		
+    </script> 
+
+</head>
+
+<body>
+
+	<form action="astro" method="post" id="formStampa" name="formStampa">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="StampaRegistroGiornalieroLavori">	
+		<input type="hidden" id="WHERECONDITION" name="WHERECONDITION">
+	</form>
+
+	<form action="astro" method="post" id="formDelete" name="formDelete">
+		<input type="hidden" id="FUNCTIONID_DELETE" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="DELETE">
+		<input type="hidden" id="keyField" name="keyField">
+		<input type="hidden" id="keyValue" name="keyValue">
+	</form>
+	
+	
+	<form action="astro" method="get" id="forEdit" name="forEdit">
+		<input type="hidden" id="FUNCTIONID_EDIT" name="FUNCTIONID">
+		<input type="hidden" name="OPERATION_TYPE" value="UPDATE">
+		<input type="hidden" id="ID_PDL" name="ID_PDL">
+	</form>		
+	
+	<form action="astro" id="formAvanza" name="formAvanza" method="post">
+		<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="ExecuteSQLWithMail">
+		<input type="hidden" id="SQL_STATEMENT" name="SQL_STATEMENT">
+		<input type="hidden" id="ID_PDL_AVANZAMENTO" name="ID_PDL_AVANZAMENTO">
+		<input type="hidden" id="DESCR_IMPIANTO_AVANZAMENTO" name="DESCR_IMPIANTO_AVANZAMENTO">
+		<input type="hidden" id="DESCR_AREA_AVANZAMENTO" name="DESCR_AREA_AVANZAMENTO">
+		<input type="hidden" id="STATO_AVANZAMENTO" name="STATO_AVANZAMENTO">
+		<input type="hidden" id="DATA_AVANZAMENTO" name="DATA_AVANZAMENTO" value="<#if DATA_AVANZAMENTO?exists>${DATA_AVANZAMENTO}</#if>">
+	</form>
+
+	<div class="modal inmodal fade" id="modalQuestionDialogAvanzamento"	tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<span class="modal-title"></span>
+				</div>
+				<div class="modal-body">
+					<span class="modal-text"></span>
+				</div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm"	onclick="$('#modalQuestionDialogAvanzamento').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialogAvanzamento').collapse('toggle');$('#formAvanza').submit();" data-dismiss="modal" type="submit">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	<div class="modal inmodal fade" id="modalAlert" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalAlert').collapse('hide');">${label_ok}</button>
+				</div>
+			</div>
+		</div>
+	</div>		
+	
+	<div class="modal inmodal fade" id="modalQuestionDialog" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialog').collapse('toggle');$('#formDelete').submit();" data-dismiss="modal" type="button">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	<div class="modal inmodal fade" id="modalQuestionDialogPrint" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header"><span class="modal-title"></span></div>
+				<div class="modal-body"><span class="modal-text"></span></div>
+				<div class="modal-footer">
+					<button type="button" data-dismiss="modal" class="btn btn-white btn-sm" onclick="$('#modalQuestionDialog').collapse('hide');">${label_no}</button>
+					<button class="btn btn-primary btn-sm" onclick="$('#modalQuestionDialogPrint').collapse('toggle');$('#formStampa').submit();" data-dismiss="modal" type="button">${label_si}</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	
+	
+	<div id="wrapper">
+
+		<#if INCLUDED_MENU?exists><#include INCLUDED_MENU></#if>
+
+		<div id="page-wrapper" class="gray-bg">
+		
+			<#if INCLUDED_HEADER?exists><#include INCLUDED_HEADER></#if>
+           
+			<div class="row">
+                <div class="col-sm-12">
+				
+                    <div class="ibox float-e-margins">
+					
+						<!-- bread crumb-->
+	                    <div class="ibox-title">
+							<#if INCLUDED_BOX_TITLE?exists><#include INCLUDED_BOX_TITLE></#if>
+	                    </div>						
+
+						<!-- contenuto form-->
+                        <div class="ibox-content">
+                                   
+							<div class="row">
+								<div class="col-sm-12">							
+							
+									<form action="astro" method="get" id="formSearch" name="formSearch" class="form-horizontal">
+										<input type="hidden" id="FUNCTIONID" name="FUNCTIONID" value="RicercaPDL">
+										
+										
+										<#if PROFILO?contains('SPL') || PROFILO?contains('PLA')>
+											<div class="form-group">
+			                                	<label class="col-sm-2 control-label-left">${label_sito}</label>
+			                                    <div class="col-sm-4">
+				                                    <select id="ID_AZIENDA" name="ID_AZIENDA"  class="form-control">
+				                                    </select>
+												</div>
+												
+			                                	<label class="col-sm-2 control-label-left">Impianto:</label>
+			                                    <div class="col-sm-4">
+				                                    <select id="ID_IMPIANTO" name="ID_IMPIANTO"  class="form-control">
+				                                    </select>
+												</div>
+			                                </div>
+			                                    
+			                                <div class="form-group">
+			                                	<label class="col-sm-2 control-label-left">Area di lavoro:</label>
+			                                    <div class="col-sm-4">
+				                                    <select id="ID_AREA" name="ID_AREA"  class="form-control">
+				                                    </select>
+												</div>
+												
+			                                	<label class="col-sm-2 control-label-left">Equipment:</label>
+			                                    <div class="col-sm-4">
+				                                    <select id="ID_EQUIPMENT" name="ID_EQUIPMENT"  class="form-control">
+				                                    </select>
+												</div>
+			                                </div>
+		                                </#if>
+		                                
+		                                
+		                                <div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">Stato Permesso:</label>
+		                                    <div class="col-sm-4">
+			                                    <select id="STATO" name="STATO"  class="form-control" multiple>
+			                                    </select>
+												<input type="checkbox" id="CHECKBOX_STATO">${label_select_all}
+											</div>
+											
+		                                	<label class="col-sm-1 control-label-left">Nr.PdL:</label>
+		                                    <div class="col-sm-2"><input type="text" class="form-control" id="NR_PDL" name="NR_PDL"></div>
+
+		                                	<label class="col-sm-1 control-label-left">Anno:</label>
+		                                    <div class="col-sm-2">
+			                                    <select id="ANNO" name="ANNO" class="form-control">
+			                                    </select>
+											</div>
+
+		                                </div>
+		                                
+		                                <div class="form-group">
+		                                	<label class="col-sm-2">Includi PdL Fermata (T/A):</label>
+		                                    <div class="col-sm-10">
+				                                <input id="FLG_TA" name="FLG_TA" type="checkbox">
+											</div>
+		                                </div>
+		                                
+		                                
+		                                
+		                                <div class="form-group">
+		                                	<label class="col-sm-2 control-label-left">Ricerca in linea:</label>
+		                                    <div class="col-sm-10">
+				                                <input type="text" id="free-text-search" name="free-text-search"  class="form-control" placeholder="digita il testo che vuoi cercare per aggiornare subito i risultati">
+											</div>
+		                                </div>
+		                                
+		                                
+										<div class="form-group">
+											<div class="col-sm-6">
+												<button class="btn btn-primary btn-sm" id="ricerca" type="submit" name="ricerca">${label_search}</button>
+												<button class="btn btn-primary btn-sm" type="button" id="report" name="report">Stampa Registro PDF</button>
+											</div>
+											
+											<div class="col-sm-6">
+												<fieldset>
+													${label_legenda}:
+													<i class="fa fa-search" aria-hidden="true"></i>Visualizza
+													<i class="fa fa-play" aria-hidden="true"></i>Attiva PdL
+													<i class="fa fa-pause" aria-hidden="true"></i>Sospendi PdL
+													<i class="fa fa-stop" aria-hidden="true"></i>Chiudi PdL
+													<#if PROFILO?contains('PLA') || PROFILO?contains('RCD') || PROFILO?contains('ADM') || PROFILO?contains('INT') || PROFILO?contains('SPL')>
+													<i class="fa fa-repeat" aria-hidden="true"></i>Ri-Apri PdL
+													</#if>
+												</fieldset>											
+											</div>
+											
+										</div>				
+									
+									</form>
+									
+									<div class="hr-line-dashed"></div>
+						
+
+			
+			                        <div class="table-responsive">
+										<table id="dt" class="table table-striped table-bordered table-hover" >
+											<thead>
+												<tr>
+													<th></th>
+													<th></th>
+													<th></th>
+													<th></th>
+													<th></th>
+													<th>Stato</th>
+													<th>Nr.PdL</th>
+													<th>Data creazione</th>
+													<th>Fermata (T/A)</th>
+													<th>Data Chiusura</th>
+													<th>Utente Chiusura</th>
+													<th>Impianto</th>
+													<th>Area</th>
+													<th>Equipment</th>
+													<th>Descrizione Lavoro&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+													<th>Permit Issuer / Delegato</th>
+													<th>Impresa</th>
+													<th>Preposto Impresa</th>
+													<th>Pers. Interno</th>
+													<th>Delegato Lavori ALI</th>
+													<th>Utente prima attiv.</th>
+													<th>Data prima attiv.</th>
+													<th>Utente ultima attiv.</th>
+													<th>Data ultima attiv.</th>
+													<th>Ora ultima attiv.</th>
+													<th>Turno Attivazione</th>
+													<th>Data Sosp.</th>
+													<th>Motivo sospensione</th>
+													<th>Motivo scadenza</th>
+													<th>OdL / Invest.</th>
+												</tr>
+											</thead>
+										
+										</table>
+			                        </div>
+
+                    			</div>
+					
+                			</div>
+						</div>
+            		</div>
+				</div>
+			</div>
+						
+			<#if INCLUDED_FOOTER_PDLWEB?exists><#include INCLUDED_FOOTER_PDLWEB></#if>
+		
+		</div>
+
+	</div>
+	
+
+</body>
+
+</html>
